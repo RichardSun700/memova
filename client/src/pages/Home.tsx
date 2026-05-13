@@ -583,7 +583,7 @@ export default function Home() {
       </nav>
 
       {/* ─── HERO ─── */}
-      <section className="relative pt-36 pb-28 md:pt-52 md:pb-40 overflow-hidden">
+      <section className="relative pt-30 pb-20 md:pt-52 md:pb-40 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#EDF5FC]/60 via-white/0 to-[#FAFCFF]" />
         <div
           className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -595,25 +595,25 @@ export default function Home() {
         <div className="container relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <SectionLabel>The most intuitive AI agent</SectionLabel>
-            <h1 className="font-serif text-[2.75rem] sm:text-[3.5rem] md:text-[4.5rem] lg:text-[5.5rem] text-[#0F2B3C] leading-[1.05] tracking-[-0.02em] mb-7">
+            <h1 className="font-serif text-[2.3rem] sm:text-[3.5rem] md:text-[4.5rem] lg:text-[5.5rem] text-[#0F2B3C] leading-[1.05] tracking-[-0.02em] mb-6 md:mb-7">
               The memo that moves
               <br />
               <em className="text-[#3B7CB8] not-italic">with your thoughts.</em>
             </h1>
-            <p className="text-[15px] md:text-[17px] text-[#2E5B82]/55 font-light leading-relaxed max-w-lg mx-auto mb-12">
+            <p className="text-[15px] md:text-[17px] text-[#2E5B82]/55 font-light leading-relaxed max-w-lg mx-auto mb-9 md:mb-12">
               Messy notes become confirmed actions — calendar events, email
               drafts, and a daily plan.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="flex flex-row flex-wrap items-center justify-center gap-2.5 sm:gap-3">
               <a
                 href="#waitlist"
-                className="px-8 py-3.5 bg-[#0F2B3C] text-white text-[14px] font-semibold rounded-full hover:bg-[#1A3A5C] transition-all hover:shadow-xl hover:shadow-[#0F2B3C]/15 hover:-translate-y-0.5"
+                className="px-6 sm:px-8 py-3.5 bg-[#0F2B3C] text-white text-[14px] font-semibold rounded-full hover:bg-[#1A3A5C] transition-all hover:shadow-xl hover:shadow-[#0F2B3C]/15 hover:-translate-y-0.5"
               >
                 Join Waitlist
               </a>
               <a
                 href="#workflow"
-                className="px-8 py-3.5 text-[#2E5B82] text-[14px] font-semibold rounded-full border border-[#D4E9F7] hover:bg-[#EDF5FC] transition-all"
+                className="px-6 sm:px-8 py-3.5 text-[#2E5B82] text-[14px] font-semibold rounded-full border border-[#D4E9F7] hover:bg-[#EDF5FC] transition-all"
               >
                 See Workflow
               </a>
@@ -621,11 +621,11 @@ export default function Home() {
           </div>
 
           {/* Pipeline pills */}
-          <div className="mt-20 max-w-4xl mx-auto">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4">
+          <div className="mt-14 md:mt-20 max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 justify-items-center gap-2.5 sm:flex sm:flex-row sm:items-center sm:justify-center sm:gap-4">
               {[PenLine, Sparkles, CircleCheck, Send].map((Icon, i) => (
-                <div key={i} className="flex items-center gap-3 md:gap-4">
-                  <div className="flex items-center gap-2 px-4 py-2.5 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-[#E8F0F8]/80">
+                <div key={i} className="flex items-center gap-3 sm:gap-4">
+                  <div className="flex min-w-[116px] items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-[#E8F0F8]/80">
                     <span className="text-[#6FA8D9]">
                       <Icon className="w-3.5 h-3.5" />
                     </span>
@@ -634,7 +634,7 @@ export default function Home() {
                     </span>
                   </div>
                   {i < 3 && (
-                    <ArrowRight className="w-4 h-4 text-[#D4E9F7] rotate-90 md:rotate-0 shrink-0" />
+                    <ArrowRight className="hidden sm:block w-4 h-4 text-[#D4E9F7] shrink-0" />
                   )}
                 </div>
               ))}
@@ -644,9 +644,9 @@ export default function Home() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section id="workflow" className="py-28 md:py-40 bg-white">
+      <section id="workflow" className="py-20 md:py-40 bg-white">
         <div className="container">
-          <div className="text-center mb-20">
+          <div className="text-center mb-14 md:mb-20">
             <SectionLabel>How it works</SectionLabel>
             <h2 className="font-serif text-[2rem] sm:text-[2.75rem] md:text-[3.5rem] text-[#0F2B3C] leading-[1.1] tracking-[-0.015em]">
               Capture. Understand.
@@ -687,9 +687,9 @@ export default function Home() {
       </section>
 
       {/* ─── USE CASES ─── */}
-      <section id="use-cases" className="py-28 md:py-40 bg-[#FAFCFF] overflow-hidden">
+      <section id="use-cases" className="py-20 md:py-40 bg-[#FAFCFF] overflow-hidden">
         <div className="container">
-          <div className="text-center mb-24">
+          <div className="text-center mb-16 md:mb-24">
             <SectionLabel>Use Cases</SectionLabel>
             <h2 className="font-serif text-[2rem] sm:text-[2.75rem] md:text-[3.5rem] text-[#0F2B3C] leading-[1.1] tracking-[-0.015em]">
               Real scenarios.
@@ -699,7 +699,7 @@ export default function Home() {
           </div>
 
           {/* Use Case 01: Scribble to structure */}
-          <div className="max-w-6xl mx-auto mb-32">
+          <div className="max-w-6xl mx-auto mb-24 md:mb-32">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-10 h-10 rounded-full bg-[#0F2B3C] flex items-center justify-center text-white text-[13px] font-bold shrink-0">
                 01
@@ -796,8 +796,8 @@ export default function Home() {
           </div>
 
           {/* Use Case 02: Voice to calendar */}
-          <div className="max-w-6xl mx-auto mb-32">
-            <div className="flex items-center gap-4 mb-8 lg:justify-end">
+          <div className="max-w-6xl mx-auto mb-24 md:mb-32">
+            <div className="flex flex-row-reverse items-center justify-end gap-4 mb-8 lg:flex-row lg:justify-end">
               <div>
                 <h3 className="text-[24px] md:text-[28px] font-serif text-[#0F2B3C] tracking-[-0.01em] lg:text-right">
                   Voice to calendar.
@@ -917,12 +917,12 @@ export default function Home() {
           </div>
 
           {/* Use Case 03: Files to briefing */}
-          <div className="max-w-6xl mx-auto mb-32">
+          <div className="max-w-6xl mx-auto mb-24 md:mb-32">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-10 h-10 rounded-full bg-[#0F2B3C] flex items-center justify-center text-white text-[13px] font-bold shrink-0">
                 03
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
                 <h3 className="text-[24px] md:text-[28px] font-serif text-[#0F2B3C] tracking-[-0.01em]">
                   Files to briefing.
                 </h3>
