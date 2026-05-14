@@ -73,17 +73,23 @@ function MemovaBadge() {
         </div>
       </div>
 
-      <div className="hidden lg:flex flex-col items-center justify-center py-0 px-2">
-      <div className="relative">
-        <div className="absolute inset-0 bg-[#6FA8D9]/20 rounded-full blur-xl scale-150" />
-        <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-[#2E5B82] to-[#6FA8D9] flex items-center justify-center shadow-lg shadow-[#2E5B82]/20">
-          <Zap className="w-5 h-5 text-white" />
+      <div className="hidden lg:flex flex-col items-center justify-center px-4">
+        <div className="relative flex h-20 w-32 items-center justify-center">
+          <div className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-[#D4E9F7] to-[#D4E9F7]" />
+          <ArrowRight className="absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6FA8D9]/70" />
+          <div className="absolute inset-0 m-auto h-14 w-14 rounded-full bg-[#6FA8D9]/20 blur-xl" />
+          <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-[#2E5B82] to-[#6FA8D9] flex items-center justify-center shadow-lg shadow-[#2E5B82]/20">
+            <Zap className="w-5 h-5 text-white" />
+          </div>
+        </div>
+        <div className="flex w-32 items-center justify-between text-[9px] font-bold uppercase tracking-[0.13em]">
+          <span className="text-[#2E5B82]/35">Input</span>
+          <span className="text-[#6FA8D9]/75">Output</span>
+        </div>
+        <div className="mt-1 text-[10px] font-bold tracking-[0.15em] text-[#6FA8D9]/60 uppercase">
+          MEMOVA
         </div>
       </div>
-      <div className="mt-2 text-[10px] font-bold tracking-[0.15em] text-[#6FA8D9]/60 uppercase">
-        MEMOVA
-      </div>
-    </div>
     </>
   );
 }
@@ -819,22 +825,22 @@ export default function Home() {
 
           {/* Use Case 02: Voice to calendar */}
           <div className="max-w-6xl mx-auto mb-24 md:mb-32">
-            <div className="flex flex-row-reverse items-center justify-end gap-4 mb-8 lg:flex-row lg:justify-end">
-              <div>
-                <h3 className="text-[24px] md:text-[28px] font-serif text-[#0F2B3C] tracking-[-0.01em] lg:text-right">
-                  Voice to calendar.
-                </h3>
-                <p className="text-[13px] text-[#2E5B82]/50 font-medium mt-1 lg:text-right">
-                  One sentence creates a confirmed meeting invite.
-                </p>
-              </div>
+            <div className="flex items-center gap-4 mb-8">
               <div className="w-10 h-10 rounded-full bg-[#0F2B3C] flex items-center justify-center text-white text-[13px] font-bold shrink-0">
                 02
               </div>
+              <div>
+                <h3 className="text-[24px] md:text-[28px] font-serif text-[#0F2B3C] tracking-[-0.01em]">
+                  Voice to calendar.
+                </h3>
+                <p className="text-[13px] text-[#2E5B82]/50 font-medium mt-1">
+                  One sentence creates a confirmed meeting invite.
+                </p>
+              </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-6 lg:gap-0 items-center">
-              {/* Left: Calendar output */}
-              <div className="relative order-3 lg:order-1">
+              {/* Calendar output */}
+              <div className="relative order-3">
                 <div className="absolute -inset-1 bg-gradient-to-br from-[#2E5B82]/5 to-transparent rounded-3xl" />
                 <div className="relative rounded-2xl bg-white border-2 border-[#E8F0F8] shadow-lg shadow-[#2E5B82]/[0.06] overflow-hidden">
                   <div className="px-5 py-3 bg-gradient-to-r from-[#0F2B3C] to-[#2E5B82] flex items-center gap-2">
@@ -898,8 +904,8 @@ export default function Home() {
                 <MemovaBadge />
               </div>
 
-              {/* Right: Voice recording */}
-              <div className="relative order-1 lg:order-3">
+              {/* Voice recording */}
+              <div className="relative order-1">
                 <div className="absolute -inset-1 bg-gradient-to-br from-[#E8F0F8] to-transparent rounded-3xl opacity-60" />
                 <div className="relative rounded-2xl bg-white border-2 border-[#E8F0F8] shadow-lg shadow-[#2E5B82]/[0.06] overflow-hidden">
                   <div className="px-5 py-3 bg-[#F5F0E8] border-b border-[#E8E0D0] flex items-center gap-2">
