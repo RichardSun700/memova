@@ -34,7 +34,7 @@ export default function SiteFooter() {
             </a>
           </div>
           <p className="text-[10px] font-medium text-[#2E5B82]/30">
-            © 2025 Memova
+            © 2026 Memova
           </p>
         </div>
       </div>
