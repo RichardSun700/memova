@@ -62,7 +62,7 @@ export default function ConnectedClients() {
   const handleRevoke = async (connection: McpConnection) => {
     if (!auth.token || connection.status !== "active") return;
     const confirmed = window.confirm(
-      `Revoke access for ${connection.client_name || connection.client_id}?`
+      `Revoke access for ${formatClientName(connection)}?`
     );
     if (!confirmed) return;
 
@@ -157,12 +157,12 @@ function ConnectionCard({
           <div className="min-w-0">
             <div className="mb-2 flex flex-wrap items-center gap-2">
               <CardTitle className="break-words text-xl text-[#0F2B3C]">
-                {connection.client_name || "MCP client"}
+                {formatClientName(connection)}
               </CardTitle>
               <StatusBadge status={connection.status} />
             </div>
             <CardDescription className="break-words text-[#2E5B82]/55">
-              {connection.client_uri || connection.client_id}
+              {formatClientSubtitle(connection)}
             </CardDescription>
           </div>
         </div>
@@ -181,7 +181,7 @@ function ConnectionCard({
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2">
           <InfoBlock
             label="Connected"
             value={formatDate(connection.connected_at)}
@@ -189,10 +189,6 @@ function ConnectionCard({
           <InfoBlock
             label="Last used"
             value={formatDate(connection.last_used_at)}
-          />
-          <InfoBlock
-            label="Access expires"
-            value={formatDate(connection.access_expires_at)}
           />
         </div>
 
@@ -302,4 +298,18 @@ function formatDate(value?: string | null): string {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function formatClientSubtitle(connection: McpConnection): string {
+  if (!connection.client_uri) return "MCP client";
+
+  try {
+    return new URL(connection.client_uri).hostname;
+  } catch {
+    return connection.client_uri;
+  }
+}
+
+function formatClientName(connection: McpConnection): string {
+  return connection.client_name?.trim() || "MCP client";
 }
