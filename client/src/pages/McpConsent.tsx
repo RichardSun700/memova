@@ -4,7 +4,6 @@ import {
   ChevronDown,
   ExternalLink,
   Loader2,
-  ShieldAlert,
   ShieldCheck,
   ShieldX,
 } from "lucide-react";
@@ -114,58 +113,36 @@ export default function McpConsent() {
 
   return (
     <AccountShell
-      title={
-        request ? `Connect ${clientLabel} to Memova` : "Connect an app to Memova"
-      }
-      subtitle={
-        request
-          ? `${clientLabel} is requesting access to your Memova workspace.`
-          : "Review this request before connecting it to your Memova workspace."
-      }
+      compact
+      title={request ? `Connect ${clientLabel}` : "Connect app"}
+      subtitle="Approve only if you just started this connection from Codex."
     >
       {loading ? (
         <LoadingState />
       ) : request ? (
-        <div className="mx-auto max-w-3xl">
+        <div className="max-w-2xl">
           <Card className="rounded-xl border-[#DCEBF6] bg-white shadow-lg shadow-[#2E5B82]/[0.04]">
-            <CardHeader className="gap-5">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-4">
                 <ClientMark request={request} />
                 <div className="min-w-0">
                   <CardTitle className="break-words text-xl text-[#0F2B3C]">
                     {request.client_name || "MCP client"}
                   </CardTitle>
                   <CardDescription className="mt-1 break-words text-[#2E5B82]/55">
-                    Wants to connect to your Memova workspace.
+                    {auth.user?.email} ·{" "}
+                    {formatWorkspaceName(auth.workspace?.name, auth.user?.email)}
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <Alert className="border-[#D4E9F7] bg-[#F8FBFE]">
-                <CheckCircle2 className="h-4 w-4 text-[#2E5B82]" />
-                <AlertTitle>Signed in as {auth.user?.email}</AlertTitle>
-                <AlertDescription>
-                  This connection will use{" "}
-                  {auth.workspace?.name || "your default workspace"}.
-                </AlertDescription>
-              </Alert>
-
+            <CardContent className="space-y-4">
               <section>
-                <h2 className="text-lg font-bold text-[#0F2B3C]">
-                  {clientLabel} will be able to:
+                <h2 className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#2E5B82]/55">
+                  Access requested
                 </h2>
                 <PermissionList scopes={request.scopes} />
               </section>
-
-              <Alert className="border-[#FDE68A] bg-[#FFFBEB]">
-                <ShieldAlert className="h-4 w-4 text-[#B45309]" />
-                <AlertTitle>Only approve requests you started</AlertTitle>
-                <AlertDescription>
-                  Approve this only if you just started connecting Memova from{" "}
-                  {clientLabel}.
-                </AlertDescription>
-              </Alert>
 
               {request.status !== "pending" && (
                 <Alert className="border-[#FDE68A] bg-[#FEF3C7]/70">
@@ -177,11 +154,11 @@ export default function McpConsent() {
                 </Alert>
               )}
 
-              <div className="grid gap-2">
+              <div className="grid grid-cols-2 gap-2 pt-1">
                 <Button
                   onClick={() => void handleApprove()}
                   disabled={submitting !== null || request.status !== "pending"}
-                  className="h-11 rounded-lg bg-[#0F2B3C] text-white hover:bg-[#1A3A5C]"
+                  className="h-10 rounded-lg bg-[#0F2B3C] px-3 text-[13px] text-white hover:bg-[#1A3A5C]"
                 >
                   {submitting === "approve" ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -194,7 +171,7 @@ export default function McpConsent() {
                   variant="outline"
                   onClick={() => void handleDeny()}
                   disabled={submitting !== null || request.status !== "pending"}
-                  className="h-11 rounded-lg border-[#D4E9F7] text-[#2E5B82]"
+                  className="h-10 rounded-lg border-[#D4E9F7] px-3 text-[13px] text-[#2E5B82]"
                 >
                   {submitting === "deny" ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -204,6 +181,11 @@ export default function McpConsent() {
                   Deny
                 </Button>
               </div>
+
+              <p className="text-[12px] leading-5 text-[#2E5B82]/55">
+                This gives {clientLabel} access to the items listed above until
+                you revoke it in Connected clients.
+              </p>
 
               <TechnicalDetails request={request} />
             </CardContent>
@@ -226,23 +208,14 @@ function PermissionList({ scopes }: { scopes: string[] }) {
   const permissions = summarizeScopes(scopes);
 
   return (
-    <ul className="mt-3 grid gap-3">
+    <ul className="mt-3 flex flex-wrap gap-2">
       {permissions.map(permission => (
         <li
           key={permission.label}
-          className="flex gap-3 rounded-lg border border-[#EDF3FA] bg-[#FAFCFF] px-4 py-3"
+          className="inline-flex items-center gap-2 rounded-full border border-[#D4E9F7] bg-[#F8FBFE] px-3 py-2 text-[13px] font-semibold text-[#0F2B3C]"
         >
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#2E5B82]" />
-          <div>
-            <div className="text-[14px] font-semibold text-[#0F2B3C]">
-              {permission.label}
-            </div>
-            {permission.description && (
-              <div className="mt-1 text-[12px] leading-5 text-[#2E5B82]/60">
-                {permission.description}
-              </div>
-            )}
-          </div>
+          <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#2E5B82]" />
+          {permission.label}
         </li>
       ))}
     </ul>
@@ -298,41 +271,29 @@ function TechnicalDetails({ request }: { request: McpAuthorizationRequest }) {
 
 type PermissionSummary = {
   label: string;
-  description?: string;
 };
 
 const permissionGroups = [
   {
     read: "notes.read",
     write: "notes.write",
-    readLabel: "Read your notes",
-    writeLabel: "Create and update notes",
-    manageLabel: "Read and manage notes",
-    readDescription: "Let this client reference notes stored in Memova.",
-    writeDescription: "Let this client add or update notes in Memova.",
-    manageDescription:
-      "Let this client reference, add, and update notes in Memova.",
+    readLabel: "Read notes",
+    writeLabel: "Write notes",
+    manageLabel: "Read and write notes",
   },
   {
     read: "actions.read",
     write: "actions.write",
-    readLabel: "Read your actions",
-    writeLabel: "Create and update actions",
-    manageLabel: "Read and manage actions",
-    readDescription: "Let this client view actions in your workspace.",
-    writeDescription: "Let this client add or update actions for you.",
-    manageDescription: "Let this client view, add, and update actions for you.",
+    readLabel: "Read actions",
+    writeLabel: "Write actions",
+    manageLabel: "Read and write actions",
   },
   {
     read: "automation.read",
     write: "automation.write",
-    readLabel: "Read your automations",
-    writeLabel: "Create and update automations",
-    manageLabel: "Read and manage automations",
-    readDescription: "Let this client view automations in your workspace.",
-    writeDescription: "Let this client add or update automations for you.",
-    manageDescription:
-      "Let this client view, add, and update automations for you.",
+    readLabel: "Read automations",
+    writeLabel: "Write automations",
+    manageLabel: "Read and write automations",
   },
 ] satisfies Array<{
   read: string;
@@ -340,9 +301,6 @@ const permissionGroups = [
   readLabel: string;
   writeLabel: string;
   manageLabel: string;
-  readDescription: string;
-  writeDescription: string;
-  manageDescription: string;
 }>;
 
 function summarizeScopes(scopes: string[]): PermissionSummary[] {
@@ -359,17 +317,14 @@ function summarizeScopes(scopes: string[]): PermissionSummary[] {
     if (hasRead && hasWrite) {
       summaries.push({
         label: group.manageLabel,
-        description: group.manageDescription,
       });
     } else if (hasRead) {
       summaries.push({
         label: group.readLabel,
-        description: group.readDescription,
       });
     } else if (hasWrite) {
       summaries.push({
         label: group.writeLabel,
-        description: group.writeDescription,
       });
     }
   }
@@ -378,15 +333,13 @@ function summarizeScopes(scopes: string[]): PermissionSummary[] {
     if (!handled.has(scope)) {
       summaries.push({
         label: humanizeScope(scope),
-        description: "Additional access requested by this client.",
       });
     }
   }
 
   if (summaries.length === 0) {
     summaries.push({
-      label: "Connect to your workspace",
-      description: "No specific workspace permissions were listed.",
+      label: "Connect to workspace",
     });
   }
 
@@ -400,6 +353,25 @@ function humanizeScope(scope: string): string {
     .trim();
   if (!label) return "Additional workspace access";
   return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+function formatWorkspaceName(
+  workspaceName: string | undefined,
+  email: string | undefined
+): string {
+  if (!workspaceName) return "Personal workspace";
+  if (!email) return workspaceName;
+
+  const normalizedWorkspace = workspaceName.trim().toLowerCase();
+  const normalizedEmail = email.trim().toLowerCase();
+  if (
+    normalizedWorkspace === `${normalizedEmail} workspace` ||
+    normalizedWorkspace === normalizedEmail
+  ) {
+    return "Personal workspace";
+  }
+
+  return workspaceName;
 }
 
 function ClientMark({ request }: { request: McpAuthorizationRequest }) {

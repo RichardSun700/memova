@@ -10,6 +10,7 @@ type AccountShellProps = {
   subtitle?: string;
   children: ReactNode;
   actions?: ReactNode;
+  compact?: boolean;
 };
 
 const navItems = [
@@ -22,6 +23,7 @@ export default function AccountShell({
   subtitle,
   children,
   actions,
+  compact = false,
 }: AccountShellProps) {
   const [location, setLocation] = useLocation();
   const auth = useAuth();
@@ -89,17 +91,42 @@ export default function AccountShell({
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <main
+        className={cn(
+          "mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6 lg:px-8",
+          compact ? "py-6" : "py-10"
+        )}
+      >
+        <div
+          className={cn(
+            "flex flex-col gap-4 md:flex-row md:items-end md:justify-between",
+            compact ? "mb-5" : "mb-8"
+          )}
+        >
           <div>
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#6FA8D9]">
+            <p
+              className={cn(
+                "text-[11px] font-bold uppercase tracking-[0.22em] text-[#6FA8D9]",
+                compact ? "mb-2" : "mb-3"
+              )}
+            >
               Memova MCP
             </p>
-            <h1 className="font-serif text-[2.1rem] leading-[1.05] tracking-[-0.01em] text-[#0F2B3C] sm:text-[3rem]">
+            <h1
+              className={cn(
+                "font-serif leading-[1.05] tracking-[-0.01em] text-[#0F2B3C]",
+                compact ? "text-[1.9rem] sm:text-[2.4rem]" : "text-[2.1rem] sm:text-[3rem]"
+              )}
+            >
               {title}
             </h1>
             {subtitle && (
-              <p className="mt-3 max-w-2xl text-[14px] leading-6 text-[#2E5B82]/60">
+              <p
+                className={cn(
+                  "max-w-2xl text-[14px] leading-6 text-[#2E5B82]/60",
+                  compact ? "mt-2" : "mt-3"
+                )}
+              >
                 {subtitle}
               </p>
             )}
