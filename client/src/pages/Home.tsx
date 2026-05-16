@@ -15,6 +15,7 @@ import {
   LogOut,
   Zap,
   UserRound,
+  Server,
 } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import { useAuth } from "@/contexts/AuthContext";
@@ -623,6 +624,12 @@ export default function Home() {
               className="text-[13px] font-medium text-[#2E5B82]/60 hover:text-[#0F2B3C] transition-colors"
             >
               Integrations
+            </a>
+            <a
+              href="/mcp"
+              className="text-[13px] font-medium text-[#2E5B82]/60 hover:text-[#0F2B3C] transition-colors"
+            >
+              MCP
             </a>
             {auth.isAuthenticated ? (
               <button
@@ -1262,6 +1269,65 @@ export default function Home() {
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── MCP ─── */}
+      <section className="border-y border-[#E8F0F8]/70 bg-[#FAFCFF] py-20 md:py-28">
+        <div className="container">
+          <div className="grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <SectionLabel>Remote MCP beta</SectionLabel>
+              <h2 className="font-serif text-[2rem] leading-[1.1] tracking-[-0.015em] text-[#0F2B3C] sm:text-[2.75rem]">
+                Use Memova from your AI agent.
+              </h2>
+              <p className="mt-4 max-w-xl text-[14px] font-medium leading-6 text-[#2E5B82]/55">
+                Connect Codex, Claude, Cursor, or any MCP-compatible client to
+                search notes, read action items, and update task progress with
+                your approval.
+              </p>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="/mcp"
+                  className="inline-flex h-11 items-center justify-center rounded-full bg-[#0F2B3C] px-6 text-[13px] font-semibold text-white transition-all hover:bg-[#1A3A5C]"
+                >
+                  View MCP setup
+                </a>
+                <a
+                  href="/connected-clients"
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-[#D4E9F7] bg-white px-6 text-[13px] font-semibold text-[#2E5B82] transition-all hover:bg-[#EDF5FC]"
+                >
+                  Manage clients
+                </a>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[#DCEBF6] bg-white p-5 shadow-xl shadow-[#2E5B82]/[0.04]">
+              <div className="flex items-center gap-3 border-b border-[#EDF3FA] pb-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EDF5FC] text-[#2E5B82]">
+                  <Server className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#2E5B82]/45">
+                    MCP endpoint
+                  </div>
+                  <div className="break-all text-[14px] font-bold text-[#0F2B3C]">
+                    https://api.memova.ai/mcp
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                {["Read notes", "Write actions", "Track tasks"].map(item => (
+                  <div
+                    key={item}
+                    className="rounded-lg border border-[#EDF3FA] bg-[#F8FBFE] px-3 py-2 text-[12px] font-semibold text-[#2E5B82]"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>

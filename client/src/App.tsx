@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ConnectedClients from "@/pages/ConnectedClients";
 import Login from "@/pages/Login";
+import Mcp from "@/pages/Mcp";
 import McpConsent from "@/pages/McpConsent";
 import NotFound from "@/pages/NotFound";
 import Profile from "@/pages/Profile";
@@ -23,6 +24,7 @@ function Router() {
         component={ConnectedClients}
       />
       <Route path={"/mcp/oauth/consent"} component={McpConsent} />
+      <Route path={"/mcp"} component={Mcp} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
