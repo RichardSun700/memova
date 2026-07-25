@@ -1279,9 +1279,10 @@ body:has(#knowledge-base) .folio {
   gap: 8px;
   color: #197b9d;
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: clamp(10.5px, .92vw, 12px);
   font-weight: 770;
-  letter-spacing: .14em;
+  letter-spacing: .12em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 .note-status i {
@@ -3903,10 +3904,15 @@ button:focus-visible {
   margin: 0;
   color: var(--muted);
   font-family: var(--mono);
-  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+.beat-meta p {
+  font-size: clamp(10.5px, 0.92vw, 12px);
+}
+.beat-meta time {
+  font-size: clamp(9.5px, 0.82vw, 10.5px);
 }
 .beat-meta.compact {
   margin-bottom: 16px;
@@ -4505,7 +4511,7 @@ button:focus-visible {
 .recording-chapter-title > span {
   color: var(--blue);
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: clamp(10.5px, 0.92vw, 12px);
   font-weight: 780;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -6027,7 +6033,7 @@ button:focus-visible {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.78);
   font-family: var(--mono);
-  font-size: 7px;
+  font-size: 8.5px;
   font-weight: 700;
 }
 .output-actions .is-primary {
@@ -8448,7 +8454,7 @@ body:has(#knowledge-base) .folio {
 .kb-cosmos-trace p {
   margin: 0;
   color: #6b7895;
-  font-size: 7px;
+  font-size: 9px;
   line-height: 1.45;
 }
 .kb-cosmos-trace small {
@@ -11406,6 +11412,104 @@ body:has(#knowledge-base) .folio {
   height: 7px;
   border-width: 1px;
 }
+.return-scene-status span,
+.return-story-footer span {
+  font-size: clamp(7px, 0.65vw, 8px);
+}
+.return-story-header > div:first-child > span {
+  font-size: clamp(10.5px, 0.92vw, 12px);
+  line-height: 1.2;
+}
+.return-scene-track b {
+  font-size: clamp(10px, 0.85vw, 11px);
+  line-height: 1.2;
+}
+.return-scene-track span {
+  font-size: clamp(10.5px, 0.95vw, 12px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.return-book-sequence-title span,
+.return-book-sequence-title small,
+.return-platform-outposts > span,
+.return-platform-outposts > small,
+.return-ask-match-cut > span {
+  font-size: clamp(7px, 0.66vw, 8px);
+}
+.return-platform-outposts article strong {
+  font-size: clamp(8px, 0.74vw, 9px);
+}
+.return-book-page header span,
+.return-book-page p {
+  font-size: clamp(6px, 0.54vw, 6.5px);
+}
+.return-current-page-copy > span,
+.return-source-cluster > span {
+  font-size: clamp(7.5px, 0.7vw, 8.5px);
+}
+.return-current-page-copy > p,
+.return-story-footer p {
+  font-size: clamp(8px, 0.76vw, 9px);
+}
+.return-current-page-copy > button {
+  font-size: clamp(7px, 0.68vw, 8px);
+}
+.return-source-cluster article strong {
+  font-size: clamp(8px, 0.72vw, 8.5px);
+}
+.return-source-cluster article small {
+  font-size: 6px;
+}
+.ask-memova-surface > header span,
+.ask-memova-conversation > span {
+  font-size: clamp(5px, 0.48vw, 5.5px);
+}
+.ask-memova-conversation > ol li,
+.ask-memova-conversation > ol b {
+  font-size: clamp(4.5px, 0.44vw, 5px);
+}
+.ask-memova-context-deck article span {
+  font-size: 7px;
+}
+.ask-memova-context-deck article small,
+.return-story-shell[data-scene=match-cut] .return-source-cluster article small {
+  font-size: 5px;
+}
+.ask-memova-conversation > p,
+.ask-memova-composer span {
+  font-size: clamp(5.5px, 0.5vw, 6px);
+}
+.return-story-shell[data-scene=match-cut] .return-source-cluster article strong {
+  font-size: 7.5px;
+}
+@media (min-width: 721px) {
+  .return-story-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    align-items: end;
+    column-gap: 28px;
+    row-gap: 6px;
+  }
+  .return-story-header > div:first-child {
+    display: contents;
+  }
+  .return-story-header > div:first-child > span {
+    grid-row: 1;
+    grid-column: 1;
+  }
+  .return-story-header h1 {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    max-width: none;
+    white-space: nowrap;
+  }
+  .return-scene-status {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: end;
+  }
+}
 @media (max-width: 900px) {
   .return-platform-outposts {
     right: 16px;
@@ -11458,6 +11562,10 @@ body:has(#knowledge-base) .folio {
     width: 72px;
     height: 105px;
   }
+  .return-book-page header span,
+  .return-book-page p {
+    font-size: 5.5px;
+  }
   .return-book-page:nth-child(1) {
     left: 13%;
   }
@@ -11498,6 +11606,10 @@ body:has(#knowledge-base) .folio {
     width: 56px;
     height: 86px;
     padding: 6px;
+  }
+  .return-book-page header span,
+  .return-book-page p {
+    font-size: 5px;
   }
   .return-current-page {
     width: 180px;
@@ -26207,7 +26319,7 @@ body:has(#knowledge-base) .folio {
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "note-status", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {}),
-                "Output and Share"
+                "Chapter 04 \xB7 Express \xB7 Output & Share"
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", { children: [
                 "From knowledge",
