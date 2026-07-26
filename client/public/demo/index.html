@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
     <script type="module" src="/analytics/ga4-consent.js" data-spa="true"></script>
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
@@ -9964,6 +9964,10 @@ body:has(#knowledge-base) .folio {
     transition: none;
   }
 }
+.context-return-step-story {
+  position: relative;
+  min-height: var(--chapter-viewport);
+}
 .return-story-beat {
   isolation: isolate;
   padding: 18px clamp(24px, 4.2vw, 60px) 16px;
@@ -10103,28 +10107,45 @@ body:has(#knowledge-base) .folio {
   position: relative;
   z-index: 1;
   min-width: 0;
+}
+.return-scene-track button {
+  width: 100%;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 7px;
   padding: 6px 9px;
-  color: var(--brand-muted);
+  appearance: none;
+  color: inherit;
   border: 1px solid rgba(221, 230, 255, 0.92);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.88);
   box-shadow: 0 7px 18px rgba(45, 58, 92, 0.045);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
   transition:
     color 260ms ease,
     border-color 260ms ease,
-    box-shadow 260ms ease;
+    box-shadow 260ms ease,
+    transform 260ms ease;
 }
-.return-scene-track li.is-active {
+.return-scene-track li.is-active button {
   color: var(--brand-ink);
   border-color: rgba(40, 100, 245, 0.4);
   box-shadow: 0 0 0 3px rgba(40, 100, 245, 0.065), 0 8px 19px rgba(45, 58, 92, 0.08);
 }
-.return-scene-track li.is-complete {
+.return-scene-track li.is-complete button {
   color: var(--brand-blue);
+}
+.return-scene-track button:hover {
+  color: var(--brand-ink);
+  border-color: rgba(40, 100, 245, 0.28);
+  transform: translateY(-1px);
+}
+.return-scene-track button:focus-visible {
+  outline: 2px solid rgba(40, 100, 245, 0.48);
+  outline-offset: 3px;
 }
 .return-scene-track b {
   width: 20px;
@@ -10941,7 +10962,7 @@ body:has(#knowledge-base) .folio {
     max-width: 520px;
     font-size: clamp(25px, 4vw, 36px);
   }
-  .return-scene-track li {
+  .return-scene-track button {
     grid-template-columns: auto 1fr;
   }
   .return-scene-track time {
@@ -10976,7 +10997,7 @@ body:has(#knowledge-base) .folio {
   .return-scene-status {
     display: none;
   }
-  .return-scene-track li {
+  .return-scene-track button {
     grid-template-columns: 1fr;
     justify-items: center;
     padding: 5px;
@@ -11018,10 +11039,6 @@ body:has(#knowledge-base) .folio {
     animation: none !important;
     transition: none !important;
   }
-}
-.context-return-scroll-story {
-  height: calc(var(--scroll-story-viewport) + min(420px, 65svh));
-  min-height: 0;
 }
 .return-story-beat {
   padding: 20px clamp(28px, 4.6vw, 68px) 17px;
@@ -11078,13 +11095,36 @@ body:has(#knowledge-base) .folio {
 .return-scene-track li,
 .return-scene-track li.is-active,
 .return-scene-track li.is-complete {
+  display: block;
+  padding: 0;
+  color: #8b96b8;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.return-scene-track button,
+.return-scene-track li.is-active button,
+.return-scene-track li.is-complete button {
   grid-template-columns: auto minmax(0, 1fr);
   gap: 8px;
   padding: 9px 0 6px;
+  color: inherit;
   border: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+}
+.return-scene-track button:hover {
+  color: var(--brand-ink);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(40, 100, 245, 0.045),
+      transparent);
+  transform: none;
+}
+.return-scene-track button:focus-visible {
+  border-radius: 7px;
 }
 .return-scene-track li::before {
   position: absolute;
@@ -11120,11 +11160,112 @@ body:has(#knowledge-base) .folio {
 .return-scene-track time {
   display: none;
 }
+.return-narrative-frame {
+  position: relative;
+  min-height: 0;
+}
 .return-narrative-stage {
+  height: 100%;
   border-color: rgba(142, 156, 199, 0.2);
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.76);
   box-shadow: 0 18px 54px rgba(45, 58, 92, 0.075), inset 0 1px rgba(255, 255, 255, 0.96);
+}
+.return-stage-navigation {
+  position: absolute;
+  z-index: 50;
+  inset: 0;
+  pointer-events: none;
+}
+.return-scene-arrow {
+  position: absolute;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: #6f7da8;
+  border: 1px solid rgba(142, 156, 199, 0.28);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 10px 28px rgba(45, 58, 92, 0.1), inset 0 1px rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  transform: translateY(-50%);
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+.return-scene-arrow--previous {
+  left: -52px;
+}
+.return-scene-arrow--next {
+  right: -52px;
+}
+.return-scene-arrow > svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 1.8;
+}
+.return-scene-arrow:hover:not(:disabled) {
+  color: var(--brand-blue);
+  border-color: rgba(40, 100, 245, 0.36);
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(45, 58, 92, 0.14), 0 0 0 4px rgba(40, 100, 245, 0.045);
+  transform: translateY(-50%) scale(1.045);
+}
+.return-scene-arrow:active:not(:disabled) {
+  transform: translateY(-50%) scale(0.98);
+}
+.return-scene-arrow:focus-visible {
+  outline: 2px solid rgba(40, 100, 245, 0.56);
+  outline-offset: 3px;
+}
+.return-scene-arrow:disabled {
+  opacity: 0.24;
+  box-shadow: none;
+  cursor: default;
+}
+.return-entry-book-visual {
+  position: absolute;
+  z-index: 10;
+  top: -22px;
+  right: -8px;
+  width: min(64%, 620px);
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(14px) scale(0.97);
+  transform-origin: 72% 56%;
+  transition: opacity 180ms ease, transform 260ms cubic-bezier(0.2, 0.78, 0.2, 1);
+}
+.return-entry-book-visual > img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 24px 34px rgba(45, 58, 92, 0.14));
+}
+.return-story-shell[data-scene=page-enter] .return-entry-book-visual {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+.return-story-shell[data-scene=page-enter] .return-current-page {
+  top: 54%;
+  left: 40%;
+  transform: translate(-50%, -50%) scale(var(--return-current-page-scale)) rotate(-2.5deg);
+}
+.return-story-shell[data-scene=page-enter] .return-current-page-copy > button {
+  display: none;
+}
+.return-story-shell[data-scene=page-enter] .return-shared-spine {
+  opacity: 0;
 }
 .return-stage-grid {
   opacity: 0;
@@ -11542,7 +11683,7 @@ body:has(#knowledge-base) .folio {
   .return-scene-track {
     gap: 10px;
   }
-  .return-scene-track li {
+  .return-scene-track button {
     grid-template-columns: 1fr;
     justify-items: start;
     padding: 7px 0 5px;
@@ -11647,10 +11788,668 @@ body:has(#knowledge-base) .folio {
     display: none;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .context-return-scroll-story {
-    height: var(--scroll-story-viewport);
-    min-height: var(--scroll-story-viewport);
+@media (max-width: 1100px) {
+  .return-scene-arrow {
+    width: 40px;
+    height: 40px;
+  }
+  .return-scene-arrow--previous {
+    left: 10px;
+  }
+  .return-scene-arrow--next {
+    right: 10px;
+  }
+  .return-entry-book-visual {
+    right: -2%;
+    width: min(66%, 560px);
+  }
+  .return-story-shell[data-scene=page-enter] .return-current-page {
+    left: 42%;
+  }
+}
+@media (max-width: 720px) {
+  .return-scene-arrow {
+    width: 40px;
+    height: 40px;
+  }
+  .return-scene-arrow--previous {
+    left: 7px;
+  }
+  .return-scene-arrow--next {
+    right: 7px;
+  }
+  .return-entry-book-visual {
+    top: -4px;
+    right: -12%;
+    width: 76%;
+  }
+  .return-story-shell[data-scene=page-enter] .return-current-page {
+    left: 44%;
+  }
+}
+@media (max-width: 520px) {
+  .return-scene-arrow {
+    width: 38px;
+    height: 38px;
+  }
+  .return-scene-arrow--previous {
+    left: 5px;
+  }
+  .return-scene-arrow--next {
+    right: 5px;
+  }
+  .return-entry-book-visual {
+    top: 8px;
+    right: -25%;
+    width: 90%;
+  }
+  .return-story-shell[data-scene=page-enter] .return-current-page {
+    left: 42%;
+  }
+}
+.return-entry-book-visual {
+  z-index: 10;
+  top: 50%;
+  right: 2%;
+  width: min(54%, 560px);
+  transform: translate(16px, -50%) scale(0.97);
+  transform-origin: 68% 54%;
+}
+.return-entry-book-visual > img {
+  filter: drop-shadow(0 24px 38px rgba(45, 58, 92, 0.13));
+}
+.return-story-shell[data-scene=page-enter] .return-entry-book-visual {
+  transform: translate(0, -50%) scale(1);
+}
+.return-story-shell[data-scene=page-enter] .return-book-sequence-title {
+  opacity: 0;
+}
+.return-story-shell[data-scene=page-enter] .return-platform-outposts {
+  right: auto;
+  left: 24px;
+}
+.return-story-shell[data-scene=page-enter] .return-current-page {
+  top: 54%;
+  left: 29%;
+  z-index: 9;
+}
+.return-entry-relationship {
+  position: absolute;
+  z-index: 11;
+  top: 54%;
+  left: 37%;
+  width: 21%;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(40, 100, 245, 0.18),
+      rgba(40, 100, 245, 0.72) 56%,
+      rgba(115, 69, 255, 0.58));
+  box-shadow: 0 0 18px rgba(40, 100, 245, 0.16);
+  transform: scaleX(0.76);
+  transform-origin: left center;
+  transition: opacity 160ms ease, transform 240ms cubic-bezier(0.2, 0.78, 0.2, 1);
+}
+.return-entry-relationship::before,
+.return-entry-relationship::after,
+.return-entry-relationship > i {
+  position: absolute;
+  top: 50%;
+  display: block;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--brand-blue);
+  box-shadow: 0 0 0 1px rgba(40, 100, 245, 0.28), 0 0 14px rgba(40, 100, 245, 0.2);
+  content: "";
+  transform: translate(-50%, -50%);
+}
+.return-entry-relationship::before {
+  left: 0;
+}
+.return-entry-relationship::after {
+  right: 0;
+  left: auto;
+  background: var(--brand-violet);
+  transform: translate(50%, -50%);
+}
+.return-entry-relationship > i {
+  left: 57%;
+  width: 5px;
+  height: 5px;
+  border-width: 1px;
+  opacity: 0.72;
+}
+.return-entry-relationship > span {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  width: max-content;
+  padding: 4px 7px;
+  color: #6f7da8;
+  border: 1px solid rgba(142, 156, 199, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 8px 18px rgba(45, 58, 92, 0.06);
+  font-family: var(--mono);
+  font-size: clamp(7px, 0.68vw, 8px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+.return-story-shell[data-scene=page-enter] .return-entry-relationship {
+  opacity: 1;
+  transform: scaleX(1);
+}
+.return-book-assembly-visual {
+  position: absolute;
+  z-index: 1;
+  right: 50%;
+  bottom: -104px;
+  width: min(46%, 470px);
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(50%) scale(0.94);
+  transition: opacity 160ms ease, transform 240ms cubic-bezier(0.2, 0.78, 0.2, 1);
+}
+.return-book-assembly-visual > img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: saturate(0.72) drop-shadow(0 18px 30px rgba(45, 58, 92, 0.09));
+}
+.return-story-shell[data-scene=book-pages] .return-book-assembly-visual {
+  opacity: 0.22;
+  transform: translateX(50%) scale(1);
+}
+.return-book-page-stack {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+.return-book-page-stack::before,
+.return-book-page-stack::after {
+  position: absolute;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  content: "";
+  transition: opacity 160ms ease;
+}
+.return-book-page-stack::before {
+  top: calc(74% - 28px);
+  height: 28px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(142, 156, 199, 0.18),
+      rgba(40, 100, 245, 0.62)) 17% 0 / 1px 100% no-repeat,
+    linear-gradient(
+      180deg,
+      rgba(142, 156, 199, 0.18),
+      rgba(40, 100, 245, 0.62)) 33.5% 0 / 1px 100% no-repeat,
+    linear-gradient(
+      180deg,
+      rgba(142, 156, 199, 0.18),
+      rgba(40, 100, 245, 0.62)) 50% 0 / 1px 100% no-repeat,
+    linear-gradient(
+      180deg,
+      rgba(142, 156, 199, 0.18),
+      rgba(40, 100, 245, 0.62)) 66.5% 0 / 1px 100% no-repeat,
+    linear-gradient(
+      180deg,
+      rgba(142, 156, 199, 0.18),
+      rgba(40, 100, 245, 0.62)) 83% 0 / 1px 100% no-repeat;
+}
+.return-book-page-stack::after {
+  top: calc(74% - 5px);
+  height: 10px;
+  background:
+    radial-gradient(
+      circle at 17% 50%,
+      var(--brand-blue) 0 2px,
+      #fff 2.5px 4px,
+      transparent 4.5px),
+    radial-gradient(
+      circle at 33.5% 50%,
+      var(--brand-blue) 0 2px,
+      #fff 2.5px 4px,
+      transparent 4.5px),
+    radial-gradient(
+      circle at 50% 50%,
+      var(--brand-blue) 0 2px,
+      #fff 2.5px 4px,
+      transparent 4.5px),
+    radial-gradient(
+      circle at 66.5% 50%,
+      var(--brand-blue) 0 2px,
+      #fff 2.5px 4px,
+      transparent 4.5px),
+    radial-gradient(
+      circle at 83% 50%,
+      var(--brand-violet) 0 2px,
+      #fff 2.5px 4px,
+      transparent 4.5px);
+}
+.return-story-shell[data-scene=book-pages] .return-book-page-stack::before,
+.return-story-shell[data-scene=book-pages] .return-book-page-stack::after {
+  opacity: 1;
+}
+.return-story-shell[data-scene=provenance] .return-book-page-stack {
+  opacity: 0.25;
+}
+.return-story-shell[data-scene=provenance] .return-shared-spine {
+  opacity: 0.12;
+}
+.return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-shared-spine {
+  top: 74%;
+}
+.return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page {
+  top: auto;
+  bottom: calc(26% + 28px);
+  width: 112px;
+  height: 148px;
+  transform: translate(-50%, var(--return-page-card-lift));
+}
+.return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(1) {
+  left: 17%;
+}
+.return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(2) {
+  left: 33.5%;
+}
+.return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(3) {
+  left: 50%;
+}
+.return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(4) {
+  left: 66.5%;
+}
+.return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(5) {
+  left: 83%;
+}
+.return-story-shell[data-scene=book-pages] .return-book-page {
+  border-color: rgba(40, 100, 245, 0.2);
+  box-shadow: 0 14px 32px rgba(45, 58, 92, 0.09), inset 0 -2px rgba(40, 100, 245, 0.08);
+}
+.return-story-shell[data-scene=book-pages] .return-book-page header span {
+  font-size: clamp(7px, 0.62vw, 8px);
+}
+.return-story-shell[data-scene=book-pages] .return-book-page p {
+  font-size: clamp(6.5px, 0.58vw, 7px);
+  line-height: 1.38;
+}
+@media (max-width: 1100px) {
+  .return-entry-book-visual {
+    right: -2%;
+    width: min(60%, 520px);
+  }
+  .return-story-shell[data-scene=page-enter] .return-current-page {
+    left: 30%;
+  }
+  .return-story-shell[data-scene=page-enter] .return-book-sequence-title {
+    opacity: 0;
+  }
+  .return-entry-relationship {
+    left: 38%;
+    width: 18%;
+  }
+}
+@media (max-width: 900px) {
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page {
+    width: 96px;
+    height: 132px;
+  }
+  .return-book-assembly-visual {
+    bottom: -88px;
+    width: min(50%, 410px);
+  }
+}
+@media (max-width: 720px) {
+  .return-entry-book-visual {
+    top: 51%;
+    right: -12%;
+    width: 76%;
+  }
+  .return-story-shell[data-scene=page-enter] .return-current-page {
+    top: 55%;
+    left: 29%;
+  }
+  .return-story-shell[data-scene=page-enter] .return-book-sequence-title {
+    opacity: 0;
+  }
+  .return-entry-relationship {
+    left: 39%;
+    width: 14%;
+  }
+  .return-entry-relationship > span {
+    display: none;
+  }
+  .return-book-page-stack::before {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(142, 156, 199, 0.18),
+        rgba(40, 100, 245, 0.62)) 16% 0 / 1px 100% no-repeat,
+      linear-gradient(
+        180deg,
+        rgba(142, 156, 199, 0.18),
+        rgba(40, 100, 245, 0.62)) 33% 0 / 1px 100% no-repeat,
+      linear-gradient(
+        180deg,
+        rgba(142, 156, 199, 0.18),
+        rgba(40, 100, 245, 0.62)) 50% 0 / 1px 100% no-repeat,
+      linear-gradient(
+        180deg,
+        rgba(142, 156, 199, 0.18),
+        rgba(40, 100, 245, 0.62)) 67% 0 / 1px 100% no-repeat,
+      linear-gradient(
+        180deg,
+        rgba(142, 156, 199, 0.18),
+        rgba(40, 100, 245, 0.62)) 84% 0 / 1px 100% no-repeat;
+  }
+  .return-book-page-stack::after {
+    background:
+      radial-gradient(
+        circle at 16% 50%,
+        var(--brand-blue) 0 2px,
+        #fff 2.5px 4px,
+        transparent 4.5px),
+      radial-gradient(
+        circle at 33% 50%,
+        var(--brand-blue) 0 2px,
+        #fff 2.5px 4px,
+        transparent 4.5px),
+      radial-gradient(
+        circle at 50% 50%,
+        var(--brand-blue) 0 2px,
+        #fff 2.5px 4px,
+        transparent 4.5px),
+      radial-gradient(
+        circle at 67% 50%,
+        var(--brand-blue) 0 2px,
+        #fff 2.5px 4px,
+        transparent 4.5px),
+      radial-gradient(
+        circle at 84% 50%,
+        var(--brand-violet) 0 2px,
+        #fff 2.5px 4px,
+        transparent 4.5px);
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page {
+    width: 72px;
+    height: 108px;
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(1) {
+    left: 16%;
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(2) {
+    left: 33%;
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(3) {
+    left: 50%;
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(4) {
+    left: 67%;
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(5) {
+    left: 84%;
+  }
+}
+@media (max-width: 520px) {
+  .return-entry-book-visual {
+    top: 50%;
+    right: -30%;
+    width: 94%;
+  }
+  .return-story-shell[data-scene=page-enter] .return-current-page {
+    top: 58%;
+    left: 29%;
+  }
+  .return-story-shell[data-scene=page-enter] .return-book-sequence-title {
+    opacity: 0;
+  }
+  .return-entry-relationship {
+    display: none;
+  }
+  .return-book-assembly-visual {
+    bottom: -58px;
+    width: 62%;
+  }
+  .return-book-page-stack::before {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(142, 156, 199, 0.18),
+        rgba(40, 100, 245, 0.62)) 22% 0 / 1px 100% no-repeat,
+      linear-gradient(
+        180deg,
+        rgba(142, 156, 199, 0.18),
+        rgba(40, 100, 245, 0.62)) 36% 0 / 1px 100% no-repeat,
+      linear-gradient(
+        180deg,
+        rgba(142, 156, 199, 0.18),
+        rgba(40, 100, 245, 0.62)) 50% 0 / 1px 100% no-repeat,
+      linear-gradient(
+        180deg,
+        rgba(142, 156, 199, 0.18),
+        rgba(40, 100, 245, 0.62)) 64% 0 / 1px 100% no-repeat,
+      linear-gradient(
+        180deg,
+        rgba(142, 156, 199, 0.18),
+        rgba(40, 100, 245, 0.62)) 78% 0 / 1px 100% no-repeat;
+  }
+  .return-book-page-stack::after {
+    background:
+      radial-gradient(
+        circle at 22% 50%,
+        var(--brand-blue) 0 2px,
+        #fff 2.5px 4px,
+        transparent 4.5px),
+      radial-gradient(
+        circle at 36% 50%,
+        var(--brand-blue) 0 2px,
+        #fff 2.5px 4px,
+        transparent 4.5px),
+      radial-gradient(
+        circle at 50% 50%,
+        var(--brand-blue) 0 2px,
+        #fff 2.5px 4px,
+        transparent 4.5px),
+      radial-gradient(
+        circle at 64% 50%,
+        var(--brand-blue) 0 2px,
+        #fff 2.5px 4px,
+        transparent 4.5px),
+      radial-gradient(
+        circle at 78% 50%,
+        var(--brand-violet) 0 2px,
+        #fff 2.5px 4px,
+        transparent 4.5px);
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page {
+    width: 54px;
+    height: 88px;
+    padding: 6px;
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(1) {
+    left: 22%;
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(2) {
+    left: 36%;
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(3) {
+    left: 50%;
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(4) {
+    left: 64%;
+  }
+  .return-story-shell:is([data-scene=book-pages], [data-scene=provenance]) .return-book-page:nth-child(5) {
+    left: 78%;
+  }
+}
+.return-story-shell[data-scene=book-pages] .return-shared-spine {
+  top: 70%;
+}
+.return-story-shell[data-scene=book-pages] .return-book-page-stack::before {
+  top: calc(70% - 30px);
+  height: 30px;
+}
+.return-story-shell[data-scene=book-pages] .return-book-page-stack::after {
+  top: calc(70% - 5px);
+}
+.return-story-shell[data-scene=book-pages] .return-book-page {
+  bottom: calc(30% + 30px);
+  width: 124px;
+  height: 164px;
+}
+.return-story-shell[data-scene=book-pages] .return-book-page header span {
+  font-size: clamp(7.5px, 0.68vw, 8.5px);
+}
+.return-story-shell[data-scene=book-pages] .return-book-page p {
+  font-size: clamp(7px, 0.62vw, 7.5px);
+}
+.return-story-shell[data-scene=book-pages] .return-book-assembly-visual {
+  bottom: -70px;
+  width: min(50%, 510px);
+}
+@media (max-width: 900px) {
+  .return-story-shell[data-scene=book-pages] .return-book-page {
+    width: 106px;
+    height: 146px;
+  }
+  .return-story-shell[data-scene=book-pages] .return-book-assembly-visual {
+    bottom: -54px;
+    width: min(54%, 440px);
+  }
+}
+@media (max-width: 720px) {
+  .return-story-shell[data-scene=book-pages] .return-book-page {
+    width: 82px;
+    height: 120px;
+  }
+  .return-story-shell[data-scene=book-pages] .return-book-assembly-visual {
+    bottom: -38px;
+    width: 58%;
+  }
+}
+@media (max-width: 520px) {
+  .return-story-shell[data-scene=book-pages] .return-book-page {
+    width: 62px;
+    height: 96px;
+  }
+  .return-story-shell[data-scene=book-pages] .return-book-assembly-visual {
+    bottom: -30px;
+    width: 68%;
+  }
+}
+.return-story-shell[data-scene=provenance] .return-current-page {
+  width: 294px;
+  height: 356px;
+  grid-template-rows: 146px minmax(0, 1fr);
+}
+.return-story-shell[data-scene=provenance] .return-source-cluster {
+  width: 240px;
+  gap: 11px;
+}
+.return-story-shell[data-scene=provenance] .return-source-cluster > div:first-of-type {
+  gap: 8px;
+}
+.return-story-shell[data-scene=provenance] .return-source-cluster article {
+  min-height: 54px;
+  gap: 9px;
+  padding: 10px 11px;
+}
+.return-story-shell[data-scene=provenance] .return-source-cluster article svg {
+  width: 25px;
+  height: 25px;
+}
+.return-story-shell[data-scene=provenance] .return-source-cluster article strong {
+  font-size: clamp(8.5px, 0.78vw, 9.5px);
+}
+.return-story-shell[data-scene=provenance] .return-context-lines {
+  right: calc(100% + 9px);
+  width: 60px;
+}
+.return-story-shell[data-scene=provenance] .return-context-lines::after {
+  right: -9px;
+  width: 70px;
+}
+.return-story-shell[data-scene=match-cut] .return-ask-match-cut {
+  height: min(98%, 430px);
+}
+.return-story-shell[data-scene=match-cut] .ask-memova-surface {
+  aspect-ratio: 0.54;
+  gap: 9px;
+  padding: 15px 14px 14px;
+}
+.return-story-shell[data-scene=match-cut] .ask-memova-surface > header img {
+  width: 27px;
+  height: 27px;
+}
+.return-story-shell[data-scene=match-cut] .ask-memova-surface > header strong {
+  font-size: 14px;
+}
+.return-story-shell[data-scene=match-cut] .ask-memova-context-deck article {
+  min-height: 43px;
+  padding: 8px 9px;
+}
+.return-story-shell[data-scene=match-cut] .ask-memova-context-deck article svg {
+  width: 21px;
+  height: 21px;
+}
+.return-story-shell[data-scene=match-cut] .ask-memova-conversation > strong {
+  font-size: 13px;
+}
+@media (max-width: 900px) {
+  .return-story-shell[data-scene=provenance] .return-current-page {
+    width: 264px;
+    height: 332px;
+    grid-template-rows: 136px minmax(0, 1fr);
+  }
+  .return-story-shell[data-scene=provenance] .return-source-cluster {
+    width: 214px;
+  }
+  .return-story-shell[data-scene=match-cut] .ask-memova-surface {
+    aspect-ratio: 0.52;
+  }
+}
+@media (max-width: 720px) {
+  .return-story-shell[data-scene=provenance] .return-current-page {
+    width: 222px;
+    height: 296px;
+    grid-template-rows: 118px minmax(0, 1fr);
+  }
+  .return-story-shell[data-scene=provenance] .return-source-cluster {
+    width: 178px;
+  }
+  .return-story-shell[data-scene=provenance] .return-source-cluster article {
+    min-height: 44px;
+    padding: 8px 9px;
+  }
+  .return-story-shell[data-scene=match-cut] .return-ask-match-cut {
+    height: min(96%, 420px);
+  }
+}
+@media (max-width: 520px) {
+  .return-story-shell[data-scene=provenance] .return-current-page {
+    width: 190px;
+    height: 252px;
+    grid-template-rows: 100px minmax(0, 1fr);
+  }
+  .return-story-shell[data-scene=provenance] .return-source-cluster {
+    width: min(94%, 350px);
+  }
+  .return-story-shell[data-scene=match-cut] .ask-memova-surface {
+    aspect-ratio: 0.5;
   }
 }
 </style>
@@ -24509,6 +25308,16 @@ body:has(#knowledge-base) .folio {
     ]
   ]);
 
+  // node_modules/lucide-react/dist/esm/icons/chevron-left.js
+  var ChevronLeft = createLucideIcon("ChevronLeft", [
+    ["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]
+  ]);
+
+  // node_modules/lucide-react/dist/esm/icons/chevron-right.js
+  var ChevronRight = createLucideIcon("ChevronRight", [
+    ["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]
+  ]);
+
   // node_modules/lucide-react/dist/esm/icons/clock-3.js
   var Clock3 = createLucideIcon("Clock3", [
     ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
@@ -26433,6 +27242,12 @@ body:has(#knowledge-base) .folio {
     { id: "provenance", number: "03", time: "02:15\u201302:22", label: "Reveal provenance" },
     { id: "match-cut", number: "04", time: "02:22\u201302:27", label: "Ask Memova" }
   ];
+  var CONTEXT_RETURN_SCENE_PROGRESS = {
+    "page-enter": 0.18,
+    "book-pages": 0.45,
+    provenance: 0.77,
+    "match-cut": 1
+  };
   var RETURN_SOURCE_CONTEXT = [
     { id: "note", label: "This Note", detail: "Landing decisions", icon: FileText },
     { id: "project", label: "This Project", detail: "Apollo 11 Archive", icon: Folder },
@@ -26482,12 +27297,16 @@ body:has(#knowledge-base) .folio {
     ] });
   }
   function ContextReturnLoop() {
-    const sectionRef = (0, import_react3.useRef)(null);
-    const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
-    const storyProgress = useProjectIngestProgress(sectionRef, reducedMotion);
+    const [activeScene, setActiveScene] = (0, import_react3.useState)("page-enter");
     const [provenanceOpen, setProvenanceOpen] = (0, import_react3.useState)(false);
-    const activeScene = storyProgress < 0.18 ? "page-enter" : storyProgress < 0.45 ? "book-pages" : storyProgress < 0.77 ? "provenance" : "match-cut";
+    const storyProgress = CONTEXT_RETURN_SCENE_PROGRESS[activeScene];
     const sceneIndex = CONTEXT_RETURN_SCENES.findIndex((scene) => scene.id === activeScene);
+    const showScene = (index) => {
+      const nextScene = CONTEXT_RETURN_SCENES[index];
+      if (!nextScene) return;
+      setActiveScene(nextScene.id);
+      setProvenanceOpen(false);
+    };
     const pageEntryProgress = easeOutCubic(progressRange(storyProgress, 0, 0.18));
     const pagesProgress = progressRange(storyProgress, 0.18, 0.45);
     const provenanceProgress = progressRange(storyProgress, 0.45, 0.77);
@@ -26544,11 +27363,9 @@ body:has(#knowledge-base) .folio {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
       "section",
       {
-        ref: sectionRef,
-        className: "context-return-scroll-story scroll-driven-story scroll-driven-story--four",
+        className: "context-return-step-story",
         "data-auto-stage": activeScene,
         style: {
-          "--scroll-story-progress": storyProgress,
           "--return-page-entry": pageEntryProgress,
           "--return-pages-progress": pagesProgress,
           "--return-provenance-progress": provenanceProgress,
@@ -26578,132 +27395,190 @@ body:has(#knowledge-base) .folio {
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: CONTEXT_RETURN_SCENES[sceneIndex].label })
                 ] })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", { className: "return-scene-track", "aria-label": "Context return story scenes", children: CONTEXT_RETURN_SCENES.map((scene, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", { className: "return-scene-track", "aria-label": "Context return story scenes", children: CONTEXT_RETURN_SCENES.map((scene, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                 "li",
                 {
                   className: index === sceneIndex ? "is-active" : index < sceneIndex ? "is-complete" : "",
-                  "aria-current": index === sceneIndex ? "step" : void 0,
-                  children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { children: scene.number }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: scene.label }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("time", { children: scene.time })
-                  ]
+                  children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                    "button",
+                    {
+                      type: "button",
+                      "aria-pressed": index === sceneIndex,
+                      "aria-controls": "context-return-narrative",
+                      "aria-label": `Show step ${scene.number}: ${scene.label}`,
+                      onClick: () => showScene(index),
+                      children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { children: scene.number }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: scene.label }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("time", { children: scene.time })
+                      ]
+                    }
+                  )
                 },
                 scene.id
               )) }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "return-narrative-stage", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "return-stage-grid", "aria-hidden": "true" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "return-stage-glow", "aria-hidden": "true" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", { className: "return-platform-outposts", "aria-label": "Platform posts stay outside The Book", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Public expressions \xB7 outside The Book" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { src: "./icons/social/x.svg", alt: "" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "X post" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Text + source link" })
-                    ] })
-                  ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { src: "./icons/social/linkedin.svg", alt: "" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "LinkedIn" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Visual carousel" })
-                    ] })
-                  ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Posts travel. The complete Page compounds." })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "return-narrative-frame", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("nav", { className: "return-stage-navigation", "aria-label": "Context Return step navigation", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                    "button",
+                    {
+                      type: "button",
+                      className: "return-scene-arrow return-scene-arrow--previous",
+                      "data-testid": "context-return-previous",
+                      "aria-label": sceneIndex > 0 ? `Show previous step: ${CONTEXT_RETURN_SCENES[sceneIndex - 1].label}` : "Previous step",
+                      "aria-controls": "context-return-narrative",
+                      disabled: sceneIndex === 0,
+                      onClick: () => showScene(sceneIndex - 1),
+                      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronLeft, { "aria-hidden": "true" })
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                    "button",
+                    {
+                      type: "button",
+                      className: "return-scene-arrow return-scene-arrow--next",
+                      "data-testid": "context-return-next",
+                      "aria-label": sceneIndex < CONTEXT_RETURN_SCENES.length - 1 ? `Show next step: ${CONTEXT_RETURN_SCENES[sceneIndex + 1].label}` : "Next step",
+                      "aria-controls": "context-return-narrative",
+                      disabled: sceneIndex === CONTEXT_RETURN_SCENES.length - 1,
+                      onClick: () => showScene(sceneIndex + 1),
+                      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { "aria-hidden": "true" })
+                    }
+                  )
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "return-book-sequence", "aria-label": "Pages connecting along The Book spine", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { className: "return-book-sequence-title", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BookOpen, { "aria-hidden": "true" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "The Book" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Apollo 11" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "42 Context \xB7 5 Pages" })
-                    ] })
-                  ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { className: "return-shared-spine", "aria-hidden": "true" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "return-book-page-stack", children: pageCards.map((page, index) => {
-                    const Icon2 = page.icon;
-                    const reveal = progressRange(pagesProgress, index * 0.15, Math.min(1, index * 0.15 + 0.24));
-                    const opacity = reveal * (1 - provenanceProgress * 0.88) * bookOpacity;
-                    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-                      "article",
-                      {
-                        className: `return-book-page return-book-page--${page.id}`,
-                        style: {
-                          "--return-page-card-opacity": opacity,
-                          "--return-page-card-lift": `${(1 - reveal) * 26}px`
-                        },
-                        children: [
-                          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { children: [
-                            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { "aria-hidden": "true" }),
-                            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: page.label })
-                          ] }),
-                          "asset" in page ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { src: page.asset, alt: page.alt })
-                          ) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: page.copy })
-                        ]
-                      },
-                      page.id
-                    );
-                  }) }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "return-current-page", "aria-label": "Current generated Page", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "return-current-page-preview", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-                      "img",
-                      {
-                        src: "./media/chapter-05-return-current-page-aldrin-visor.jpg",
-                        alt: "Buzz Aldrin photographed on the lunar surface for the generated Apollo 11 Page"
-                      }
-                    ) }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "return-current-page-copy", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Page 05 \xB7 Generated HTML" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "After the Giant Leap" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "The landing changed when evidence, constraint, and judgment met." }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-                        "button",
-                        {
-                          type: "button",
-                          "aria-expanded": sourceVisible,
-                          "aria-controls": "return-source-cluster",
-                          onClick: () => setProvenanceOpen((current) => !current),
-                          children: [
-                            "How this Page was made ",
-                            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowUpRight, { "aria-hidden": "true" })
-                          ]
-                        }
-                      )
-                    ] })
-                  ] })
-                ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-                  "section",
-                  {
-                    id: "return-source-cluster",
-                    className: "return-source-cluster",
-                    "aria-label": "Created from",
-                    "aria-hidden": !sourceVisible,
-                    children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Created from:" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: RETURN_SOURCE_CONTEXT.map((source) => {
-                        const Icon2 = source.icon;
-                        return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { children: [
-                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { "aria-hidden": "true" }),
-                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: source.label }),
-                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: source.detail })
-                        ] }, source.id);
-                      }) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "return-context-lines", "aria-hidden": "true", children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {}),
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {}),
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {})
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { id: "context-return-narrative", className: "return-narrative-stage", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "return-stage-grid", "aria-hidden": "true" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "return-stage-glow", "aria-hidden": "true" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", { className: "return-platform-outposts", "aria-label": "Platform posts stay outside The Book", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Public expressions \xB7 outside The Book" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { src: "./icons/social/x.svg", alt: "" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "X post" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Text + source link" })
                       ] })
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "return-ask-match-cut", "aria-label": "Match cut into Ask Memova", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AskMemovaSurface, {}),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Match cut \xB7 Real UI" })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { src: "./icons/social/linkedin.svg", alt: "" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "LinkedIn" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Visual carousel" })
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Posts travel. The complete Page compounds." })
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "return-book-sequence", "aria-label": "Pages connecting along The Book spine", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { className: "return-book-sequence-title", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BookOpen, { "aria-hidden": "true" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "The Book" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Apollo 11" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "42 Context \xB7 5 Pages" })
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                      "figure",
+                      {
+                        className: "return-entry-book-visual",
+                        "aria-hidden": activeScene !== "page-enter",
+                        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                          "img",
+                          {
+                            src: "./media/chapter-05-return-book-light.png",
+                            alt: "An open Memova Book ready to receive the generated Apollo 11 Page"
+                          }
+                        )
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "return-entry-relationship", "aria-hidden": "true", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {}),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Returns as context" })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("figure", { className: "return-book-assembly-visual", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { src: "./media/chapter-05-return-book-light.png", alt: "" }) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { className: "return-shared-spine", "aria-hidden": "true" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "return-book-page-stack", children: pageCards.map((page, index) => {
+                      const Icon2 = page.icon;
+                      const reveal = progressRange(pagesProgress, index * 0.15, Math.min(1, index * 0.15 + 0.24));
+                      const opacity = reveal * (1 - provenanceProgress * 0.88) * bookOpacity;
+                      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                        "article",
+                        {
+                          className: `return-book-page return-book-page--${page.id}`,
+                          style: {
+                            "--return-page-card-opacity": opacity,
+                            "--return-page-card-lift": `${(1 - reveal) * 26}px`
+                          },
+                          children: [
+                            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { "aria-hidden": "true" }),
+                              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: page.label })
+                            ] }),
+                            "asset" in page ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { src: page.asset, alt: page.alt })
+                            ) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: page.copy })
+                          ]
+                        },
+                        page.id
+                      );
+                    }) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "return-current-page", "aria-label": "Current generated Page", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "return-current-page-preview", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                        "img",
+                        {
+                          src: "./media/chapter-05-return-current-page-aldrin-visor.jpg",
+                          alt: "Buzz Aldrin photographed on the lunar surface for the generated Apollo 11 Page"
+                        }
+                      ) }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "return-current-page-copy", children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Page 05 \xB7 Generated HTML" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "After the Giant Leap" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "The landing changed when evidence, constraint, and judgment met." }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                          "button",
+                          {
+                            type: "button",
+                            "aria-expanded": sourceVisible,
+                            "aria-controls": "return-source-cluster",
+                            onClick: () => setProvenanceOpen((current) => !current),
+                            children: [
+                              "How this Page was made ",
+                              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowUpRight, { "aria-hidden": "true" })
+                            ]
+                          }
+                        )
+                      ] })
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                    "section",
+                    {
+                      id: "return-source-cluster",
+                      className: "return-source-cluster",
+                      "aria-label": "Created from",
+                      "aria-hidden": !sourceVisible,
+                      children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Created from:" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: RETURN_SOURCE_CONTEXT.map((source) => {
+                          const Icon2 = source.icon;
+                          return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { children: [
+                            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { "aria-hidden": "true" }),
+                            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: source.label }),
+                            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: source.detail })
+                          ] }, source.id);
+                        }) }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "return-context-lines", "aria-hidden": "true", children: [
+                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {}),
+                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {}),
+                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {})
+                        ] })
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "return-ask-match-cut", "aria-label": "Match cut into Ask Memova", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AskMemovaSurface, {}),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Match cut \xB7 Real UI" })
+                  ] })
                 ] })
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", { className: "return-story-footer", children: [
@@ -26717,7 +27592,7 @@ body:has(#knowledge-base) .folio {
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: screenDetail })
                 ] }, activeScene),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "return-story-progress", "aria-hidden": "true", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { style: { width: `${storyProgress * 100}%` } }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { style: { width: `${sceneIndex / (CONTEXT_RETURN_SCENES.length - 1) * 100}%` } }),
                   CONTEXT_RETURN_SCENES.map((scene) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", {}, scene.id))
                 ] })
               ] })
@@ -26963,6 +27838,8 @@ lucide-react/dist/esm/createLucideIcon.js:
 lucide-react/dist/esm/icons/arrow-down.js:
 lucide-react/dist/esm/icons/arrow-up-right.js:
 lucide-react/dist/esm/icons/book-open.js:
+lucide-react/dist/esm/icons/chevron-left.js:
+lucide-react/dist/esm/icons/chevron-right.js:
 lucide-react/dist/esm/icons/clock-3.js:
 lucide-react/dist/esm/icons/file-image.js:
 lucide-react/dist/esm/icons/file-text.js:
