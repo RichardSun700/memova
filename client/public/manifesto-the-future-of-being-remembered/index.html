@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="The Memova User Manifesto: The Future of Being Remembered." />
+  <meta name="generator" content="Kami" />
+  <title>Manifesto: The future of being remembered</title>
+  <style>
+    :root {
+      --ink:#141413;
+      --muted:#6b6a64;
+      --blue:#1B365D;
+      --parchment:#f5f4ed;
+      --paper:#e8e6dc;
+      --paper-light:#f5f4ed;
+      --ivory:#faf9f5;
+      --line:#d9d6ca;
+      --line-soft:#e8e6dc;
+      --dark-warm:#3d3d3a;
+      --olive:#504e49;
+      --stone:#6b6a64;
+      --serif:Charter,Georgia,Palatino,"TsangerJinKai02","Songti SC",STSong,"Times New Roman",serif;
+      --display:var(--serif);
+      --sans:var(--serif);
+    }
+    *,*::before,*::after { box-sizing:border-box; }
+    html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+    body { margin:0; color:var(--ink); background:var(--paper); font-family:var(--serif); line-height:1.55; overflow-wrap:anywhere; }
+    button { color:inherit; font:inherit; }
+    ::selection { color:var(--ink); background:#e4ecf5; }
+    .page { width:min(1080px,calc(100% - 40px)); margin:32px auto; overflow:hidden; background:var(--paper-light); border:1px solid var(--line-soft); border-radius:6px; box-shadow:0 2px 0 rgba(20,20,19,.06),0 14px 42px rgba(20,20,19,.08); }
+    .carousel { overflow:hidden; padding:24px 26px 30px; background:var(--ivory); border-bottom:1px solid var(--line); }
+    .carousel-top,.carousel-caption { display:flex; align-items:center; justify-content:space-between; gap:18px; max-width:820px; margin:0 auto; }
+    .carousel-top { padding-bottom:16px; color:var(--muted); font-size:11px; font-weight:750; letter-spacing:.14em; text-transform:uppercase; }
+    .top-actions { display:flex; align-items:center; gap:18px; }
+    .language-toggle { display:flex; align-items:center; gap:6px; padding:2px 0; color:var(--stone); background:transparent; border:0; cursor:pointer; font-family:var(--serif); font-size:11px; font-weight:500; letter-spacing:.08em; }
+    .language-toggle .lang-option { transition:color .2s; }
+    .language-toggle .lang-option.is-active { color:var(--blue); }
+    .language-toggle .lang-divider { color:var(--line); }
+    .language-toggle:hover .lang-option:not(.is-active) { color:var(--dark-warm); }
+    .language-toggle:focus-visible { outline:2px solid var(--blue); outline-offset:5px; }
+    .carousel-stage { position:relative; display:grid; grid-template-columns:64px minmax(0,620px) 64px; align-items:center; justify-content:center; gap:22px; min-height:0; }
+    .poster-frame { width:100%; max-width:620px; aspect-ratio:4/5; display:grid; place-items:center; min-width:0; overflow:hidden; }
+    .poster-frame img { display:block; width:100%; height:100%; object-fit:contain; background:var(--parchment); outline:1px solid var(--line-soft); box-shadow:0 1px 0 rgba(20,20,19,.05),0 8px 24px rgba(20,20,19,.06); user-select:none; -webkit-user-drag:none; }
+    .poster-frame img.page-in { animation:page-in .36s cubic-bezier(.16,1,.3,1); }
+    .page-arrow { position:relative; width:54px; height:54px; display:grid; place-items:center; justify-self:center; color:var(--blue); background:transparent; border:0; border-radius:0; box-shadow:none; cursor:pointer; font-size:0; line-height:1; transition:color .2s,transform .2s; }
+    .page-arrow::before { content:""; width:18px; height:18px; border-right:3px solid currentColor; border-bottom:3px solid currentColor; }
+    .page-arrow--prev::before { transform:rotate(135deg); margin-left:5px; }
+    .page-arrow--next::before { transform:rotate(-45deg); margin-right:5px; }
+    .page-arrow::after { content:none; }
+    .page-arrow:hover { color:var(--ink); background:transparent; transform:translateY(-1px); }
+    .page-arrow:focus-visible,.page-dot:focus-visible,.read-cue:focus-visible { outline:3px solid rgba(24,63,189,.25); outline-offset:3px; }
+    .carousel-caption { padding-top:17px; }
+    .slide-title { font:400 18px/1.3 var(--display); }
+    .page-dots { display:flex; align-items:center; gap:7px; }
+    .page-dot { width:9px; height:9px; padding:0; background:var(--stone); border:0; border-radius:50%; cursor:pointer; transition:width .2s,background .2s; }
+    .page-dot.is-active { width:25px; background:var(--blue); border-radius:99px; }
+    .read-cue { width:max-content; display:flex; align-items:center; gap:7px; margin:19px auto 0; color:var(--olive); font-size:11px; font-weight:750; letter-spacing:.1em; text-decoration:none; text-transform:uppercase; }
+    main { min-height:620px; padding:74px clamp(48px,9vw,112px) 104px; background-color:var(--paper-light); background-image:repeating-linear-gradient(0deg,rgba(80,78,73,.018) 0,rgba(80,78,73,.018) 1px,transparent 1px,transparent 5px); }
+    .chapter-panel { max-width:760px; margin:0 auto; }
+    .chapter-panel.panel-in { animation:panel-in .38s cubic-bezier(.16,1,.3,1); }
+    .chapter-panel[hidden] { display:none; }
+    .panel-kicker { display:block; margin-bottom:13px; color:var(--blue); font-size:11px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+    h1,h2 { margin:0; color:var(--ink); font-family:var(--serif); font-weight:500; letter-spacing:-.025em; text-wrap:balance; }
+    h1 { font-size:clamp(38px,5.2vw,58px); line-height:1.08; }
+    h2 { margin:72px 0 23px; font-size:clamp(32px,4.3vw,46px); line-height:1.14; }
+    .chapter-panel > h2:first-of-type { margin-top:0; }
+    .panel-intro { margin:18px 0 42px; color:var(--muted); font-size:18px; }
+    p { margin:0 0 22px; font-size:18px; }
+    strong { color:var(--blue); font-weight:500; }
+    blockquote { position:relative; isolation:isolate; margin:42px 0; padding:18px 0 18px 30px; color:#504e49; background:transparent; border:0; border-left:3px solid var(--blue); border-radius:0; box-shadow:none; }
+    blockquote::before { content:none; }
+    blockquote::after { content:none; }
+    blockquote p { position:relative; z-index:1; margin:0 0 8px; font:400 clamp(18px,2.1vw,24px)/1.55 var(--display); letter-spacing:.01em; }
+    blockquote p:last-child { margin-bottom:0; }
+    blockquote strong,blockquote em { color:inherit; font-family:inherit; font-style:normal; font-weight:500; }
+    hr { height:1px; margin:68px 0 0; border:0; background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent); }
+    .closing-line { margin-top:36px; padding:27px 29px; color:var(--ink); background:transparent; border:0; border-left:3px solid var(--blue); border-radius:0; font:500 24px/1.48 var(--serif); }
+    footer { display:flex; justify-content:space-between; gap:20px; padding:28px clamp(48px,9vw,112px) calc(28px + env(safe-area-inset-bottom)); color:var(--muted); background:var(--paper); border-top:1px solid var(--line); font-size:11px; line-height:1.5; letter-spacing:.03em; }
+    .footer-next { padding:0; color:var(--dark-warm); background:none; border:0; cursor:pointer; font-weight:750; letter-spacing:.06em; text-transform:uppercase; }
+    .footer-next:hover { color:var(--blue); }
+    .footer-next:focus-visible { outline:3px solid rgba(24,63,189,.25); outline-offset:4px; }
+    @keyframes page-in { from { opacity:.18; transform:translateX(10px); } to { opacity:1; transform:none; } }
+    @keyframes panel-in { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+    @media (max-width:700px) {
+      .page { width:100%; margin:0; border:0; border-radius:0; box-shadow:none; }
+      .carousel { padding:14px 0 22px; }
+      .carousel-top,.carousel-caption { padding-left:18px; padding-right:18px; }
+      .carousel-top { padding-bottom:12px; }
+      .top-actions { gap:12px; }
+      .carousel-stage { display:block; min-height:auto; }
+      .poster-frame { width:100%; max-width:none; aspect-ratio:4/5; }
+      .poster-frame img { width:100%; height:100%; box-shadow:none; }
+      .page-arrow { position:absolute; z-index:2; top:50%; width:48px; height:48px; background:transparent; transform:translateY(-50%); }
+      .page-arrow::before { width:16px; height:16px; }
+      .page-arrow:hover { transform:translateY(-50%); }
+      .page-arrow--prev { left:10px; }
+      .page-arrow--next { right:10px; }
+      .slide-title { font-size:15px; }
+      main { min-height:560px; padding:48px 20px 74px; }
+      h1 { font-size:clamp(36px,11vw,47px); }
+      h2 { margin-top:54px; font-size:clamp(28px,8.8vw,35px); }
+      .panel-intro,p { font-size:16px; }
+      .panel-intro { margin-bottom:32px; }
+      blockquote { margin:34px 0; padding:34px 23px 32px; }
+      blockquote p { font-size:16px; line-height:1.55; }
+      hr { margin-top:52px; }
+      .closing-line { padding:22px 18px; font-size:20px; }
+      footer { display:block; padding:23px 20px calc(23px + env(safe-area-inset-bottom)); }
+      .footer-next { display:block; margin-top:9px; }
+    }
+    @media (max-width:380px) {
+      main { padding-left:17px; padding-right:17px; }
+      .carousel-top,.carousel-caption { padding-left:15px; padding-right:15px; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      html { scroll-behavior:auto; }
+      .poster-frame img.page-in,.chapter-panel.panel-in { animation:none; }
+      .page-arrow,.page-dot { transition:none; }
+    }
+    @media print {
+      body { background:var(--ivory); }
+      .page { width:100%; margin:0; border:0; box-shadow:none; }
+      .page-arrow,.page-dots,.read-cue,.language-toggle { display:none; }
+      .chapter-panel[hidden] { display:block; page-break-before:always; }
+    }
+  </style>
+  <script type="module" src="/analytics/ga4-consent.js"></script>
+</head>
+<body>
+  <div class="page">
+    <header class="carousel" id="manifesto-header" aria-label="Manifesto pages">
+      <div class="carousel-top">
+        <span id="manifesto-label">The Manifesto</span>
+        <div class="top-actions">
+          <span id="page-count">01 / 05</span>
+          <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch to Chinese">
+            <span class="lang-option is-active" data-language-option="en">EN</span>
+            <span class="lang-divider" aria-hidden="true">/</span>
+            <span class="lang-option" data-language-option="zh">中</span>
+          </button>
+        </div>
+      </div>
+      <div class="carousel-stage" id="carousel-stage">
+        <button class="page-arrow page-arrow--prev" id="previous-page" type="button" aria-label="Previous manifesto page">←</button>
+        <div class="poster-frame"><img id="poster" class="page-in" src="assets/1.png" alt="The Manifesto — The Future of Being Remembered" /></div>
+        <button class="page-arrow page-arrow--next" id="next-page" type="button" aria-label="Next manifesto page">→</button>
+      </div>
+      <div class="carousel-caption">
+        <span class="slide-title" id="slide-title">The Future of Being Remembered</span>
+        <div class="page-dots" id="page-dots" aria-label="Choose a manifesto page">
+          <button class="page-dot is-active" type="button" data-page="0" aria-label="Page 1: The Future of Being Remembered" aria-current="page"></button>
+          <button class="page-dot" type="button" data-page="1" aria-label="Page 2: What We Believe"></button>
+          <button class="page-dot" type="button" data-page="2" aria-label="Page 3: Why We Exist"></button>
+          <button class="page-dot" type="button" data-page="3" aria-label="Page 4: What We Stand Against"></button>
+          <button class="page-dot" type="button" data-page="4" aria-label="Page 5: What We Want to Change"></button>
+        </div>
+      </div>
+      <a class="read-cue" id="read-cue" href="#page-content">Read this page <span aria-hidden="true">↓</span></a>
+    </header>
+
+    <main id="page-content" tabindex="-1">
+      <article class="chapter-panel panel-in" data-panel="0">
+        <span class="panel-kicker">Page 01 · The Manifesto</span>
+        <h1>The Future of Being Remembered</h1>
+        <p class="panel-intro">A manifesto for memory in the age of AI.</p>
+        <blockquote><p>“A person’s true death is not when life ends, but when they are forgotten for the last time.”</p></blockquote>
+        <p>This idea is widely shared across the Spanish-speaking world. It is often associated with the cultural tradition of Mexico’s Day of the Dead:</p>
+        <blockquote><p><strong>Solo muere quien es olvidado.</strong></p><p><em>Only those who are forgotten truly die.</em></p></blockquote>
+        <p>But today, we are not talking about death.</p>
+        <p>We are asking: <strong>in the age of AI, what will it mean to be remembered?</strong></p>
+      </article>
+
+      <article class="chapter-panel" data-panel="1" hidden>
+        <span class="panel-kicker">Page 02 · What We Believe</span>
+        <h1>Memory Is Not Data</h1>
+        <p class="panel-intro">Memory is not a file that survives. It is a connection that can still be understood.</p>
+        <h2>Who Will Remember Us</h2>
+        <p>In the past, to be remembered meant being remembered by family, friends, future generations, or history. But in the future, humans may no longer be the only beings capable of remembering us.</p>
+        <p>If AI can understand a person’s experiences, inherit their ideas, be moved by their story, and continue telling that story into the future, can AI count as someone—or something—that remembers them?</p>
+        <p>What truly matters may no longer be whether the being that remembers you is human, but whether it is capable of understanding you.</p>
+        <p>If the answer is yes, then being remembered will no longer mean being remembered only by humanity. It will mean:</p>
+        <blockquote><p><strong>Being remembered by an existence in the future that is still capable of understanding you.</strong></p></blockquote>
+        <hr />
+        <h2>Memory Is Not Data</h2>
+        <p>What does it actually mean to be remembered?</p>
+        <p>Does it mean a file still exists on a hard drive, a recording remains on a server, or information about you still sits in a database?</p>
+        <p>If the data merely continues to exist, that is not memory. It is storage.</p>
+        <p>To be truly remembered means that another consciousness can read your experiences, understand your choices, feel your emotions, know why you became who you are, and continue telling your story.</p>
+        <p>That is why we believe:</p>
+        <blockquote><p><strong>Memory is not data.</strong></p><p><strong>Memory is an ongoing connection.</strong></p></blockquote>
+        <p>Memova is not designed to help machines collect as much as possible about a person. Nor is it simply a longer memory system for an Agent. We want to help every person turn the Context that emerges from real life into memory they truly own; understand the relationships among those memories; and, through continuous feedback, keep those memories aligned with who they are now.</p>
+        <hr />
+        <h2>In the End, a Person Becomes a Book</h2>
+        <p>If a person ultimately becomes a book, what should that book contain?</p>
+        <p>What they ate each day, where they went, and what they said? Or only the few most important moments of their life?</p>
+        <p>The answer is not so simple.</p>
+        <p>What seems important today may not matter in the future. What the future most wants to understand may be impossible for us to anticipate today. No person—and no AI—can decide on the future’s behalf what deserves to remain and what may be permanently deleted.</p>
+        <p>History has long taught us that history is not the past itself, but the record that remains of the past. The meaning of an event is never fixed forever; it changes with the observer, the era, and the questions being asked.</p>
+        <p>Archives preserve. Historians interpret. The two must not be collapsed into one.</p>
+        <p>Memo should work the same way.</p>
+      </article>
+
+      <article class="chapter-panel" data-panel="2" hidden>
+        <span class="panel-kicker">Page 03 · Why We Exist</span>
+        <h1>We Record for the Future</h1>
+        <p class="panel-intro">We record so the future can understand today again.</p>
+        <h2>From Pages to Memory</h2>
+        <p>A voice note, a meeting, a photograph, a handwritten page, or a sudden thought can all become a page in the book.</p>
+        <p>A page can remain private, or—with the user’s confirmation—be shared with colleagues, friends, family, or the wider world. What is shared is not the entire private archive, but a perspective the person has chosen to express.</p>
+        <p>As records accumulate, related pages gather around people, projects, relationships, decisions, and moments in time to form books. Those books, in turn, become a person’s library of memory and knowledge.</p>
+        <p>People should not have to maintain complex Context just to train an Agent. Nor should they first have to become knowledge-base engineers. They should simply continue living, expressing themselves, recording, and sharing. Memova helps those fleeting experiences become memories, helps AI understand them, and helps people continually correct the AI’s understanding of who they are.</p>
+        <p>This is where personal superalignment begins: not with how much data a machine has accumulated, but with a person gradually gaining a memory system that is truthful, continuous, understandable, always under their control, and continually aligned with who they are.</p>
+        <hr />
+        <h2>We Record So the Future Can Understand Today Again</h2>
+        <p>Recording a lifetime is not as expensive as it may seem. Text costs almost nothing to preserve. Audio can be retained for the long term. Video can follow different lifecycles. What truly needs to endure is not every frame, but the Context that allows the future to understand those frames again.</p>
+        <p>And so we arrive at one sentence:</p>
+        <blockquote><p><strong>We do not record for today.</strong></p><p><strong>We record so the future can understand today again.</strong></p></blockquote>
+        <p>Memo is not a diary. It is more than a chat history, knowledge base, or search tool. It is closer to a book for every person: a book that is never truly finished, that can be read again and again, and that the future can continue to understand.</p>
+        <p>In the past, only a small number of people saw their ideas become books, and only a small number of lives entered history. For the first time, AI makes another future possible: every ordinary life can form a record of its own; every person’s experiences can be understood again—by themselves, by the people who matter to them, and by the future.</p>
+      </article>
+
+      <article class="chapter-panel" data-panel="3" hidden>
+        <span class="panel-kicker">Page 04 · What We Stand Against</span>
+        <h1>Never Let One Summary Define a Person</h1>
+        <p class="panel-intro">Preserve what happened. Generate perspectives without overwriting the truth.</p>
+        <h2>The Archive and the Interpreter</h2>
+        <p>Memova should not decide for the future what matters. Nor should it allow a single summary to overwrite a person’s lived experience.</p>
+        <p>Memory should have two layers.</p>
+        <p>The first is the <strong>Archive</strong>. Its purpose is to preserve records that are as truthful, complete, and traceable as possible—including their sources and the details we may not yet know how to understand.</p>
+        <p>The second is the <strong>Interpreter</strong>. AI organizes, connects, and retells, but it does not alter the facts of what happened.</p>
+        <p>Today, you might ask, “What should I do after this meeting?” Ten years from now, you might ask, “Why did I change the direction of my life that year?” Fifty years from now, your child might ask, “What did my father truly believe when he was young?” A hundred years from now, a future intelligence might ask, “How did people in 2026 respond to an age when intelligence began to surpass them?”</p>
+        <p>The underlying record has not changed. What changes is the observer, the question, and the way the record is understood.</p>
+        <p>That is why Memova’s principle is not to have AI produce one definitive summary, but to:</p>
+        <blockquote><p><strong>Never summarize the truth.</strong></p><p><strong>Generate perspectives.</strong></p></blockquote>
+        <p>Do not let a single summary replace reality. Preserve the facts, then generate different perspectives when they are needed.</p>
+      </article>
+
+      <article class="chapter-panel" data-panel="4" hidden>
+        <span class="panel-kicker">Page 05 · What We Want to Change</span>
+        <h1>Every Person Can Own a Memory That Is Truly Theirs</h1>
+        <p class="panel-intro">To be understood, remembered, and still in control of how your life is interpreted.</p>
+        <h2>What We Truly Want to Create</h2>
+        <p>If a person’s true death comes when they are forgotten for the last time, then Memova should do more than preserve memories.</p>
+        <p>We want to extend the length of time that a person can continue to be understood.</p>
+        <p>Perhaps the one reading you in the future will not be your child, your grandchild, or even a human being. But as long as some consciousness can understand from the record you leave behind how you lived, chose, changed, and loved—and can be moved by your story—you have not truly left.</p>
+        <p>We believe a person’s value lies not only in being recorded, but in continuing to be understood.</p>
+        <p>We believe memory should belong to every person—not to a platform, a model, or any system that tries to define on their behalf who they are.</p>
+        <p>We believe AI should not use a single summary to define an entire life. It should preserve what is true, generate perspectives, accept correction, and continually realign itself with that specific person over the course of time.</p>
+        <p>History will not decide for us what matters.</p>
+        <p>The future will.</p>
+        <p>So the one thing we should do is record today as truthfully as we can.</p>
+        <p>Everything else belongs to the future.</p>
+        <p class="closing-line">Memova—so that every person can be understood, be remembered, and own a memory that is truly theirs.</p>
+      </article>
+    </main>
+
+    <footer><span id="footer-label">The Manifesto · The Future of Being Remembered</span><button class="footer-next" id="footer-next" type="button">Turn to next page →</button></footer>
+  </div>
+
+  <script>
+    const slideSets = {
+      en: [
+        { src:'assets/1.png', title:'The Future of Being Remembered', alt:'The Manifesto: The Future of Being Remembered' },
+        { src:'assets/2.png', title:'What We Believe', alt:'What we believe: Memory is not data. Memory is an ongoing connection.' },
+        { src:'assets/3.png', title:'Why We Exist', alt:'Why we exist: We record so the future can understand today again.' },
+        { src:'assets/4.png', title:'What We Stand Against', alt:'We stand against AI defining a person through a single summary.' },
+        { src:'assets/5.png', title:'What We Want to Change', alt:'Every person can be understood, be remembered, and own a memory that is truly theirs.' }
+      ],
+      zh: [
+        { src:'assets/1.png', title:'被记住的未来', alt:'用户宣言：被记住的未来' },
+        { src:'assets/2.png', title:'我们相信什么', alt:'我们相信：记忆不是数据，记忆是一种持续发生的连接。' },
+        { src:'assets/3.png', title:'我们为何存在', alt:'我们记录，是为了未来重新理解今天。' },
+        { src:'assets/4.png', title:'我们反对什么', alt:'我们反对让 AI 用一次总结定义一个人。' },
+        { src:'assets/5.png', title:'我们想改变什么', alt:'让每一个人被理解、被记住，并拥有属于自己的记忆。' }
+      ]
+    };
+    const poster = document.getElementById('poster');
+    const slideTitle = document.getElementById('slide-title');
+    const pageCount = document.getElementById('page-count');
+    const stage = document.getElementById('carousel-stage');
+    const carousel = document.querySelector('.carousel');
+    const footerNext = document.getElementById('footer-next');
+    const panels = [...document.querySelectorAll('.chapter-panel')];
+    const dots = [...document.querySelectorAll('.page-dot')];
+    const languageToggle = document.getElementById('language-toggle');
+    const englishPanels = panels.map(panel => panel.innerHTML);
+    const chinesePanels = [
+      `
+        <span class="panel-kicker">第 01 页 · 用户宣言</span>
+        <h1>被记住的未来</h1>
+        <p class="panel-intro">一份关于 AI 时代记忆的宣言。</p>
+        <blockquote><p>“一个人真正的死亡，不是生命结束，而是最后一次被遗忘。”</p></blockquote>
+        <p>这是一句广泛流传于西语世界的话。它通常被认为来自墨西哥亡灵节的文化观念：</p>
+        <blockquote><p><strong>Solo muere quien es olvidado.</strong></p><p><em>只有那些被遗忘的人，才真正死去。</em></p></blockquote>
+        <p>但今天，我们讨论的并不是死亡。</p>
+        <p>我们讨论的是：<strong>在 AI 时代，“被记住”将意味着什么？</strong></p>
+      `,
+      `
+        <span class="panel-kicker">第 02 页 · 我们相信什么</span>
+        <h1>记忆不是数据</h1>
+        <p class="panel-intro">记忆不是一份仍然存在的文件，而是一种仍然能够被理解的连接。</p>
+        <h2>谁会记得我们</h2>
+        <p>过去，一个人被记住，意味着被家人、朋友、后代或历史记住。可是未来，能够记住我们的，也许不再只有人类。</p>
+        <p>如果 AI 可以理解一个人的经历，继承一个人的思想，被一个人的故事感动，并继续向未来讲述这个人的故事，那么，AI 算不算那个“记住你的人”？</p>
+        <p>真正重要的，也许不再是记住你的存在是不是人类，而是它是否能够理解你。</p>
+        <p>如果答案是肯定的，那么，被记住就不再只意味着被人类记住，而是：</p>
+        <blockquote><p><strong>被未来仍然能够理解你的存在记住。</strong></p></blockquote>
+        <hr />
+        <h2>记忆不是数据</h2>
+        <p>被记住，到底意味着什么？</p>
+        <p>是硬盘里仍然保存着一份文件，是服务器上还有一段录音，还是某个数据库仍然保留着关于你的信息？</p>
+        <p>如果只是数据还存在，那不是记住。那只是存储。</p>
+        <p>真正的记住，意味着另一个意识能够阅读你的经历，理解你的选择，感受到你的情绪，知道你为什么成为今天的自己，并继续讲述你的故事。</p>
+        <p>所以我们相信：</p>
+        <blockquote><p><strong>记忆不是数据。</strong></p><p><strong>记忆是一种持续发生的连接。</strong></p></blockquote>
+        <p>Memova 不是为了帮助机器尽可能多地收集一个人，也不只是为 Agent 增加一个更长的记忆系统。我们想帮助每一个人，把真实生活中不断产生的 Context 变成属于自己的记忆；理解这些记忆之间的关系，并通过持续的反馈，让这些记忆始终与现在的自己保持对齐。</p>
+        <hr />
+        <h2>一个人最终会成为一本书</h2>
+        <p>如果一个人最终会变成一本书，那么，这本书应该记录什么？</p>
+        <p>每天吃了什么，去了哪里，说过什么？还是只记录人生中最重要的几个时刻？</p>
+        <p>答案没有那么简单。</p>
+        <p>今天认为重要的事情，未来未必重要；未来真正想理解的事情，今天的人也许根本无法预见。没有任何人，也没有任何 AI，能够在今天替未来决定什么值得留下，什么可以被永久删除。</p>
+        <p>历史学早已告诉我们：历史不是过去本身，而是过去留下来的记录。事件的意义并不是永恒不变的，它会随着观察者、时代和问题不断变化。</p>
+        <p>档案馆负责保存，历史学家负责解释。二者不能混在一起。</p>
+        <p>Memo 也应该如此。</p>
+      `,
+      `
+        <span class="panel-kicker">第 03 页 · 我们为何存在</span>
+        <h1>我们为未来而记录</h1>
+        <p class="panel-intro">记录，是为了未来重新理解今天。</p>
+        <h2>从书页到记忆</h2>
+        <p>一次语音、一场会议、一张照片、一页手写或一个突然出现的想法，都可以成为一张书页。</p>
+        <p>一张书页可以只留给自己，也可以在用户确认之后分享给同事、朋友、家人或更广阔的世界。分享出去的不是全部私人档案，而是一个人选择表达的视角。</p>
+        <p>随着记录不断发生，相关的书页会围绕人物、项目、关系、决定和时间形成一本本书；一本本书最终组成一个人的记忆与知识图书馆。</p>
+        <p>人不需要为了训练 Agent 而维护复杂的 Context，也不需要先成为知识库工程师。人只需要继续生活、表达、记录和分享。Memova 帮助这些稍纵即逝的经历成为记忆，帮助 AI 理解它们，也帮助人不断纠正 AI 对自己的理解。</p>
+        <p>这就是个人超级对齐开始发生的地方：不是机器积累了多少数据，而是一个人逐渐拥有了一套真实、连续、能够被理解，也始终由自己掌握的记忆。</p>
+        <hr />
+        <h2>记录，是为了未来重新理解今天</h2>
+        <p>记录一生，并没有想象中昂贵。文字几乎可以忽略，音频可以长期保留，视频可以采用不同的生命周期。真正需要永久存在的，并不是每一帧画面，而是能够让未来重新理解这些画面的 Context。</p>
+        <p>所以，我们最终得到了一句话：</p>
+        <blockquote><p><strong>记录，不是为了今天。</strong></p><p><strong>记录，是为了未来重新理解今天。</strong></p></blockquote>
+        <p>Memo 不是日记，不只是聊天记录、知识库或搜索工具。它更像每个人的一本书：一本永远不会真正写完、可以不断被重新阅读，也可以被未来继续理解的书。</p>
+        <p>过去，只有极少数人的思想能够成为书，只有极少数人的经历能够进入历史。但 AI 第一次让另一种未来成为可能：每一个普通人的生命，都可以形成一套属于自己的记录；每一个人的经历，都可以被自己、被重要的人，也被未来重新理解。</p>
+      `,
+      `
+        <span class="panel-kicker">第 04 页 · 我们反对什么</span>
+        <h1>不要让一次总结定义一个人</h1>
+        <p class="panel-intro">保存已经发生的事实，在不覆盖真实的前提下生成不同视角。</p>
+        <h2>档案与解释者</h2>
+        <p>Memova 不应该替未来判断什么重要，也不应该用一次总结覆盖一个人的真实经历。</p>
+        <p>记忆应该有两个层次。</p>
+        <p>第一层是 <strong>Archive，档案</strong>。它负责保存尽可能真实、完整、可追溯的记录，保留来源，也保留那些今天还无法理解的细节。</p>
+        <p>第二层是 <strong>Interpreter，解释者</strong>。AI 负责整理、连接和重新讲述，但不修改已经发生的事实。</p>
+        <p>今天，你可以问：“这次会议之后，我应该做什么？”十年以后，你可以问：“那一年，我为什么改变了人生方向？”五十年以后，你的孩子可以问：“我的父亲年轻时真正相信什么？”一百年以后，未来的智能也许会问：“2026 年的人类如何面对一个智能开始超越自己的时代？”</p>
+        <p>底层记录没有变化。变化的是观察者，是问题，也是理解它的方式。</p>
+        <p>所以，Memova 的原则不是让 AI 给出唯一的总结，而是：</p>
+        <blockquote><p><strong>Never summarize the truth.</strong></p><p><strong>Generate perspectives.</strong></p></blockquote>
+        <p>不要让一次总结替代真实。保存事实，在需要的时候生成不同的视角。</p>
+      `,
+      `
+        <span class="panel-kicker">第 05 页 · 我们想改变什么</span>
+        <h1>每个人都可以拥有真正属于自己的记忆</h1>
+        <p class="panel-intro">被理解、被记住，同时仍然掌握自己的人生如何被解释。</p>
+        <h2>我们真正想创造的东西</h2>
+        <p>如果一个人真正的死亡，是最后一次被遗忘，那么 Memova 希望做的，就不只是保存记忆。</p>
+        <p>我们希望延长一个人继续被理解的时间。</p>
+        <p>也许未来阅读你的，不是你的孩子，不是你的孙子，甚至不是人类。但只要还有某个意识，能够从你留下的记录中理解你曾经如何生活、如何选择、如何改变、如何爱，并因为你的故事而感动，那么，你就没有真正离开。</p>
+        <p>我们相信，人的价值不只在于被记录，而在于持续被理解。</p>
+        <p>我们相信，记忆应该属于每一个人，而不是属于平台、模型或任何试图替人定义自己是谁的系统。</p>
+        <p>我们相信，AI 不应该用一次总结决定一个人的一生。它应该保存真实，生成视角，接受纠正，并在漫长的时间中不断与这个具体的人重新对齐。</p>
+        <p>历史不会替我们决定什么重要。</p>
+        <p>未来会。</p>
+        <p>所以，我们唯一应该做的，就是尽可能真实地记录今天。</p>
+        <p>剩下的一切，交给未来。</p>
+        <p class="closing-line">Memova：让每一个人，被理解，被记住，并拥有属于自己的记忆。</p>
+      `
+    ];
+    let currentLanguage = 'en';
+    let currentPage = Math.max(0, Math.min(4, Number(location.hash.replace('#page-','')) - 1 || 0));
+    let touchStartX = 0;
+
+    function showPage(index, options = {}) {
+      const slides = slideSets.en;
+      currentPage = (index + slides.length) % slides.length;
+      const slide = slides[currentPage];
+      poster.src = slide.src;
+      poster.alt = slide.alt;
+      slideTitle.textContent = slide.title;
+      pageCount.textContent = `${String(currentPage + 1).padStart(2,'0')} / 05`;
+      panels.forEach((panel, panelIndex) => {
+        const active = panelIndex === currentPage;
+        panel.hidden = !active;
+        panel.classList.toggle('panel-in', active);
+      });
+      dots.forEach((dot, dotIndex) => {
+        const active = dotIndex === currentPage;
+        dot.classList.toggle('is-active', active);
+        if (active) dot.setAttribute('aria-current','page'); else dot.removeAttribute('aria-current');
+      });
+      poster.classList.remove('page-in');
+      void poster.offsetWidth;
+      poster.classList.add('page-in');
+      history.replaceState(null,'',`#page-${currentPage + 1}`);
+      if (options.focusContent) document.getElementById('page-content').scrollIntoView({ behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
+      if (options.focusCarousel) carousel.scrollIntoView({ behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
+    }
+
+    function setLanguage(language) {
+      currentLanguage = language === 'zh' ? 'zh' : 'en';
+      const isChinese = currentLanguage === 'zh';
+      document.documentElement.lang = isChinese ? 'zh-CN' : 'en';
+      panels.forEach((panel, index) => {
+        panel.innerHTML = isChinese ? chinesePanels[index] : englishPanels[index];
+      });
+      languageToggle.setAttribute('aria-label', isChinese ? '切换为英文' : 'Switch to Chinese');
+      document.querySelectorAll('[data-language-option]').forEach(option => {
+        option.classList.toggle('is-active', option.dataset.languageOption === currentLanguage);
+      });
+      showPage(currentPage);
+    }
+
+    document.getElementById('previous-page').addEventListener('click', () => showPage(currentPage - 1));
+    document.getElementById('next-page').addEventListener('click', () => showPage(currentPage + 1));
+    footerNext.addEventListener('click', () => showPage(currentPage + 1, { focusCarousel:true }));
+    languageToggle.addEventListener('click', () => setLanguage(currentLanguage === 'en' ? 'zh' : 'en'));
+    dots.forEach(dot => dot.addEventListener('click', () => showPage(Number(dot.dataset.page))));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'ArrowLeft') showPage(currentPage - 1, { focusCarousel:true });
+      if (event.key === 'ArrowRight') showPage(currentPage + 1, { focusCarousel:true });
+    });
+    stage.addEventListener('touchstart', event => { touchStartX = event.changedTouches[0].clientX; }, { passive:true });
+    stage.addEventListener('touchend', event => {
+      const distance = event.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(distance) > 45) showPage(currentPage + (distance < 0 ? 1 : -1));
+    }, { passive:true });
+    setLanguage('en');
+  </script>
+  <script class="page-data" type="application/json">{"page_id":"manifesto-polished-edition","book_id":"memova-company-memory-book","chapter_id":"user-manifesto","state":"MANIFESTO","updated":"2026-07-22","reading_time":"8 min","visibility":"Internal · Unshared","presentation":"five-page-carousel"}</script>
+</body>
+</html>
