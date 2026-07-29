@@ -383,7 +383,7 @@
     let touchStartX = 0;
 
     function showPage(index, options = {}) {
-      const slides = slideSets.en;
+      const slides = slideSets[currentLanguage];
       currentPage = (index + slides.length) % slides.length;
       const slide = slides[currentPage];
       poster.src = slide.src;
