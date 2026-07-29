@@ -113,3 +113,7 @@ client/public/__manus__/version.json
 
 # Local isolated development worktrees
 .worktrees/
+
+# Local design and browser QA artifacts
+qa/
+design-qa.md

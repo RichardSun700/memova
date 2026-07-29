@@ -43,7 +43,8 @@ export default function Navbar() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      data-scrolled={scrolled}
+      className={`memova-site-nav fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
           ? "bg-white/90 backdrop-blur-xl shadow-[0_1px_3px_rgba(142,156,199,0.1)] border-b border-[var(--memova-blue)]/8"
           : "bg-transparent"
@@ -61,7 +62,7 @@ export default function Navbar() {
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
+          {navLinks.map(link => (
             <a
               key={link.href}
               href={link.href}
@@ -101,7 +102,7 @@ export default function Navbar() {
             data-analytics-event="ios_early_access_click"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className={`hidden px-5 py-2 text-[13px] font-semibold rounded-full transition-all duration-300 sm:inline-flex ${
+            className={`memova-primary-action hidden px-5 py-2 text-[13px] font-semibold rounded-full transition-all duration-300 sm:inline-flex ${
               scrolled
                 ? "bg-[var(--memova-navy)] text-white shadow-md shadow-[var(--memova-navy)]/10"
                 : "bg-[var(--memova-navy)]/90 text-white"
@@ -115,7 +116,7 @@ export default function Navbar() {
             rel="noreferrer"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className={`hidden px-5 py-2 text-[13px] font-semibold rounded-full transition-all duration-300 sm:inline-flex ${
+            className={`memova-secondary-action hidden px-5 py-2 text-[13px] font-semibold rounded-full transition-all duration-300 lg:inline-flex ${
               scrolled
                 ? "bg-[var(--memova-navy)] text-white shadow-md shadow-[var(--memova-navy)]/10"
                 : "bg-[var(--memova-navy)]/90 text-white"
@@ -129,10 +130,18 @@ export default function Navbar() {
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden flex flex-col gap-1 p-2"
             aria-label="Toggle menu"
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation"
           >
-            <span className={`block w-5 h-0.5 bg-[var(--memova-navy)] transition-transform duration-200 ${mobileOpen ? "rotate-45 translate-y-1.5" : ""}`} />
-            <span className={`block w-5 h-0.5 bg-[var(--memova-navy)] transition-opacity duration-200 ${mobileOpen ? "opacity-0" : ""}`} />
-            <span className={`block w-5 h-0.5 bg-[var(--memova-navy)] transition-transform duration-200 ${mobileOpen ? "-rotate-45 -translate-y-1.5" : ""}`} />
+            <span
+              className={`block w-5 h-0.5 bg-[var(--memova-navy)] transition-transform duration-200 ${mobileOpen ? "rotate-45 translate-y-1.5" : ""}`}
+            />
+            <span
+              className={`block w-5 h-0.5 bg-[var(--memova-navy)] transition-opacity duration-200 ${mobileOpen ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`block w-5 h-0.5 bg-[var(--memova-navy)] transition-transform duration-200 ${mobileOpen ? "-rotate-45 -translate-y-1.5" : ""}`}
+            />
           </button>
         </div>
       </div>
@@ -140,13 +149,14 @@ export default function Navbar() {
       {/* Mobile dropdown */}
       {mobileOpen && (
         <motion.div
+          id="mobile-navigation"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
-          className="md:hidden bg-white/95 backdrop-blur-xl border-b border-[var(--memova-blue)]/10 px-6 py-4"
+          className="memova-mobile-menu md:hidden bg-white/95 backdrop-blur-xl border-b border-[var(--memova-blue)]/10 px-6 py-4"
         >
           <div className="flex flex-col gap-2">
-            {navLinks.map((link) => (
+            {navLinks.map(link => (
               <a
                 key={link.href}
                 href={link.href}
@@ -160,6 +170,14 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
+            <a
+              href="/#waitlist"
+              data-analytics-event="ios_early_access_click"
+              onClick={() => setMobileOpen(false)}
+              className="memova-primary-action flex min-h-11 items-center justify-center rounded-full bg-[var(--memova-navy)] px-4 text-[14px] font-semibold text-white shadow-sm"
+            >
+              Join iOS Early Access
+            </a>
             <a
               href={DISCORD_COMMUNITY_URL}
               target="_blank"

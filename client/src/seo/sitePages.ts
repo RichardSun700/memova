@@ -18,14 +18,14 @@ export type SitePage = {
 const publicPages: SitePage[] = [
   {
     path: "/",
-    title: "Memova — Your Everyday Context, Ready for Agents",
+    title: "Memova — From Everyday Context to Compounding Knowledge",
     description:
-      "Turn the notes, conversations, and ideas you choose to capture into private agent memory and useful, human-approved workflows.",
+      "Explore how Memova turns ideas into context, context into action, and every approved result into private knowledge that compounds over time.",
     index: true,
     changeFrequency: "weekly",
     priority: 1,
     summary:
-      "Memova turns everyday notes, conversations, and ideas into private agent memory, then prepares useful workflows that remain under the user’s control.",
+      "The complete Memova product story follows everyday context from capture through Notes, Pages, Books, approved actions, and source-linked knowledge that becomes more useful over time.",
     schemaType: "SoftwareApplication",
   },
   {

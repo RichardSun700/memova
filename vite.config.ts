@@ -227,6 +227,11 @@ const memovaApiProxy: ProxyOptions = {
   secure: true,
   rewrite: (proxyPath) => proxyPath.replace(/^\/__memova_api/, ""),
 };
+const waitlistApiProxy: ProxyOptions = {
+  target: process.env.WAITLIST_API_ORIGIN || "https://memova.ai",
+  changeOrigin: true,
+  secure: true,
+};
 
 export default defineConfig({
   plugins,
@@ -261,11 +266,13 @@ export default defineConfig({
       deny: ["**/.*"],
     },
     proxy: {
+      "/api/waitlist": waitlistApiProxy,
       "/__memova_api": memovaApiProxy,
     },
   },
   preview: {
     proxy: {
+      "/api/waitlist": waitlistApiProxy,
       "/__memova_api": memovaApiProxy,
     },
   },

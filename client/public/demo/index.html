@@ -1,18 +1,31 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <script type="module" src="/analytics/ga4-consent.js" data-spa="true"></script>
+    <script>
+      const isEmbedded = new URLSearchParams(window.location.search).get("embed") === "1";
+      if (isEmbedded) {
+        document.documentElement.classList.add("is-embedded");
+      }
+
+      if (window.self === window.top) {
+        const analyticsScript = document.createElement("script");
+        analyticsScript.type = "module";
+        analyticsScript.src = "/analytics/ga4-consent.js";
+        analyticsScript.dataset.spa = "true";
+        document.head.appendChild(analyticsScript);
+      }
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="A recording framework for the Memova three-minute YC product demo."
+      content="See how Memova turns everyday ideas into context, action, and knowledge that compounds."
     />
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" href="/favicon.ico?v=memova-20260727" sizes="any" />
     <link rel="icon" type="image/png" href="/favicon.png?v=memova-20260727" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=memova-20260727" />
-    <title>Memova · 3-Minute YC Demo</title>
+    <title>Memova · Context That Compounds</title>
     <style>/* node_modules/tailwindcss/index.css */
 @layer theme, base, components, utilities;
 @layer theme {
@@ -12453,6 +12466,22 @@ body:has(#knowledge-base) .folio {
   .return-story-shell[data-scene=match-cut] .ask-memova-surface {
     aspect-ratio: 0.5;
   }
+}
+
+html.is-embedded .framework-shell {
+  --demo-nav-height: 0px !important;
+  --demo-layout-nav-height: 0px !important;
+  --chapter-viewport: 100svh !important;
+}
+html.is-embedded .top-nav {
+  display: none !important;
+}
+html.is-embedded .book-layout {
+  padding-top: 0;
+}
+html.is-embedded .page-spine,
+html.is-embedded .chapter-scroll {
+  height: 100svh;
 }
 </style>
   </head>
@@ -26029,7 +26058,7 @@ body:has(#knowledge-base) .folio {
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", className: "chapter-button next", "data-testid": "next-chapter", disabled: !next, onClick: () => onNavigate(activePage + 1), children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Next chapter" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: next?.navTitle ?? "End of demo" })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: next?.navTitle ?? "Complete" })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DirectionArrow, { direction: "right" })
       ] })
@@ -26170,7 +26199,7 @@ body:has(#knowledge-base) .folio {
             }
           ) : null,
           !hasTimeline || preserveSidecar ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", { className: "recording-sidecar", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Real UI Demo:" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Product UI:" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: displayTitle }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `recording-sidecar-state${playbackState === "complete" ? " is-ready" : ""}`, "aria-live": "polite", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { "aria-hidden": "true" }),
@@ -27720,13 +27749,13 @@ body:has(#knowledge-base) .folio {
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { className: "top-nav", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "brand-lockup", children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", { className: "official-logo", src: "./brand/memova-logo.png", alt: "Memova", width: "716", height: "527" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Memova \xB7 YC Demo" })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Memova" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "demo-duration", children: "Investor Demo \xB7 03:00" })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "demo-duration", children: "Private context \xB7 Compounding knowledge" })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "book-layout", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", { className: "page-spine", "aria-label": "Book chapter index", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "spine-kicker", children: "Demo Index" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "spine-kicker", children: "Product Journey" }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", { className: "spine-list", children: PAGES.map((item, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { className: `${activePage === index ? "is-active" : ""}${index < activePage ? " is-complete" : ""}`, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
             "button",
             {
@@ -27859,5 +27888,31 @@ lucide-react/dist/esm/lucide-react.js:
    *)
 */
 </script>
+    <script>
+      if (document.documentElement.classList.contains("is-embedded")) {
+        window.addEventListener(
+          "wheel",
+          (event) => {
+            const scrollRoot = document.querySelector(".chapter-scroll");
+            if (!scrollRoot || !window.parent) return;
+
+            const pageIndex = Number(scrollRoot.getAttribute("data-page-index"));
+            const atStart = scrollRoot.scrollTop <= 1;
+            const atEnd =
+              scrollRoot.scrollHeight - scrollRoot.scrollTop - scrollRoot.clientHeight <= 1;
+            const leavingThroughStart = event.deltaY < 0 && atStart;
+            const leavingThroughEnd = event.deltaY > 0 && atEnd && pageIndex === 5;
+
+            if (leavingThroughStart || leavingThroughEnd) {
+              window.parent.postMessage(
+                { type: "memova-demo-scroll-boundary", deltaY: event.deltaY },
+                window.location.origin,
+              );
+            }
+          },
+          { passive: true },
+        );
+      }
+    </script>
   </body>
 </html>
