@@ -562,7 +562,8 @@
   font-weight: 780;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 720px),
+  (max-width: 960px) and (hover: none) and (pointer: coarse) {
   .demo-story-shell,
   .framework-shell--continuous,
   .framework-shell--continuous .book-layout,
@@ -602,6 +603,54 @@
     filter: none;
   }
 
+  .framework-shell--continuous
+    .project-ingest-beat[data-mobile-discrete="true"]
+    .project-ingest-sticky {
+    contain: layout paint;
+  }
+
+  .framework-shell--continuous
+    .project-ingest-beat[data-mobile-discrete="true"]
+    .project-ingest-book {
+    width: min(92%, 430px);
+  }
+
+  .framework-shell--continuous
+    .project-ingest-beat[data-mobile-discrete="true"]
+    .project-ingest-finale {
+    bottom: 76px;
+  }
+
+  .framework-shell--continuous
+    .project-ingest-beat[data-mobile-discrete="true"]
+    :is(.project-ingest-intro, .project-ingest-finale) {
+    will-change: auto;
+    transition:
+      opacity 240ms ease,
+      transform 280ms cubic-bezier(0.2, 0.78, 0.2, 1);
+  }
+
+  .framework-shell--continuous
+    .project-ingest-beat[data-mobile-discrete="true"]
+    :is(.project-ingest-material, .project-ingest-glow, .project-ingest-book) {
+    will-change: auto;
+    transition:
+      left 280ms cubic-bezier(0.2, 0.78, 0.2, 1),
+      top 280ms cubic-bezier(0.2, 0.78, 0.2, 1),
+      opacity 240ms ease,
+      transform 280ms cubic-bezier(0.2, 0.78, 0.2, 1);
+  }
+
+  .framework-shell--continuous
+    .project-ingest-beat[data-mobile-discrete="true"]
+    .project-ingest-book
+    figcaption {
+    will-change: auto;
+    transition:
+      opacity 220ms ease,
+      transform 260ms cubic-bezier(0.2, 0.78, 0.2, 1);
+  }
+
   /*
    * Chapter 01 is a sticky, full-viewport scene. Keep its paint work inside
    * one bounded surface on mobile and avoid promoting every Wiki card into a
@@ -639,6 +688,34 @@
   .framework-shell--continuous .kb-wiki-node,
   .framework-shell--continuous .kb-story-scene-meta > span {
     transition: none;
+  }
+
+  .framework-shell--continuous
+    .kb-story-scroll[data-mobile-discrete="true"]
+    :is(.kb-story-concept, .kb-story-video-layer, .kb-story-case-layer) {
+    will-change: auto;
+    transition:
+      opacity 260ms ease,
+      transform 280ms cubic-bezier(0.2, 0.78, 0.2, 1);
+  }
+
+  .framework-shell--continuous
+    .kb-story-scroll[data-mobile-discrete="true"]
+    :is(
+      .kb-lunar-scene,
+      .kb-lunar-backdrop,
+      .kb-lunar-ground-rise,
+      .kb-lunar-transition-wash,
+      .kb-cosmos-hero,
+      .kb-orbit-field,
+      .kb-cosmos-core,
+      .kb-orbit-card,
+      .kb-cosmos-trace,
+      .kb-wiki-shell
+    ) {
+    transition:
+      opacity 240ms ease,
+      transform 280ms cubic-bezier(0.2, 0.78, 0.2, 1);
   }
 
   .framework-shell--continuous .recording-play-control,
@@ -1699,10 +1776,44 @@
   }
 }
 
-@media (max-width: 720px) and (prefers-reduced-motion: reduce) {
+@media (max-width: 720px) and (prefers-reduced-motion: reduce),
+  (max-width: 960px) and (hover: none) and (pointer: coarse) and (prefers-reduced-motion: reduce) {
   .framework-shell--continuous .kb-mobile-stage,
   .kb-mobile-step-tabs button {
     animation: none;
+    transition: none;
+  }
+
+  .framework-shell--continuous
+    .kb-story-scroll[data-mobile-discrete="true"]
+    :is(
+      .kb-story-concept,
+      .kb-story-video-layer,
+      .kb-story-case-layer,
+      .kb-lunar-scene,
+      .kb-lunar-backdrop,
+      .kb-lunar-ground-rise,
+      .kb-lunar-transition-wash,
+      .kb-cosmos-hero,
+      .kb-orbit-field,
+      .kb-cosmos-core,
+      .kb-orbit-card,
+      .kb-cosmos-trace,
+      .kb-wiki-shell
+    ) {
+    transition: none;
+  }
+
+  .framework-shell--continuous
+    .project-ingest-beat[data-mobile-discrete="true"]
+    :is(
+      .project-ingest-intro,
+      .project-ingest-finale,
+      .project-ingest-material,
+      .project-ingest-glow,
+      .project-ingest-book,
+      .project-ingest-book figcaption
+    ) {
     transition: none;
   }
 }
