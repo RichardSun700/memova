@@ -199,6 +199,14 @@ describe("US iOS acquisition pages", () => {
     expect(storySource).toContain("video.pause()");
     expect(storySource).not.toContain("onWheel=");
     expect(storySource).not.toContain('addEventListener("wheel"');
+    expect(storySource).toContain("const SCROLL_PROGRESS_DEADBAND_PX = 3");
+    expect(storySource).toContain("readDocumentScrollTop");
+    expect(storySource).toContain(
+      "Height-only changes are browser chrome, not story input."
+    );
+    expect(storySource).toContain(
+      'window.visualViewport?.addEventListener("resize", handleResize)'
+    );
     expect(storySource).toContain("function useNearViewport");
     expect(storySource).toContain('preload="none"');
     expect(storySource).not.toContain("autoPlay");
@@ -213,6 +221,10 @@ describe("US iOS acquisition pages", () => {
     );
     expect(continuousStyles).toContain(
       "--recording-readable-height: clamp(420px, 61svh, 530px)"
+    );
+    expect(continuousStyles).toContain("contain: layout paint");
+    expect(continuousStyles).toContain(
+      ".framework-shell--continuous .kb-lunar-backdrop"
     );
     expect(continuousStyles).toContain("position: relative");
     expect(baseStyles).toContain("touch-action: pan-y pinch-zoom");

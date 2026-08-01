@@ -781,8 +781,15 @@ const easeInOutCubic = (value: number) =>
 
 const easeOutCubic = (value: number) => 1 - Math.pow(1 - value, 3);
 
+const SCROLL_PROGRESS_DEADBAND_PX = 3;
+
 function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false);
+  const [matches, setMatches] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia(query).matches
+  );
 
   useEffect(() => {
     const media = window.matchMedia(query);
@@ -838,12 +845,32 @@ function useProjectIngestProgress(
     const continuous = scrollRoot.dataset.continuousScroll === "true";
 
     let frame = 0;
+    let active = true;
     let continuousViewportTop = 80;
-    let continuousViewportHeight = Math.max(
-      1,
-      window.innerHeight - continuousViewportTop
-    );
+    let continuousViewportHeight = Math.max(1, window.innerHeight - 80);
     let continuousViewportWidth = window.innerWidth;
+    let continuousSectionTop = 0;
+    let continuousScrollDistance = 1;
+
+    const readDocumentScrollTop = () =>
+      document.scrollingElement?.scrollTop ?? window.scrollY;
+
+    const readViewportWidth = () =>
+      window.visualViewport?.width ?? window.innerWidth;
+
+    const readVisualPageTop = () => {
+      const visualPageTop = window.visualViewport?.pageTop;
+      return typeof visualPageTop === "number" &&
+        Number.isFinite(visualPageTop)
+        ? visualPageTop
+        : readDocumentScrollTop();
+    };
+
+    const measureContinuousSectionTop = () => {
+      if (!continuous) return;
+      continuousSectionTop =
+        section.getBoundingClientRect().top + readVisualPageTop();
+    };
 
     const measureContinuousViewport = () => {
       if (!continuous) return;
@@ -866,27 +893,50 @@ function useProjectIngestProgress(
         viewportFrame?.getBoundingClientRect().height ??
           continuousViewportHeight
       );
-      continuousViewportWidth = window.innerWidth;
+      continuousViewportWidth = readViewportWidth();
+
+      /*
+       * Freeze the story geometry between real width/orientation changes.
+       * Mobile WebKit can keep emitting visual-viewport scroll/resize updates
+       * while its browser chrome or a system banner settles. Reading a fresh
+       * bounding rect/offsetHeight on every one of those events makes a
+       * visually stationary scene advance or rewind. The layout scrollTop is
+       * stable across visual-only viewport motion, so use it with this cached
+       * document coordinate and distance instead.
+       */
+      measureContinuousSectionTop();
+      continuousScrollDistance = Math.max(
+        1,
+        section.offsetHeight - continuousViewportHeight
+      );
     };
 
     measureContinuousViewport();
 
     const update = () => {
       frame = 0;
-      const sectionRect = section.getBoundingClientRect();
       const viewportTop = continuous
         ? continuousViewportTop
         : scrollRoot.getBoundingClientRect().top;
       const viewportHeight = continuous
         ? continuousViewportHeight
         : scrollRoot.clientHeight;
-      const travelled = viewportTop - sectionRect.top;
-      const distance = Math.max(1, section.offsetHeight - viewportHeight);
+      const travelled = continuous
+        ? readDocumentScrollTop() + viewportTop - continuousSectionTop
+        : viewportTop - section.getBoundingClientRect().top;
+      const distance = continuous
+        ? continuousScrollDistance
+        : Math.max(1, section.offsetHeight - viewportHeight);
       const next = clampProgress(travelled / distance);
 
-      setProgress(current =>
-        Math.abs(current - next) > 0.0005 ? next : current
-      );
+      setProgress(current => {
+        const deltaPx = Math.abs(current - next) * distance;
+        return next === 0 ||
+          next === 1 ||
+          deltaPx >= SCROLL_PROGRESS_DEADBAND_PX
+          ? next
+          : current;
+      });
     };
 
     const requestUpdate = () => {
@@ -899,30 +949,57 @@ function useProjectIngestProgress(
         return;
       }
 
-      const previousTop = continuousViewportTop;
-      const previousHeight = continuousViewportHeight;
       const previousWidth = continuousViewportWidth;
-      measureContinuousViewport();
+      const nextWidth = readViewportWidth();
+      const mobileViewport = window.matchMedia("(max-width: 900px)").matches;
 
-      /* Ignore address-bar-only resizes when the 100svh layout did not move. */
+      /* Height-only changes are browser chrome, not story input. */
       if (
-        Math.abs(previousTop - continuousViewportTop) > 0.5 ||
-        Math.abs(previousHeight - continuousViewportHeight) > 0.5 ||
-        Math.abs(previousWidth - continuousViewportWidth) > 0.5
+        mobileViewport &&
+        Math.abs(previousWidth - nextWidth) <= 1
       ) {
-        requestUpdate();
+        return;
       }
+
+      measureContinuousViewport();
+      requestUpdate();
+    };
+
+    const refreshGeometryForInput = () => {
+      if (!continuous) return;
+      measureContinuousSectionTop();
+    };
+
+    const handlePageShow = () => {
+      measureContinuousSectionTop();
+      requestUpdate();
     };
 
     update();
     const scrollTarget: Window | HTMLElement = continuous ? window : scrollRoot;
     scrollTarget.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", handleResize);
+    window.visualViewport?.addEventListener("resize", handleResize);
+    window.addEventListener("pointerdown", refreshGeometryForInput, {
+      passive: true,
+      capture: true,
+    });
+    window.addEventListener("pageshow", handlePageShow);
+
+    void document.fonts?.ready.then(() => {
+      if (!active) return;
+      measureContinuousSectionTop();
+      requestUpdate();
+    });
 
     return () => {
+      active = false;
       if (frame) window.cancelAnimationFrame(frame);
       scrollTarget.removeEventListener("scroll", requestUpdate);
       window.removeEventListener("resize", handleResize);
+      window.visualViewport?.removeEventListener("resize", handleResize);
+      window.removeEventListener("pointerdown", refreshGeometryForInput, true);
+      window.removeEventListener("pageshow", handlePageShow);
     };
   }, [reducedMotion, sectionRef]);
 
@@ -2414,21 +2491,28 @@ function KnowledgeBaseChapter({
                                   0.3 + index * 0.01
                                 )
                               );
-                              const muted =
-                                outputReveal > 0.12 &&
-                                node.id !== "inbox" &&
-                                node.id !== "wiki" &&
-                                node.id !== "projects" &&
-                                node.id !== "outputs";
+                              const staysProminent =
+                                node.id === "inbox" ||
+                                node.id === "wiki" ||
+                                node.id === "projects" ||
+                                node.id === "outputs";
+                              const mutedProgress = staysProminent
+                                ? 0
+                                : easeInOutCubic(
+                                    progressRange(outputReveal, 0.06, 0.22)
+                                  );
+                              const nodeOpacity =
+                                (0.2 + reveal * 0.8) *
+                                (1 - mutedProgress * 0.5);
 
                               return (
                                 <article
                                   key={node.id}
                                   role="treeitem"
                                   aria-selected="false"
-                                  className={`kb-wiki-node kb-wiki-node--${node.id}${muted ? " is-muted" : ""}`}
+                                  className={`kb-wiki-node kb-wiki-node--${node.id}`}
                                   style={{
-                                    opacity: 0.2 + reveal * 0.8,
+                                    opacity: nodeOpacity,
                                     transform: `translate(${(1 - reveal) * node.offset[0] * 0.28}px, ${(1 - reveal) * node.offset[1] * 0.18}px) scale(${0.92 + reveal * 0.08})`,
                                   }}
                                 >

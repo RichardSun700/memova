@@ -973,10 +973,6 @@
   background: rgba(255, 255, 255, 0.92);
 }
 
-.kb-wiki-node.is-muted {
-  opacity: 0.5 !important;
-}
-
 .kb-wiki-output-children {
   grid-column: 2 / -1;
   display: flex;
