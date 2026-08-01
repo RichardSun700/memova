@@ -602,6 +602,45 @@
     filter: none;
   }
 
+  /*
+   * Chapter 01 is a sticky, full-viewport scene. Keep its paint work inside
+   * one bounded surface on mobile and avoid promoting every Wiki card into a
+   * separate compositing layer. This prevents WebKit from visibly re-rastering
+   * the scene while browser chrome or a system banner settles.
+   */
+  .framework-shell--continuous .kb-story-stage {
+    contain: layout paint;
+  }
+
+  .framework-shell--continuous .kb-lunar-backdrop {
+    filter: none;
+  }
+
+  .framework-shell--continuous .kb-cosmos-core,
+  .framework-shell--continuous .kb-orbit-card,
+  .framework-shell--continuous .kb-cosmos-trace {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .framework-shell--continuous .kb-orbit-card,
+  .framework-shell--continuous .kb-wiki-shell,
+  .framework-shell--continuous .kb-wiki-shell-content,
+  .framework-shell--continuous .kb-wiki-capture-strip article,
+  .framework-shell--continuous .kb-wiki-root,
+  .framework-shell--continuous .kb-wiki-group,
+  .framework-shell--continuous .kb-wiki-node,
+  .framework-shell--continuous .kb-wiki-output-children em,
+  .framework-shell--continuous .kb-wiki-root-files article,
+  .framework-shell--continuous .kb-wiki-ready {
+    will-change: auto;
+  }
+
+  .framework-shell--continuous .kb-wiki-node,
+  .framework-shell--continuous .kb-story-scene-meta > span {
+    transition: none;
+  }
+
   .framework-shell--continuous .recording-play-control,
   .framework-shell--continuous .recording-timeline {
     backdrop-filter: none;
