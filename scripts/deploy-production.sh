@@ -23,12 +23,12 @@ if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]]; then
   fail "HEAD must exactly match the latest origin/main before deployment"
 fi
 
-pnpm install --frozen-lockfile
-pnpm run check:production-source
-pnpm run check
-pnpm run build
-pnpm test
-pnpm run check:seo
+corepack pnpm install --frozen-lockfile
+corepack pnpm run check:production-source
+corepack pnpm run check
+corepack pnpm run build
+corepack pnpm test
+corepack pnpm run check:seo
 
 required_build_paths=(
   "dist/public/demo/index.html"
