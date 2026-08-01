@@ -40,9 +40,9 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-sans: 'DM Sans', system-ui, sans-serif;
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-serif: 'Lora', Georgia, serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-serif: "Lora", Georgia, serif;
 }
 
 :root {
@@ -81,11 +81,27 @@
   --sidebar-primary-foreground: oklch(0.98 0.01 265);
 
   /* Custom Memova colors */
-  --memova-blue: #8E9CC7;
-  --memova-navy: #2D3A5C;
-  --memova-light: #F5F7FB;
-  --memova-mint: #7ECBA1;
-  --memova-periwinkle: #A8B4D9;
+  --memova-blue: #8e9cc7;
+  --memova-navy: #2d3a5c;
+  --memova-light: #fafcff;
+  --memova-mint: #7ecba1;
+  --memova-periwinkle: #a8b4d9;
+  --memova-canvas: #fafcff;
+  --memova-surface: #ffffff;
+  --memova-soft: #f6f9ff;
+  --memova-body: #475569;
+  --memova-muted: #637083;
+  --memova-electric: #2864f5;
+  --memova-violet: #b329f3;
+  --memova-warm: #d3a14b;
+  --memova-border: #dde6ff;
+  --memova-border-soft: #e8eef7;
+  --memova-brand-gradient: linear-gradient(
+    135deg,
+    #2864f5 0%,
+    #6a54f5 56%,
+    #b329f3 100%
+  );
 }
 
 @layer base {
@@ -94,22 +110,22 @@
   }
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'DM Sans', system-ui, sans-serif;
-    overflow-x: hidden;
+    font-family: "DM Sans", system-ui, sans-serif;
+    overflow-x: clip;
   }
   #root {
     width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   .font-display {
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-family: "Space Grotesk", system-ui, sans-serif;
   }
   .font-serif {
-    font-family: 'Lora', Georgia, serif;
+    font-family: "Lora", Georgia, serif;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -156,42 +172,81 @@
 
 /* Custom animations */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pulse-soft {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes flow-right {
-  0% { transform: translateX(-100%); opacity: 0; }
-  50% { opacity: 1; }
-  100% { transform: translateX(100%); opacity: 0; }
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 }
 
 @keyframes draw-line {
-  0% { stroke-dashoffset: 1000; }
-  100% { stroke-dashoffset: 0; }
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes breathe {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.05); opacity: 1; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
 }
 
 @keyframes shimmer {
-  100% { transform: translateX(100%); }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes spin-slow {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-float {
@@ -215,5 +270,5 @@
 }
 
 .font-display {
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-family: "Space Grotesk", system-ui, sans-serif;
 }

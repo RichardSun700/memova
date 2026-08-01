@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="105 420 82 120" fill="none">
+  <title>Meeting note</title>
+  <g stroke="#0758FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M113 426H146L160 441V487H113V426Z"/>
+    <path d="M146 426V441H160"/>
+    <path d="M124 454H139"/>
+    <path d="M124 470H135"/>
+    <path d="M177 452V485C177 500 166 511 151 511C136 511 125 500 125 485V452"/>
+    <path d="M151 511V532"/>
+    <path d="M132 532H170"/>
+  </g>
+</svg>

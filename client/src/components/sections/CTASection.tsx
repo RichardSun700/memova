@@ -11,7 +11,9 @@ export default function CTASection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [message, setMessage] = useState("");
 
   const handleWaitlist = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -36,8 +38,11 @@ export default function CTASection() {
           source: "home-ios-early-access",
         }),
       });
+      const result = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+      } | null;
 
-      if (!response.ok) {
+      if (!response.ok || result?.ok !== true) {
         throw new Error("waitlist request failed");
       }
 
@@ -54,17 +59,28 @@ export default function CTASection() {
   };
 
   return (
-    <section id="waitlist" className="py-24 md:py-32 relative overflow-hidden bg-[#F8FAFF]" ref={ref}>
+    <section
+      id="waitlist"
+      aria-labelledby="early-access-heading"
+      className="memova-site-cta scroll-mt-20 py-24 md:py-32 relative overflow-hidden bg-[#F8FAFF]"
+      ref={ref}
+    >
       <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
+          className="memova-cta-card"
         >
-          <h2 className="font-display text-3xl md:text-5xl font-bold text-[var(--memova-navy)] leading-tight">
+          <h2
+            id="early-access-heading"
+            className="memova-section-heading scroll-mt-28 font-display text-3xl md:text-5xl font-bold text-[var(--memova-navy)] leading-tight"
+          >
             Start with Memova on iPhone
             <br />
-            <span className="text-[var(--memova-blue)]">Your context, ready for agents.</span>
+            <span className="memova-gradient-text text-[var(--memova-blue)]">
+              Your context, ready for agents.
+            </span>
           </h2>
 
           <motion.form
@@ -74,14 +90,19 @@ export default function CTASection() {
             transition={{ duration: 0.7, delay: 0.25 }}
             className="mx-auto mt-8 flex max-w-xl flex-col items-center justify-center gap-3 sm:flex-row"
           >
+            <label htmlFor="early-access-email" className="sr-only">
+              Work email
+            </label>
             <input
+              id="early-access-email"
               type="email"
               required
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={event => setEmail(event.target.value)}
               disabled={status === "loading"}
+              aria-describedby="early-access-status"
               placeholder="Work email"
-              className="h-12 w-full rounded-full border border-[#DDE6FF] bg-white px-5 text-[13px] font-medium text-[var(--memova-navy)] outline-none transition-all placeholder:text-[#A9B9D8] focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100 disabled:opacity-70 sm:flex-1"
+              className="memova-cta-input h-12 w-full rounded-full border border-[#DDE6FF] bg-white px-5 text-[13px] font-medium text-[var(--memova-navy)] outline-none transition-all placeholder:text-[#A9B9D8] focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100 disabled:opacity-70 sm:flex-1"
             />
             <motion.button
               type="submit"
@@ -89,15 +110,22 @@ export default function CTASection() {
               disabled={status === "loading"}
               whileHover={status === "loading" ? undefined : { scale: 1.03 }}
               whileTap={status === "loading" ? undefined : { scale: 0.97 }}
-              className="h-12 w-full rounded-full bg-[var(--memova-navy)] px-8 text-[14px] font-bold text-white shadow-lg shadow-[var(--memova-navy)]/15 transition-all duration-200 disabled:opacity-70 sm:w-auto"
+              className="memova-primary-action h-12 w-full rounded-full bg-[var(--memova-navy)] px-8 text-[14px] font-bold text-white shadow-lg shadow-[var(--memova-navy)]/15 transition-all duration-200 disabled:opacity-70 sm:w-auto"
             >
               {status === "loading" ? "Joining..." : "Join iOS Early Access"}
             </motion.button>
           </motion.form>
 
           <p
+            id="early-access-status"
+            role="status"
+            aria-live="polite"
             className={`mt-4 min-h-5 text-[12px] font-medium ${
-              status === "error" ? "text-[#B45309]" : "text-[#637083]"
+              status === "error"
+                ? "text-[#B45309]"
+                : status === "success"
+                  ? "text-[#3F8E68]"
+                  : "text-[#637083]"
             }`}
           >
             {message}
@@ -115,7 +143,10 @@ export default function CTASection() {
               { icon: Lock, text: "Private, exportable memory" },
               { icon: Zap, text: "Review before action" },
             ].map(({ icon: Icon, text }) => (
-              <span key={text} className="flex items-center gap-1.5 text-[11px] font-medium text-[#637083]">
+              <span
+                key={text}
+                className="flex items-center gap-1.5 text-[11px] font-medium text-[#637083]"
+              >
                 <Icon className="w-3 h-3 text-[var(--memova-blue)]" />
                 {text}
               </span>
@@ -124,11 +155,11 @@ export default function CTASection() {
         </motion.div>
 
         {/* Footer */}
-        <motion.div
+        <motion.footer
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-20 pt-6 border-t border-[#E8EEF7]"
+          className="memova-marketing-footer mt-20 pt-6 border-t border-[#E8EEF7]"
         >
           <div className="flex items-center justify-center mb-3">
             <img
@@ -172,7 +203,7 @@ export default function CTASection() {
           <p className="text-[10px] font-medium text-[#A9B9D8]">
             © 2026 Memova. Everyday context, ready for agents.
           </p>
-        </motion.div>
+        </motion.footer>
       </div>
     </section>
   );

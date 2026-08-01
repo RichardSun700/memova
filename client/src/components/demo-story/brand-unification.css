@@ -1,0 +1,830 @@
+/*
+ * Brand unification layer
+ * -----------------------
+ * The approved Book chapter and memova.ai are the visual source of truth:
+ * cool-white canvas, navy editorial type, quiet periwinkle structure,
+ * blue-to-violet primary actions, and semantic mint/warm accents only.
+ *
+ * This file intentionally changes presentation only. Chapter structure,
+ * copy, media, timing, and interactions remain owned by their source files.
+ */
+
+.demo-story-shell {
+  --brand-canvas: #fafcff;
+  --brand-surface: #ffffff;
+  --brand-soft: #f6f9ff;
+  --brand-ink: #2d3a5c;
+  --brand-body: #475569;
+  --brand-muted: #637083;
+  --brand-periwinkle: #8e9cc7;
+  --brand-periwinkle-soft: #a8b4d9;
+  --brand-blue: #2864f5;
+  --brand-violet: #b329f3;
+  --brand-mint: #7ecba1;
+  --brand-warm: #d3a14b;
+  --brand-border: #dde6ff;
+  --brand-border-soft: #e8eef7;
+  --brand-shadow: rgba(45, 58, 92, 0.1);
+  --brand-gradient: linear-gradient(135deg, #2864f5 0%, #6a54f5 56%, #b329f3 100%);
+  --brand-wash:
+    radial-gradient(circle at 82% 15%, rgba(179, 41, 243, 0.045), transparent 28%),
+    radial-gradient(circle at 15% 82%, rgba(40, 100, 245, 0.07), transparent 32%),
+    linear-gradient(135deg, #fafcff 0%, #f6f9ff 56%, #ffffff 100%);
+}
+
+/* Shared demo chrome */
+
+.scroll-progress span {
+  background: var(--brand-gradient);
+}
+
+.spine-list li::before {
+  background: var(--brand-gradient);
+}
+
+.top-nav {
+  border-bottom-color: rgba(221, 230, 255, 0.92);
+  background: rgba(250, 252, 255, 0.92);
+}
+
+.page-spine {
+  border-right-color: rgba(142, 156, 199, 0.28);
+  background: rgba(246, 249, 255, 0.72);
+}
+
+.recording-frame,
+.recording-placeholder {
+  border-color: var(--brand-border);
+  background: var(--brand-surface);
+  box-shadow: 0 24px 60px rgba(45, 58, 92, 0.14);
+}
+
+.recording-control {
+  color: var(--brand-ink);
+  border-color: rgba(142, 156, 199, 0.34);
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.recording-control:hover {
+  border-color: rgba(40, 100, 245, 0.48);
+  box-shadow: 0 8px 24px rgba(45, 58, 92, 0.12);
+}
+
+/* Shared chapter canvas — Book is deliberately not included. */
+
+.kb-convergence-beat,
+.kb-recording-beat,
+.kb-case-beat,
+.note-morph-beat,
+.note-recording-beat,
+.output-single-recording-beat,
+.expression-composer-beat,
+.context-return-loop-beat,
+.alignment-recording-beat,
+.end-beat {
+  color: var(--brand-ink);
+  background: var(--brand-wash);
+}
+
+/* Chapter 01 — Knowledge Base */
+
+.kb-convergence-beat,
+.kb-recording-beat,
+.kb-case-beat {
+  color: var(--brand-ink) !important;
+  background: var(--brand-wash) !important;
+}
+
+body:has(#knowledge-base) .framework-shell {
+  background:
+    radial-gradient(circle at 76% 18%, rgba(40, 100, 245, 0.07), transparent 27%),
+    var(--brand-canvas);
+}
+
+body:has(#knowledge-base) .top-nav {
+  border-bottom-color: rgba(221, 230, 255, 0.92);
+  background: rgba(250, 252, 255, 0.92);
+}
+
+body:has(#knowledge-base) .brand-lockup span,
+body:has(#knowledge-base) .demo-duration,
+body:has(#knowledge-base) .spine-kicker,
+body:has(#knowledge-base) .spine-list li,
+body:has(#knowledge-base) .folio small {
+  color: var(--brand-muted);
+}
+
+body:has(#knowledge-base) .official-logo {
+  filter: none;
+  opacity: 1;
+}
+
+body:has(#knowledge-base) .page-spine {
+  border-right-color: rgba(142, 156, 199, 0.28);
+  background: rgba(246, 249, 255, 0.78);
+}
+
+body:has(#knowledge-base) .spine-list li.is-active,
+body:has(#knowledge-base) .spine-list li button:hover,
+body:has(#knowledge-base) .folio strong {
+  color: var(--brand-ink);
+}
+
+body:has(#knowledge-base) .folio {
+  border-top-color: rgba(142, 156, 199, 0.28);
+}
+
+.kb-convergence-beat::before {
+  border-color: rgba(142, 156, 199, 0.14);
+  box-shadow:
+    0 0 0 100px rgba(40, 100, 245, 0.025),
+    0 0 0 220px rgba(179, 41, 243, 0.016);
+}
+
+.kb-convergence-beat::after {
+  background: radial-gradient(circle, rgba(40, 100, 245, 0.08), transparent 68%);
+}
+
+.kb-convergence-beat .beat-meta p,
+.kb-convergence-beat .beat-meta time,
+.kb-singularity-summary,
+.kb-singularity-instruction {
+  color: var(--brand-muted) !important;
+}
+
+.kb-singularity-kicker,
+.kb-context-readout-label {
+  color: var(--brand-blue);
+}
+
+.kb-singularity-kicker span {
+  background: var(--brand-blue);
+  box-shadow:
+    0 0 0 5px rgba(40, 100, 245, 0.1),
+    0 0 18px rgba(40, 100, 245, 0.36);
+}
+
+.kb-singularity-copy h1,
+.kb-context-readout strong,
+.kb-understanding-core strong {
+  color: var(--brand-ink);
+}
+
+.kb-singularity-promise span {
+  color: var(--brand-body);
+  border-color: rgba(142, 156, 199, 0.3);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.kb-star-field i {
+  background: rgba(40, 100, 245, 0.52);
+  box-shadow: 0 0 10px rgba(40, 100, 245, 0.34);
+}
+
+.kb-orbit-ring {
+  border-color: rgba(142, 156, 199, 0.34);
+}
+
+.kb-orbit-ring--inner {
+  border-color: rgba(179, 41, 243, 0.14);
+}
+
+.kb-orbit-ring::after {
+  background: var(--brand-blue);
+  box-shadow: 0 0 13px rgba(40, 100, 245, 0.48);
+}
+
+.kb-context-signal {
+  color: var(--brand-body);
+  border-color: rgba(142, 156, 199, 0.3);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 11px 28px rgba(45, 58, 92, 0.08);
+}
+
+.kb-context-signal:hover,
+.kb-context-signal:focus-visible,
+.kb-context-signal.is-active {
+  color: var(--brand-ink);
+  border-color: rgba(40, 100, 245, 0.54);
+  background: var(--brand-surface);
+  box-shadow:
+    0 0 0 4px rgba(40, 100, 245, 0.07),
+    0 14px 34px rgba(45, 58, 92, 0.12);
+}
+
+.kb-context-signal::after {
+  background: linear-gradient(
+    180deg,
+    rgba(40, 100, 245, 0),
+    rgba(40, 100, 245, 0.72),
+    rgba(179, 41, 243, 0)
+  );
+}
+
+.kb-context-signal small,
+.kb-understanding-core p,
+.kb-understanding-core small,
+.kb-context-readout p,
+.kb-context-result {
+  color: var(--brand-muted);
+}
+
+.kb-understanding-core {
+  color: var(--brand-ink);
+  border-color: rgba(142, 156, 199, 0.34);
+  background:
+    radial-gradient(circle at 50% 35%, rgba(40, 100, 245, 0.08), transparent 46%),
+    rgba(255, 255, 255, 0.94);
+  box-shadow:
+    0 0 0 9px rgba(40, 100, 245, 0.045),
+    0 24px 56px rgba(45, 58, 92, 0.14);
+}
+
+.kb-core-mark i {
+  background: var(--brand-blue);
+  box-shadow: 0 0 14px rgba(40, 100, 245, 0.34);
+}
+
+.kb-core-mark i:nth-child(2) {
+  background: var(--brand-periwinkle-soft);
+}
+
+.kb-context-readout {
+  border-color: var(--brand-border);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 14px 40px rgba(45, 58, 92, 0.1);
+}
+
+.kb-context-result b {
+  color: #3f8f68;
+}
+
+.kb-packet-bridge,
+.kb-packet-steps,
+.kb-packet-readout,
+.kb-case-readout {
+  border-color: var(--brand-border);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 16px 38px rgba(45, 58, 92, 0.08);
+}
+
+.kb-bridge-kicker,
+.kb-packet-steps button.is-active span,
+.kb-case-layers button.is-active,
+.kb-case-link {
+  color: var(--brand-blue);
+}
+
+.kb-packet-bridge h2,
+.kb-packet-readout b,
+.kb-case-copy h2,
+.kb-case-readout strong {
+  color: var(--brand-ink);
+}
+
+.kb-bridge-copy,
+.kb-case-intro,
+.kb-case-readout p,
+.kb-recording-caption {
+  color: var(--brand-body);
+}
+
+.kb-packet-steps button {
+  color: var(--brand-muted);
+  border-color: var(--brand-border-soft);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.kb-packet-steps button:hover,
+.kb-packet-steps button.is-active,
+.kb-case-layers button:hover,
+.kb-case-layers button.is-active {
+  color: var(--brand-ink);
+  border-color: rgba(40, 100, 245, 0.34);
+  background: var(--brand-soft);
+}
+
+.kb-case-layers button {
+  color: var(--brand-muted);
+  border-color: rgba(142, 156, 199, 0.34);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.kb-case-readout {
+  border-left-color: var(--brand-blue);
+}
+
+/* Chapter 02 — Note */
+
+.note-status {
+  color: var(--brand-blue);
+}
+
+.note-status i {
+  background: var(--brand-blue);
+  box-shadow:
+    0 0 0 5px rgba(40, 100, 245, 0.1),
+    0 0 17px rgba(40, 100, 245, 0.36);
+}
+
+.note-morph-header h1,
+.morph-evidence-view strong,
+.morph-understanding-view h2,
+.morph-counterfactual-panel strong {
+  color: var(--brand-ink);
+}
+
+.note-morph-meta,
+.morph-source-card,
+.morph-evidence-view p,
+.morph-understanding-view p,
+.morph-action-object,
+.morph-counterfactual-panel,
+.note-morph-control p,
+.morph-phone-toggle {
+  color: var(--brand-muted);
+}
+
+.note-morph-meta strong,
+.morph-evidence-view span,
+.morph-understanding-view span,
+.morph-action-view > span,
+.morph-counterfactual-panel span,
+.morph-counterfactual-panel b,
+.morph-phone-toggle strong,
+.morph-action-view button.is-page small {
+  color: var(--brand-blue);
+}
+
+.note-morph-theatre {
+  border-color: var(--brand-border);
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: 0 26px 70px rgba(45, 58, 92, 0.1);
+}
+
+.note-morph-theatre::before {
+  border-color: rgba(142, 156, 199, 0.14);
+  box-shadow:
+    0 0 0 88px rgba(40, 100, 245, 0.03),
+    0 0 0 180px rgba(179, 41, 243, 0.018);
+}
+
+.note-morph-orbit i {
+  border-color: rgba(142, 156, 199, 0.28);
+}
+
+.note-morph-orbit i:nth-child(2) {
+  border-color: rgba(179, 41, 243, 0.13);
+}
+
+.morph-source-card {
+  border-color: rgba(142, 156, 199, 0.3);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 12px 28px rgba(45, 58, 92, 0.08);
+}
+
+.morph-source-card:hover {
+  border-color: rgba(40, 100, 245, 0.48);
+}
+
+.morph-source-card span,
+.morph-action-view button small,
+.morph-action-object small {
+  color: var(--brand-periwinkle);
+}
+
+.morph-source-card strong,
+.morph-action-view button strong,
+.morph-action-object strong {
+  color: var(--brand-body);
+}
+
+.note-morph-core,
+.morph-counterfactual-panel {
+  border-color: var(--brand-border);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 20px 50px rgba(45, 58, 92, 0.13);
+}
+
+.morph-counterfactual-trigger {
+  color: var(--brand-blue);
+  border-bottom-color: rgba(40, 100, 245, 0.36);
+}
+
+.morph-counterfactual-panel i {
+  background: var(--brand-gradient);
+}
+
+.morph-action-view button,
+.morph-action-object {
+  color: var(--brand-body);
+  border-color: var(--brand-border);
+  background: rgba(246, 249, 255, 0.84);
+}
+
+.morph-action-view button.is-page {
+  border-color: rgba(40, 100, 245, 0.5);
+  background: linear-gradient(145deg, #eef3ff, #ffffff);
+  box-shadow: 0 10px 24px rgba(40, 100, 245, 0.12);
+}
+
+.morph-action-view button.is-page strong,
+.morph-action-view button.is-page b {
+  color: var(--brand-blue);
+}
+
+.note-morph-labels button {
+  color: var(--brand-periwinkle);
+}
+
+.note-morph-labels button.is-active {
+  color: var(--brand-blue);
+}
+
+.note-morph-control input {
+  accent-color: var(--brand-blue);
+}
+
+.morph-phone-shell {
+  border-color: rgba(45, 58, 92, 0.44);
+  background: linear-gradient(150deg, #ffffff, #edf2fb);
+  box-shadow:
+    0 22px 42px rgba(45, 58, 92, 0.18),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.84);
+}
+
+/* Chapter 04 — Output */
+
+.expression-composer-header h1,
+.expression-composer-page > strong,
+.expression-composer-option strong,
+.expression-composer-why strong,
+.expression-composer-phone-screen > strong {
+  color: var(--brand-ink);
+}
+
+.expression-composer-meta,
+.expression-composer-guide,
+.expression-composer-page,
+.expression-composer-option,
+.expression-composer-why,
+.expression-composer-page > p,
+.expression-composer-phone-screen > p,
+.expression-composer-footer > div strong {
+  color: var(--brand-body);
+}
+
+.expression-composer-meta strong,
+.expression-composer-guide span,
+.expression-composer-page > span {
+  color: var(--brand-blue);
+}
+
+.expression-composer-theatre {
+  border-color: var(--brand-border);
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: 0 26px 70px rgba(45, 58, 92, 0.1);
+}
+
+.expression-composer-page,
+.expression-composer-option {
+  border-color: rgba(142, 156, 199, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 14px 34px rgba(45, 58, 92, 0.09);
+}
+
+.expression-composer-option.is-active {
+  color: var(--brand-ink);
+  border-color: rgba(40, 100, 245, 0.48);
+  background: linear-gradient(145deg, #f1f5ff, #ffffff);
+  box-shadow:
+    0 0 0 5px rgba(40, 100, 245, 0.06),
+    0 15px 31px rgba(45, 58, 92, 0.11);
+}
+
+.expression-composer-option > span {
+  color: var(--brand-blue);
+}
+
+.expression-composer-option small,
+.expression-composer-footer > div span,
+.expression-composer-phone-screen small {
+  color: var(--brand-periwinkle);
+}
+
+.expression-composer-why {
+  border-color: rgba(211, 161, 75, 0.28);
+  background: rgba(255, 251, 241, 0.92);
+  box-shadow: 0 16px 35px rgba(45, 58, 92, 0.08);
+}
+
+.expression-composer-why > span,
+.expression-composer-why small {
+  color: #9a702b;
+}
+
+.expression-composer-page i {
+  background: var(--brand-warm);
+}
+
+.expression-composer-phone-frame {
+  border-color: var(--brand-ink);
+  background: var(--brand-soft);
+  box-shadow: 0 16px 30px rgba(45, 58, 92, 0.18);
+}
+
+.expression-composer-phone-frame > i {
+  background: var(--brand-ink);
+}
+
+.expression-composer-phone-screen {
+  background: linear-gradient(160deg, #ffffff, #f1f5ff);
+}
+
+.expression-composer-slides b {
+  background: var(--brand-periwinkle);
+}
+
+.expression-composer-video {
+  background: linear-gradient(145deg, var(--brand-ink), #172039);
+}
+
+.expression-composer-flight i {
+  background: var(--brand-blue);
+}
+
+.expression-composer-share {
+  border-color: rgba(40, 100, 245, 0.54);
+  background: var(--brand-gradient);
+  box-shadow: 0 12px 28px rgba(40, 100, 245, 0.22);
+}
+
+/* Chapter 05 — Context Return & Alignment */
+
+.context-return-loop-header h1,
+.return-expression-card > strong,
+.return-revision-card > strong,
+.return-memory-card > strong,
+.return-phone-screen strong,
+.return-closing-line {
+  color: var(--brand-ink);
+}
+
+.context-return-loop-header > p,
+.return-panel-caption,
+.return-expression-card > p,
+.return-impact-list span,
+.return-phone-screen p,
+.return-phone-note,
+.return-privacy-note,
+.return-privacy-control > p {
+  color: var(--brand-muted);
+}
+
+.context-return-loop-header span,
+.return-panel-kicker {
+  color: var(--brand-blue);
+}
+
+.return-step-track::before {
+  background: linear-gradient(
+    90deg,
+    rgba(142, 156, 199, 0.22),
+    rgba(40, 100, 245, 0.48),
+    rgba(179, 41, 243, 0.24)
+  );
+}
+
+.return-step-track button {
+  color: var(--brand-muted);
+  border-color: var(--brand-border);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 8px 21px rgba(45, 58, 92, 0.06);
+}
+
+.return-step-track button:hover {
+  border-color: rgba(40, 100, 245, 0.42);
+}
+
+.return-step-track button.is-active {
+  color: var(--brand-ink);
+  border-color: rgba(40, 100, 245, 0.44);
+  background: linear-gradient(135deg, #f1f5ff, #ffffff);
+  box-shadow:
+    0 0 0 4px rgba(40, 100, 245, 0.07),
+    0 13px 27px rgba(45, 58, 92, 0.1);
+}
+
+.return-step-track b {
+  color: var(--brand-blue);
+  border-color: rgba(40, 100, 245, 0.24);
+  background: var(--brand-soft);
+}
+
+.return-step-track small {
+  color: var(--brand-muted);
+}
+
+.return-loop-stage {
+  border-color: var(--brand-border);
+  background:
+    radial-gradient(circle at 40% 46%, rgba(40, 100, 245, 0.07), transparent 29%),
+    radial-gradient(circle at 78% 25%, rgba(179, 41, 243, 0.035), transparent 28%),
+    rgba(255, 255, 255, 0.68);
+  box-shadow: 0 22px 52px rgba(45, 58, 92, 0.1);
+}
+
+.return-loop-stage::before {
+  border-color: rgba(142, 156, 199, 0.2);
+  box-shadow:
+    0 0 0 50px rgba(40, 100, 245, 0.025),
+    0 0 0 105px rgba(179, 41, 243, 0.018);
+}
+
+.return-expression-card,
+.return-revision-card,
+.return-memory-card {
+  border-color: var(--brand-border);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(246, 249, 255, 0.94));
+  box-shadow: 0 16px 32px rgba(45, 58, 92, 0.1);
+}
+
+.return-expression-card-top span {
+  background: var(--brand-blue);
+}
+
+.return-expression-card-top small,
+.return-revision-card > span,
+.return-memory-card > span {
+  color: var(--brand-periwinkle);
+}
+
+.return-expression-card b,
+.return-memory-card b {
+  color: var(--brand-body);
+  background: var(--brand-soft);
+}
+
+.return-revision-card {
+  border-color: rgba(211, 161, 75, 0.28);
+  background: linear-gradient(145deg, #fffefa, #fffaf1);
+}
+
+.return-impact-list {
+  border-top-color: rgba(211, 161, 75, 0.2);
+}
+
+.return-impact-list b {
+  color: #9a702b;
+}
+
+.return-memory-card {
+  border-color: rgba(126, 203, 161, 0.38);
+  background: linear-gradient(145deg, #fbfffd, #eefaf3);
+  box-shadow: 0 18px 37px rgba(75, 133, 99, 0.1);
+}
+
+.return-orbit {
+  border-color: rgba(142, 156, 199, 0.34);
+}
+
+.return-orbit--two {
+  border-color: rgba(179, 41, 243, 0.18);
+}
+
+.return-flight-path {
+  background: linear-gradient(
+    90deg,
+    rgba(40, 100, 245, 0.08),
+    rgba(40, 100, 245, 0.62),
+    rgba(179, 41, 243, 0.1)
+  );
+}
+
+.return-flight-path i {
+  background: var(--brand-blue);
+}
+
+.return-living-book {
+  border-color: rgba(255, 255, 255, 0.88);
+  background:
+    linear-gradient(180deg, rgba(45, 58, 92, 0.04), rgba(45, 58, 92, 0.82)),
+    linear-gradient(145deg, #56698f, #2d3a5c);
+  box-shadow:
+    -10px 7px 0 rgba(142, 156, 199, 0.26),
+    0 19px 38px rgba(45, 58, 92, 0.24);
+}
+
+.return-living-book::after {
+  background: linear-gradient(180deg, rgba(45, 58, 92, 0.03), rgba(45, 58, 92, 0.84));
+}
+
+.return-book-spine {
+  background: rgba(168, 180, 217, 0.92);
+}
+
+.return-book-sheets i {
+  border-color: rgba(142, 156, 199, 0.38);
+  background: #f8faff;
+}
+
+.return-memory-capsule {
+  color: #ffffff;
+  border-color: rgba(40, 100, 245, 0.52);
+  background: var(--brand-gradient);
+  box-shadow: 0 10px 24px rgba(40, 100, 245, 0.22);
+}
+
+.return-book-state,
+.return-phone > span {
+  color: var(--brand-periwinkle);
+}
+
+.return-phone-frame {
+  border-color: var(--brand-ink);
+  background: var(--brand-soft);
+  box-shadow: 0 14px 27px rgba(45, 58, 92, 0.18);
+}
+
+.return-phone-notch {
+  background: var(--brand-ink);
+}
+
+.return-phone-screen {
+  background: linear-gradient(160deg, #ffffff, #f1f5ff);
+}
+
+.return-source-chip {
+  color: var(--brand-blue);
+  border-color: rgba(40, 100, 245, 0.22);
+  background: #f6f9ff;
+}
+
+.return-source-chip i {
+  background: var(--brand-warm);
+}
+
+.return-privacy-note b {
+  color: var(--brand-blue);
+  border-color: rgba(40, 100, 245, 0.26);
+}
+
+.return-remember-button {
+  border-color: rgba(40, 100, 245, 0.54);
+  background: var(--brand-gradient);
+  box-shadow: 0 12px 27px rgba(40, 100, 245, 0.22);
+}
+
+.context-return-loop-shell[data-returned] .return-living-book {
+  box-shadow:
+    -12px 8px 0 rgba(142, 156, 199, 0.32),
+    0 0 0 9px rgba(40, 100, 245, 0.11),
+    0 24px 50px rgba(45, 58, 92, 0.28);
+}
+
+.return-book-state i,
+.return-complete-copy i {
+  background: var(--brand-mint);
+  box-shadow: 0 0 0 4px rgba(126, 203, 161, 0.14);
+}
+
+.return-complete-copy,
+.context-return-loop-shell[data-returned] .return-book-state {
+  color: #3f8f68;
+}
+
+/* Recording-focused chapter beats and final frame */
+
+.note-recording-beat,
+.output-single-recording-beat,
+.alignment-recording-beat {
+  background:
+    radial-gradient(circle at 50% 54%, rgba(40, 100, 245, 0.055), transparent 28%),
+    linear-gradient(180deg, #f6f9ff, #fafcff);
+}
+
+.note-recording-beat .concept-heading p,
+.output-recording-context span,
+.alignment-recording-beat .concept-heading p {
+  color: var(--brand-muted);
+}
+
+.note-recording-beat .concept-heading h2,
+.output-recording-context strong,
+.alignment-recording-beat .concept-heading h2,
+.final-copy h2 {
+  color: var(--brand-ink);
+}
+
+.end-beat {
+  background:
+    radial-gradient(circle at 30% 48%, rgba(40, 100, 245, 0.1), transparent 30%),
+    radial-gradient(circle at 70% 42%, rgba(179, 41, 243, 0.065), transparent 30%),
+    var(--brand-canvas);
+}
+
+.final-copy p {
+  background: var(--brand-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+}

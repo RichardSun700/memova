@@ -2,7 +2,11 @@ export const SITE_URL = "https://memova.ai";
 export const SOCIAL_IMAGE = `${SITE_URL}/memova-logo-transparent.png`;
 
 export type ChangeFrequency = "weekly" | "monthly" | "yearly";
-export type SchemaType = "WebPage" | "AboutPage" | "SoftwareApplication" | "Article";
+export type SchemaType =
+  | "WebPage"
+  | "AboutPage"
+  | "SoftwareApplication"
+  | "Article";
 
 export type SitePage = {
   path: string;
@@ -13,20 +17,31 @@ export type SitePage = {
   priority: number;
   summary: string;
   schemaType: SchemaType;
+  hero?: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+  };
 };
 
 const publicPages: SitePage[] = [
   {
     path: "/",
-    title: "Memova — Your Everyday Context, Ready for Agents",
+    title: "Memova — From Everyday Context to Compounding Knowledge",
     description:
-      "Turn the notes, conversations, and ideas you choose to capture into private agent memory and useful, human-approved workflows.",
+      "Explore how Memova turns ideas into context, context into action, and every approved result into private knowledge that compounds over time.",
     index: true,
     changeFrequency: "weekly",
     priority: 1,
     summary:
-      "Memova turns everyday notes, conversations, and ideas into private agent memory, then prepares useful workflows that remain under the user’s control.",
+      "The complete Memova product story follows everyday context from capture through Notes, Pages, Books, approved actions, and source-linked knowledge that becomes more useful over time.",
     schemaType: "SoftwareApplication",
+    hero: {
+      eyebrow: "Agent memory for everyday context",
+      title: "Your everyday context, ready for agents.",
+      intro:
+        "Memova turns the notes, conversations, and ideas you choose to capture into private agent memory—and useful workflows you approve.",
+    },
   },
   {
     path: "/ios",
@@ -39,6 +54,12 @@ const publicPages: SitePage[] = [
     summary:
       "Memova for iPhone provides a low-friction way to capture selected notes, conversations, and ideas, structure them as agent memory, and prepare useful next steps.",
     schemaType: "SoftwareApplication",
+    hero: {
+      eyebrow: "iOS early access",
+      title: "Memova for iPhone",
+      intro:
+        "Your everyday context, ready for agents. Capture naturally, build private agent memory, and prepare useful workflows without organizing everything first.",
+    },
   },
   {
     path: "/agent-memory",
@@ -51,6 +72,12 @@ const publicPages: SitePage[] = [
     summary:
       "Agent memory is durable, editable, source-grounded context about people, projects, decisions, commitments, and preferences that an agent can use across workflows.",
     schemaType: "Article",
+    hero: {
+      eyebrow: "Memova definition",
+      title: "Agent memory is context an agent can use responsibly.",
+      intro:
+        "It is more than chat history. Agent memory preserves what matters about people, projects, decisions, commitments, preferences, and sources so useful work can continue across sessions.",
+    },
   },
   {
     path: "/how-it-works",
@@ -63,6 +90,12 @@ const publicPages: SitePage[] = [
     summary:
       "Memova follows a transparent flow: capture context naturally, structure what matters, build reusable agent memory, prepare a workflow, and ask the user to approve consequential actions.",
     schemaType: "WebPage",
+    hero: {
+      eyebrow: "How Memova works",
+      title: "From everyday context to useful workflows.",
+      intro:
+        "Memova reduces the work between capturing something important and giving an agent enough trustworthy context to help with the next step.",
+    },
   },
   {
     path: "/user-cases",
@@ -75,6 +108,12 @@ const publicPages: SitePage[] = [
     summary:
       "Memova use cases show the complete transformation from a user’s original note or conversation to structured memory and a practical workflow outcome.",
     schemaType: "WebPage",
+    hero: {
+      eyebrow: "User cases",
+      title: "Messy notes become personal workflows.",
+      intro:
+        "These demos are built from real scenario notes: health follow-ups, coffee chats, tax prep, and long-cycle reminders where the important next step is easy to lose.",
+    },
   },
   {
     path: "/use-cases/meeting-to-follow-up",
@@ -87,6 +126,12 @@ const publicPages: SitePage[] = [
     summary:
       "A meeting becomes more useful when its decisions, owners, commitments, and unresolved questions become durable agent memory and reviewable follow-up work.",
     schemaType: "Article",
+    hero: {
+      eyebrow: "Meeting workflow",
+      title: "Meeting notes become decisions and follow-ups.",
+      intro:
+        "Preserve the context behind a meeting, not just a transcript, so agents can prepare the right follow-up work.",
+    },
   },
   {
     path: "/use-cases/idea-to-product-brief",
@@ -99,6 +144,12 @@ const publicPages: SitePage[] = [
     summary:
       "A loosely captured product idea becomes structured context about the user, problem, constraints, decisions, and open questions before Memova prepares a brief and tasks.",
     schemaType: "Article",
+    hero: {
+      eyebrow: "Founder workflow",
+      title: "A founder idea becomes a product brief and tasks.",
+      intro:
+        "Capture the idea while it is fresh, then preserve the reasoning and constraints an agent needs to turn it into useful work.",
+    },
   },
   {
     path: "/use-cases/conversation-to-action-plan",
@@ -111,6 +162,12 @@ const publicPages: SitePage[] = [
     summary:
       "An important conversation can become durable memory about commitments, timing, people, and concerns, followed by a calm action plan that the user reviews.",
     schemaType: "Article",
+    hero: {
+      eyebrow: "Personal workflow",
+      title: "An important conversation becomes a calm action plan.",
+      intro:
+        "Remember commitments and timing without reducing a meaningful conversation to a generic task list.",
+    },
   },
   {
     path: "/mcp",
@@ -123,6 +180,12 @@ const publicPages: SitePage[] = [
     summary:
       "Memova’s MCP connection lets compatible agents use user-controlled context from a private knowledge base while preserving review and approval boundaries.",
     schemaType: "WebPage",
+    hero: {
+      eyebrow: "Plugins & MCP",
+      title: "Connect Memova to Codex and MCP clients.",
+      intro:
+        "Give compatible agents permissioned access to the context you choose—while your knowledge stays user-owned, editable, and reviewable.",
+    },
   },
   {
     path: "/privacy",
@@ -157,7 +220,8 @@ const privatePage: SitePage = {
   index: false,
   changeFrequency: "yearly",
   priority: 0,
-  summary: "This private Memova account or connection page is not intended for search indexing.",
+  summary:
+    "This private Memova account or connection page is not intended for search indexing.",
   schemaType: "WebPage",
 };
 
@@ -166,7 +230,8 @@ const notFoundPage: SitePage = {
   path: "/404",
   title: "Page Not Found — Memova",
   description: "The requested Memova page could not be found.",
-  summary: "The requested page does not exist and should not appear in search results.",
+  summary:
+    "The requested page does not exist and should not appear in search results.",
 };
 
 const privatePrefixes = [
@@ -183,9 +248,16 @@ export const sitePages = publicPages;
 
 export function getSitePage(pathname: string): SitePage {
   const normalized = pathname !== "/" ? pathname.replace(/\/+$/, "") : pathname;
-  const exact = publicPages.find((page) => page.path === normalized);
+  if (normalized === "/privacy-policy") {
+    return publicPages.find(page => page.path === "/privacy")!;
+  }
+  const exact = publicPages.find(page => page.path === normalized);
   if (exact) return exact;
-  if (privatePrefixes.some((prefix) => normalized === prefix || normalized.startsWith(prefix))) {
+  if (
+    privatePrefixes.some(
+      prefix => normalized === prefix || normalized.startsWith(prefix)
+    )
+  ) {
     return { ...privatePage, path: normalized };
   }
   return { ...notFoundPage, path: normalized };

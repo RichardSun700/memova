@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="630 243 60 54" fill="none">
+  <title>Book</title>
+  <g stroke="#0758FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M633 253C651 246 669 248 686 260V292C669 282 651 282 633 292V253Z"/>
+    <path d="M633 253V292"/>
+    <path d="M686 260V292"/>
+  </g>
+</svg>

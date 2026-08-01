@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="454 405 148 148" fill="none">
+  <title>Spark</title>
+  <g stroke="#0758FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M500 486H556"/>
+    <path d="M514 521H543"/>
+    <path d="M528 431C501 431 480 452 480 478C480 495 489 510 503 518C511 523 514 531 514 540H542C542 531 545 523 553 518C567 510 576 495 576 478C576 452 555 431 528 431Z"/>
+    <path d="M528 411V424"/>
+    <path d="M479 430L489 440"/>
+    <path d="M577 430L567 440"/>
+    <path d="M460 478H472"/>
+    <path d="M584 478H596"/>
+    <path d="M528 465V493"/>
+    <path d="M517 481L528 493L545 471"/>
+  </g>
+</svg>
