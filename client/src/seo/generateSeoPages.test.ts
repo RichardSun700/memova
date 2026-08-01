@@ -202,7 +202,7 @@ describe("SEO build generator", () => {
     }
   });
 
-  it("does not proxy legal routes through root index.html", () => {
+  it("serves legal routes through Cloudflare clean URLs without rewrites", () => {
     const redirects = fs.readFileSync(
       path.resolve(process.cwd(), "client/public/_redirects"),
       "utf8"
@@ -210,10 +210,12 @@ describe("SEO build generator", () => {
 
     expect(redirects).not.toMatch(/^\/privacy-policy \/index\.html 200$/m);
     expect(redirects).not.toMatch(/^\/privacy \/index\.html 200$/m);
-    expect(redirects).toMatch(/^\/privacy-policy \/privacy-policy\.html 200$/m);
+    expect(redirects).not.toMatch(
+      /^\/privacy-policy \/privacy-policy\.html 200$/m
+    );
   });
 
-  it("does not proxy private routes or 404 through the homepage shell", () => {
+  it("avoids HTML rewrites that loop under Cloudflare clean URLs", () => {
     const redirects = fs.readFileSync(
       path.resolve(process.cwd(), "client/public/_redirects"),
       "utf8"
@@ -221,13 +223,24 @@ describe("SEO build generator", () => {
 
     for (const page of PRIVATE_SPA_PAGES) {
       const expected = `${page.path} ${page.path}.html 200`;
-      expect(redirects, page.path).toContain(expected);
+      expect(redirects, page.path).not.toContain(expected);
       expect(redirects, page.path).not.toContain(
         `${page.path} /index.html 200`
       );
     }
-    expect(redirects).toContain("/404 /404.html 200");
+    expect(redirects).not.toContain("/404 /404.html 200");
     expect(redirects).not.toContain("/404 /index.html 200");
+  });
+
+  it("keeps the Avery direct-link page noindex on custom domains", () => {
+    const headers = fs.readFileSync(
+      path.resolve(process.cwd(), "client/public/_headers"),
+      "utf8"
+    );
+
+    expect(headers).toContain(
+      "/avery-portfolio-book/*\n  X-Robots-Tag: noindex, nofollow"
+    );
   });
 
   it("uses extension route shells and the real 404 in the local production server", () => {

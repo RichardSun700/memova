@@ -113,11 +113,12 @@ export function collectSeoBuildErrors(outputDir, pages) {
     if (redirects.includes("/404 /index.html 200")) {
       errors.push("/404 must not use the homepage shell");
     }
-    if (!redirects.includes("/404 /404.html 200")) {
-      errors.push("_redirects does not map /404 to the real 404 shell");
-    }
-    if (!redirects.includes("/privacy-policy /privacy-policy.html 200")) {
-      errors.push("_redirects does not map /privacy-policy to its legal shell");
+    for (const line of redirects.split("\n")) {
+      if (/^\/\S+\s+\/\S+\.html\s+200(?:\s|$)/.test(line.trim())) {
+        errors.push(
+          `_redirects contains an HTML rewrite that loops under Cloudflare clean URLs: ${line.trim()}`
+        );
+      }
     }
   }
 
@@ -133,6 +134,7 @@ export function collectSeoBuildErrors(outputDir, pages) {
       "/login",
       "/mcp/oauth/*",
       "/bay-area-agent-demo-2",
+      "/avery-portfolio-book/*",
       "/user-cases/demos/*",
     ]) {
       if (!headers.includes(privatePath))
@@ -225,11 +227,10 @@ export function collectSeoBuildErrors(outputDir, pages) {
     }
 
     const redirectTarget = `${page.path}.html`;
-    if (
-      redirects &&
-      !redirects.includes(`${page.path} ${redirectTarget} 200`)
-    ) {
-      errors.push(`_redirects does not map ${page.path} to its private shell`);
+    if (redirects?.includes(`${page.path} ${redirectTarget} 200`)) {
+      errors.push(
+        `${page.path} must rely on Cloudflare clean URLs instead of rewriting to its .html shell`
+      );
     }
   }
 

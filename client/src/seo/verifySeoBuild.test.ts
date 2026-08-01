@@ -94,6 +94,25 @@ describe("SEO build verification", () => {
     expect(errors.some(error => error.includes("404.html"))).toBe(true);
   });
 
+  it("rejects explicit HTML rewrites that create Cloudflare 308 loops", () => {
+    const output = path.resolve(process.cwd(), "dist/public");
+    const directory = fs.mkdtempSync(
+      path.join(os.tmpdir(), "memova-seo-looping-redirect-")
+    );
+    temporaryDirectories.push(directory);
+    fs.cpSync(output, directory, { recursive: true });
+    fs.appendFileSync(
+      path.join(directory, "_redirects"),
+      "\n/login /login.html 200\n"
+    );
+
+    const errors = collectSeoBuildErrors(directory, sitePages);
+
+    expect(
+      errors.some(error => error.includes("loops under Cloudflare clean URLs"))
+    ).toBe(true);
+  });
+
   it("requires direct static shells for both legal routes", () => {
     const output = path.resolve(process.cwd(), "dist/public");
     const directory = fs.mkdtempSync(
