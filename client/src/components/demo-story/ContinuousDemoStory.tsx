@@ -321,7 +321,7 @@ const KB_ROOT_FILES = [
   { id: "readme", label: "README.md", detail: "Human guide" },
 ] as const;
 
-const MOBILE_KNOWLEDGE_QUERY =
+const MOBILE_STORY_QUERY =
   "(max-width: 720px), (max-width: 960px) and (hover: none) and (pointer: coarse)";
 
 const KB_ORBIT_TRACKS = [
@@ -1013,10 +1013,17 @@ const MOBILE_KNOWLEDGE_MAGNET_STOPS = [0.03, 0.35, 0.62, 0.93] as const;
 const MOBILE_KNOWLEDGE_FORWARD_THRESHOLDS = [0.23, 0.49, 0.85] as const;
 const MOBILE_KNOWLEDGE_BACK_THRESHOLDS = [0.18, 0.43, 0.79] as const;
 
-function useMobileKnowledgeDisplayProgress(
+const MOBILE_PROJECT_INGEST_MAGNET_STOPS = [0.03, 0.42, 0.68, 0.94] as const;
+const MOBILE_PROJECT_INGEST_FORWARD_THRESHOLDS = [0.22, 0.58, 0.84] as const;
+const MOBILE_PROJECT_INGEST_BACK_THRESHOLDS = [0.16, 0.5, 0.76] as const;
+
+function useMobileDiscreteProgress(
   rawProgress: number,
   enabled: boolean,
-  reducedMotion: boolean
+  reducedMotion: boolean,
+  stops: readonly number[],
+  forwardThresholds: readonly number[],
+  backThresholds: readonly number[]
 ) {
   const [sceneIndex, setSceneIndex] = useState(0);
 
@@ -1026,33 +1033,33 @@ function useMobileKnowledgeDisplayProgress(
     setSceneIndex(current => {
       let next = current;
 
-      while (
-        next < MOBILE_KNOWLEDGE_MAGNET_STOPS.length - 1 &&
-        rawProgress > MOBILE_KNOWLEDGE_FORWARD_THRESHOLDS[next]
-      ) {
+      while (next < stops.length - 1 && rawProgress > forwardThresholds[next]) {
         next += 1;
       }
 
-      while (
-        next > 0 &&
-        rawProgress < MOBILE_KNOWLEDGE_BACK_THRESHOLDS[next - 1]
-      ) {
+      while (next > 0 && rawProgress < backThresholds[next - 1]) {
         next -= 1;
       }
 
       return next;
     });
-  }, [enabled, rawProgress, reducedMotion]);
+  }, [
+    backThresholds,
+    enabled,
+    forwardThresholds,
+    rawProgress,
+    reducedMotion,
+    stops,
+  ]);
 
-  return enabled && !reducedMotion
-    ? MOBILE_KNOWLEDGE_MAGNET_STOPS[sceneIndex]
-    : rawProgress;
+  return enabled && !reducedMotion ? stops[sceneIndex] : rawProgress;
 }
 
-function useMobileKnowledgeMagnet(
+function useMobileStoryMagnet(
   sectionRef: RefObject<HTMLElement | null>,
   enabled: boolean,
-  reducedMotion: boolean
+  reducedMotion: boolean,
+  stops: readonly number[]
 ) {
   useEffect(() => {
     if (!enabled || reducedMotion || !("onscrollend" in window)) {
@@ -1110,12 +1117,12 @@ function useMobileKnowledgeMagnet(
       const currentProgress = clampProgress(
         (scrollingElement.scrollTop + inset - sectionTop) / distance
       );
-      const nearest = MOBILE_KNOWLEDGE_MAGNET_STOPS.map(progress => ({
-        progress,
-        delta: progress - currentProgress,
-      })).sort(
-        (left, right) => Math.abs(left.delta) - Math.abs(right.delta)
-      )[0];
+      const nearest = stops
+        .map(progress => ({
+          progress,
+          delta: progress - currentProgress,
+        }))
+        .sort((left, right) => Math.abs(left.delta) - Math.abs(right.delta))[0];
       const threshold = Math.min(72, distance * 0.04) / distance;
 
       if (
@@ -1152,7 +1159,7 @@ function useMobileKnowledgeMagnet(
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("scrollend", handleScrollEnd);
     };
-  }, [enabled, reducedMotion, sectionRef]);
+  }, [enabled, reducedMotion, sectionRef, stops]);
 }
 
 function syncRecordingShellFocus(shell: HTMLElement | null) {
@@ -2042,9 +2049,26 @@ function ProjectMaterialFragment({
 
 function ProjectIngestBeat() {
   const sectionRef = useRef<HTMLElement>(null);
-  const compact = useMediaQuery("(max-width: 820px)");
+  const narrowLayout = useMediaQuery("(max-width: 820px)");
+  const phoneLayout = useMediaQuery(MOBILE_STORY_QUERY);
+  const compact = narrowLayout || phoneLayout;
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const progress = useProjectIngestProgress(sectionRef, reducedMotion);
+  const rawProgress = useProjectIngestProgress(sectionRef, reducedMotion);
+  const progress = useMobileDiscreteProgress(
+    rawProgress,
+    phoneLayout,
+    reducedMotion,
+    MOBILE_PROJECT_INGEST_MAGNET_STOPS,
+    MOBILE_PROJECT_INGEST_FORWARD_THRESHOLDS,
+    MOBILE_PROJECT_INGEST_BACK_THRESHOLDS
+  );
+
+  useMobileStoryMagnet(
+    sectionRef,
+    phoneLayout,
+    reducedMotion,
+    MOBILE_PROJECT_INGEST_MAGNET_STOPS
+  );
 
   const collector = {
     x: compact ? 50 : 46,
@@ -2067,6 +2091,7 @@ function ProjectIngestBeat() {
     <section
       ref={sectionRef}
       className="project-ingest-beat"
+      data-mobile-discrete={phoneLayout ? "true" : "false"}
       data-testid="project-book-ingest"
       data-story-beat="03-project-ingest"
     >
@@ -2256,16 +2281,24 @@ function KnowledgeBaseChapter({
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const compact = useMediaQuery("(max-width: 900px)");
-  const phoneLayout = useMediaQuery(MOBILE_KNOWLEDGE_QUERY);
+  const phoneLayout = useMediaQuery(MOBILE_STORY_QUERY);
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const rawProgress = useProjectIngestProgress(sectionRef, reducedMotion);
-  const progress = useMobileKnowledgeDisplayProgress(
+  const progress = useMobileDiscreteProgress(
     rawProgress,
     phoneLayout,
-    reducedMotion
+    reducedMotion,
+    MOBILE_KNOWLEDGE_MAGNET_STOPS,
+    MOBILE_KNOWLEDGE_FORWARD_THRESHOLDS,
+    MOBILE_KNOWLEDGE_BACK_THRESHOLDS
   );
 
-  useMobileKnowledgeMagnet(sectionRef, phoneLayout, reducedMotion);
+  useMobileStoryMagnet(
+    sectionRef,
+    phoneLayout,
+    reducedMotion,
+    MOBILE_KNOWLEDGE_MAGNET_STOPS
+  );
 
   const orbitTravel = easeInOutCubic(progressRange(progress, 0.005, 0.18));
   const snapToWiki = easeInOutCubic(progressRange(progress, 0.13, 0.285));

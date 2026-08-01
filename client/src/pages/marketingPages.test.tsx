@@ -253,9 +253,9 @@ describe("US iOS acquisition pages", () => {
     );
     const chapterSource = storySource.slice(chapterStart, chapterEnd);
 
-    expect(storySource).toContain("const MOBILE_KNOWLEDGE_QUERY");
+    expect(storySource).toContain("const MOBILE_STORY_QUERY");
     expect(chapterSource).toContain(
-      "const phoneLayout = useMediaQuery(MOBILE_KNOWLEDGE_QUERY)"
+      "const phoneLayout = useMediaQuery(MOBILE_STORY_QUERY)"
     );
     expect(storySource).toContain(
       "const MOBILE_KNOWLEDGE_MAGNET_STOPS = [0.03, 0.35, 0.62, 0.93]"
@@ -267,8 +267,8 @@ describe("US iOS acquisition pages", () => {
       "const MOBILE_KNOWLEDGE_BACK_THRESHOLDS = [0.18, 0.43, 0.79]"
     );
     expect(chapterSource).toContain("useProjectIngestProgress");
-    expect(chapterSource).toContain("useMobileKnowledgeDisplayProgress");
-    expect(chapterSource).toContain("useMobileKnowledgeMagnet");
+    expect(chapterSource).toContain("useMobileDiscreteProgress");
+    expect(chapterSource).toContain("useMobileStoryMagnet");
     expect(chapterSource).toContain(
       'className="kb-story-scroll scroll-driven-story scroll-driven-story--four"'
     );
@@ -281,7 +281,7 @@ describe("US iOS acquisition pages", () => {
     expect(storySource).not.toContain(
       'data-testid="chapter-01-mobile-scroll-story"'
     );
-    expect(storySource).toContain("function useMobileKnowledgeMagnet");
+    expect(storySource).toContain("function useMobileStoryMagnet");
     expect(storySource).toContain('!("onscrollend" in window)');
     expect(storySource).toContain("travelled < 24");
     expect(storySource).toContain("Math.min(72, distance * 0.04)");
@@ -292,6 +292,64 @@ describe("US iOS acquisition pages", () => {
     );
     expect(continuousStyles).toContain("contain: layout paint");
     expect(continuousStyles).not.toContain("touch-action: none");
+  });
+
+  it("stabilizes Chapter 03 project ingest on phones without changing desktop", () => {
+    const storySource = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "client/src/components/demo-story/ContinuousDemoStory.tsx"
+      ),
+      "utf8"
+    );
+    const continuousStyles = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "client/src/components/demo-story/continuous-overrides.css"
+      ),
+      "utf8"
+    );
+    const projectStart = storySource.indexOf("function ProjectIngestBeat");
+    const projectEnd = storySource.indexOf(
+      "function KnowledgeFolderIcon",
+      projectStart
+    );
+    const projectSource = storySource.slice(projectStart, projectEnd);
+
+    expect(storySource).toContain(
+      "const MOBILE_PROJECT_INGEST_MAGNET_STOPS = [0.03, 0.42, 0.68, 0.94]"
+    );
+    expect(storySource).toContain(
+      "const MOBILE_PROJECT_INGEST_FORWARD_THRESHOLDS = [0.22, 0.58, 0.84]"
+    );
+    expect(storySource).toContain(
+      "const MOBILE_PROJECT_INGEST_BACK_THRESHOLDS = [0.16, 0.5, 0.76]"
+    );
+    expect(projectSource).toContain(
+      "const rawProgress = useProjectIngestProgress"
+    );
+    expect(projectSource).toContain("useMobileDiscreteProgress");
+    expect(projectSource).toContain("useMobileStoryMagnet");
+    expect(projectSource).toContain("MOBILE_PROJECT_INGEST_MAGNET_STOPS");
+    expect(projectSource).toContain(
+      'data-mobile-discrete={phoneLayout ? "true" : "false"}'
+    );
+    expect(projectSource).toContain(
+      "const compact = narrowLayout || phoneLayout"
+    );
+    expect(projectSource).not.toContain('data-mobile-discrete="true"');
+    expect(projectSource).not.toContain('addEventListener("touchmove"');
+    expect(projectSource).not.toContain('addEventListener("wheel"');
+    expect(continuousStyles).toContain(
+      '.project-ingest-beat[data-mobile-discrete="true"]'
+    );
+    expect(continuousStyles).toContain("contain: layout paint");
+    expect(continuousStyles).toContain("will-change: auto");
+    expect(continuousStyles).toContain("width: min(92%, 430px)");
+    expect(continuousStyles).toContain("bottom: 76px");
+    expect(continuousStyles).toMatch(
+      /project-ingest-beat\[data-mobile-discrete="true"\][\s\S]*transition: none/
+    );
   });
 
   it("presents every walkthrough page with the same prominent audio-guide control", () => {
