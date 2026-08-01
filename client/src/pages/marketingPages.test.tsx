@@ -282,7 +282,7 @@ describe("US iOS acquisition pages", () => {
     expect(continuousStyles).toContain(
       ".framework-shell--continuous .kb-mobile-stage"
     );
-    expect(continuousStyles).toContain("min-height: 1000px");
+    expect(continuousStyles).toContain("min-height: 1020px");
     expect(continuousStyles).toContain("touch-action: pan-y pinch-zoom");
     expect(continuousStyles).not.toContain("touch-action: none");
   });

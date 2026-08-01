@@ -1073,7 +1073,7 @@
 
   .framework-shell--continuous .kb-mobile-stage {
     /* Keep every tap state the same height so switching never shifts the page. */
-    min-height: 1000px;
+    min-height: 1020px;
     padding: 26px 14px 86px;
     display: flex;
     flex-direction: column;
