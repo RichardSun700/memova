@@ -7,6 +7,7 @@ import AgentMemory from "./AgentMemory";
 import HowItWorks from "./HowItWorks";
 import IOS from "./IOS";
 import Home from "./Home";
+import Mcp from "./Mcp";
 import { UseCaseDetailPage, useCaseDetails } from "./UseCaseDetail";
 import HeroSection from "@/components/sections/HeroSection";
 import CTASection from "@/components/sections/CTASection";
@@ -47,6 +48,22 @@ function findDivsByClass(html: string, className: string) {
 }
 
 describe("US iOS acquisition pages", () => {
+  it("presents MCP as a human-readable connection guide without linking people into the transport endpoint", () => {
+    const html = render(
+      <AuthProvider>
+        <Mcp />
+      </AuthProvider>
+    );
+
+    expect(html).toContain("Connect Memova to Codex and MCP clients.");
+    expect(html).toContain("Connection model");
+    expect(html).toContain("Machine endpoint · Streamable HTTP");
+    expect(html).toContain("not a browser page");
+    expect(html).toContain("Plain transport text at this URL is expected");
+    expect(html).toContain("https://api.memova.ai/mcp");
+    expect(html).not.toContain('href="https://api.memova.ai/mcp"');
+  });
+
   it("keeps both public privacy policy URLs mapped to the legal page", () => {
     expect(privacyPolicyPaths).toEqual(["/privacy", "/privacy-policy"]);
   });

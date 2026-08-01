@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { LogOut, UserRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { shouldSkipInitialMarketingMotion } from "@/seo/seoHandoff";
 
 const DISCORD_COMMUNITY_URL = "https://discord.gg/ZTS2XAEax";
 
@@ -14,6 +15,7 @@ const navLinks: Array<{ label: string; href: string; section?: string }> = [
 
 export default function Navbar() {
   const auth = useAuth();
+  const skipInitialMotion = shouldSkipInitialMarketingMotion();
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -40,7 +42,7 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      initial={{ y: -20, opacity: 0 }}
+      initial={skipInitialMotion ? false : { y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
       data-scrolled={scrolled}

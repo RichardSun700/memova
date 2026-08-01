@@ -563,9 +563,54 @@
 }
 
 @media (max-width: 720px) {
+  .demo-story-shell,
+  .framework-shell--continuous,
+  .framework-shell--continuous .book-layout,
+  .framework-shell--continuous .chapter-scroll {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .framework-shell--continuous {
     --narrative-top: 80px;
     --recording-readable-height: clamp(420px, 61svh, 530px);
+  }
+
+  /* Keep the scroll-driven project scene inside the mobile paint area. */
+  .framework-shell--continuous .project-ingest-book {
+    width: min(100%, 460px);
+  }
+
+  /*
+   * Mobile browsers repaint filters while their address bar is moving. The
+   * scene already fades these layers with opacity, so dropping blur here keeps
+   * the same narrative without making every scroll frame rasterize again.
+   */
+  .framework-shell--continuous .project-ingest-material,
+  .framework-shell--continuous .project-ingest-intro,
+  .framework-shell--continuous .project-ingest-finale {
+    filter: none !important;
+  }
+
+  .framework-shell--continuous .project-ingest-material {
+    will-change: transform, opacity;
+  }
+
+  .framework-shell--continuous .project-ingest-glow,
+  .framework-shell--continuous .project-ingest-book img {
+    filter: none;
+  }
+
+  .framework-shell--continuous .recording-play-control,
+  .framework-shell--continuous .recording-timeline {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .framework-shell--continuous .drag-cue svg,
+  .framework-shell--continuous .project-ingest-cue svg {
+    animation: none;
   }
 
   .demo-story-intro {
@@ -657,8 +702,10 @@
 
   .framework-shell--continuous .recording-column.has-timeline {
     order: 1;
-    min-height: calc(var(--recording-readable-height) + 210px);
-    grid-template-rows: minmax(0, auto) auto;
+    min-height: calc(var(--recording-readable-height) + 256px);
+    grid-template-rows:
+      calc(var(--recording-readable-height) + 16px)
+      188px;
     align-content: center;
     gap: 16px;
     padding: 18px 16px;
@@ -677,8 +724,11 @@
     left: auto;
     grid-row: 2;
     width: min(100%, 420px);
+    height: 188px;
+    min-height: 188px;
     max-height: 188px;
     padding: 14px 15px 13px;
+    background: rgba(249, 251, 255, 0.96);
     transform: none;
   }
 
@@ -728,6 +778,41 @@
 
   .page-narration-anchor .inline-narration-control {
     min-height: 58px;
+  }
+}
+
+@media (max-width: 360px) {
+  .page-narration-anchor {
+    top: 8px;
+    right: 10px;
+    width: min(132px, calc(100% - 20px));
+    max-width: calc(100% - 20px);
+  }
+
+  .page-narration-anchor .inline-narration-control {
+    --narration-eyebrow-size: 6.5px;
+    --narration-action-size: 7.5px;
+    --narration-time-size: 7px;
+    min-height: 50px;
+    padding: 6px 7px 8px 6px;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 6px;
+    border-radius: 14px;
+  }
+
+  .page-narration-anchor .inline-narration-control__identity {
+    display: none;
+  }
+
+  .page-narration-anchor .inline-narration-control__icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .chapter-beat:has(> .page-narration-anchor) > .beat-meta,
+  .project-ingest-sticky:has(> .page-narration-anchor) > .beat-meta {
+    min-height: 50px;
+    padding-right: 142px;
   }
 }
 

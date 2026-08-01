@@ -54,11 +54,12 @@ async function startServer() {
       ? path.resolve(__dirname, "public")
       : path.resolve(__dirname, "..", "dist", "public");
 
-  app.use(express.static(staticPath));
+  app.use(express.static(staticPath, { extensions: ["html"] }));
 
-  // Handle client-side routing - serve index.html for all routes
+  // Unknown paths use the real noindex 404 shell instead of flashing the
+  // homepage before the client router renders its not-found page.
   app.get("*", (_req, res) => {
-    res.sendFile(path.join(staticPath, "index.html"));
+    res.status(404).sendFile(path.join(staticPath, "404.html"));
   });
 
   const port = process.env.PORT || 3000;

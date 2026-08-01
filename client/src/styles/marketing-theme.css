@@ -412,9 +412,42 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
 }
 
+/*
+ * Fixed translucent layers can shimmer when a mobile browser resizes its
+ * visual viewport during scroll. Use an opaque surface on the compact nav so
+ * it no longer needs to continuously sample and blur the page behind it.
+ */
+@media (max-width: 767px) {
+  .memova-site-nav,
+  .memova-home-theme .memova-site-nav {
+    background: #fafcff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition-property: background-color, border-color, box-shadow, opacity;
+  }
+
+  .memova-site-nav[data-scrolled="true"],
+  .memova-home-theme .memova-site-nav[data-scrolled="true"] {
+    background: #ffffff;
+  }
+
+  .memova-mobile-menu,
+  .memova-home-theme .memova-mobile-menu {
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .memova-home-theme .memova-cta-card {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 @media (max-width: 639px) {
   .memova-home-theme .memova-site-nav {
-    background: rgba(250, 252, 255, 0.9);
+    background: #fafcff;
   }
 
   .memova-home-theme .memova-case-card:hover {

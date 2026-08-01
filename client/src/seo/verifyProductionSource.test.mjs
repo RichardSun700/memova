@@ -9,6 +9,9 @@ import {
 } from "../../../scripts/verify-production-source.mjs";
 
 const allRequiredPaths = new Set([
+  "client/public/demo/index.html",
+  "client/public/avery-portfolio-book/index.html",
+  "client/public/manifesto-the-future-of-being-remembered/index.html",
   "client/public/odmpartnership/index.html",
   "client/public/team/weilijiang/index.html",
   "client/public/thebookofmemova/index.html",
@@ -20,6 +23,16 @@ describe("findProductionSourceViolations", () => {
   it("requires the Book of Memova homepage in every production source", () => {
     expect(REQUIRED_TRACKED_PATHS).toContain(
       "client/public/thebookofmemova/index.html",
+    );
+  });
+
+  it("requires every preserved direct-link experience", () => {
+    expect(REQUIRED_TRACKED_PATHS).toEqual(
+      expect.arrayContaining([
+        "client/public/demo/index.html",
+        "client/public/avery-portfolio-book/index.html",
+        "client/public/manifesto-the-future-of-being-remembered/index.html",
+      ]),
     );
   });
 
@@ -91,6 +104,10 @@ describe("production verification pipelines", () => {
     );
 
     expectCommandsInOrder(source);
+    expect(source).toContain("pnpm install --frozen-lockfile");
+    expect(source).toContain('git rev-parse origin/main');
+    expect(source).toContain('wrangler_version="4.110.0"');
+    expect(source).not.toContain("git push origin HEAD:main");
   });
 
   it("runs the same build-first checks for pull requests and main", () => {

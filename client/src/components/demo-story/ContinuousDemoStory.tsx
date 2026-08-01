@@ -838,15 +838,47 @@ function useProjectIngestProgress(
     const continuous = scrollRoot.dataset.continuousScroll === "true";
 
     let frame = 0;
+    let continuousViewportTop = 80;
+    let continuousViewportHeight = Math.max(
+      1,
+      window.innerHeight - continuousViewportTop
+    );
+    let continuousViewportWidth = window.innerWidth;
+
+    const measureContinuousViewport = () => {
+      if (!continuous) return;
+
+      const narrativeTop = Number.parseFloat(
+        window.getComputedStyle(scrollRoot).getPropertyValue("--narrative-top")
+      );
+      const viewportFrame = section.querySelector<HTMLElement>(
+        ".project-ingest-sticky, .scroll-driven-story > .concept-beat"
+      );
+
+      continuousViewportTop = Number.isFinite(narrativeTop) ? narrativeTop : 80;
+      /*
+       * The continuous layout is sized with --chapter-viewport (100svh).
+       * Measure that rendered frame once instead of using window.innerHeight,
+       * which changes whenever a mobile browser expands or collapses its UI.
+       */
+      continuousViewportHeight = Math.max(
+        1,
+        viewportFrame?.getBoundingClientRect().height ??
+          continuousViewportHeight
+      );
+      continuousViewportWidth = window.innerWidth;
+    };
+
+    measureContinuousViewport();
 
     const update = () => {
       frame = 0;
       const sectionRect = section.getBoundingClientRect();
       const viewportTop = continuous
-        ? 80
+        ? continuousViewportTop
         : scrollRoot.getBoundingClientRect().top;
       const viewportHeight = continuous
-        ? Math.max(1, window.innerHeight - viewportTop)
+        ? continuousViewportHeight
         : scrollRoot.clientHeight;
       const travelled = viewportTop - sectionRect.top;
       const distance = Math.max(1, section.offsetHeight - viewportHeight);
@@ -861,15 +893,36 @@ function useProjectIngestProgress(
       if (!frame) frame = window.requestAnimationFrame(update);
     };
 
+    const handleResize = () => {
+      if (!continuous) {
+        requestUpdate();
+        return;
+      }
+
+      const previousTop = continuousViewportTop;
+      const previousHeight = continuousViewportHeight;
+      const previousWidth = continuousViewportWidth;
+      measureContinuousViewport();
+
+      /* Ignore address-bar-only resizes when the 100svh layout did not move. */
+      if (
+        Math.abs(previousTop - continuousViewportTop) > 0.5 ||
+        Math.abs(previousHeight - continuousViewportHeight) > 0.5 ||
+        Math.abs(previousWidth - continuousViewportWidth) > 0.5
+      ) {
+        requestUpdate();
+      }
+    };
+
     update();
     const scrollTarget: Window | HTMLElement = continuous ? window : scrollRoot;
     scrollTarget.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       scrollTarget.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
+      window.removeEventListener("resize", handleResize);
     };
   }, [reducedMotion, sectionRef]);
 
@@ -920,49 +973,70 @@ function useRecordingFocus(
 
     let frame = 0;
 
+    const resetPresentation = () => {
+      column.style.removeProperty("--recording-focus");
+      column.style.removeProperty("--recording-scale");
+      column.style.removeProperty("--recording-opacity");
+      column.style.removeProperty("--recording-height");
+      column.style.removeProperty("--recording-center-offset-y");
+      column.style.removeProperty("--recording-viewport-center-y");
+      column.style.removeProperty("--recording-frame-inset");
+      column.style.removeProperty("--recording-frame-border-width");
+      delete column.dataset.recordingFocusValue;
+      delete column.dataset.recordingOverlay;
+      delete column.dataset.recordingFullscreen;
+    };
+
+    /*
+     * Public-site recordings stay as normal document content. Apply that
+     * presentation once and let IntersectionObserver pause off-screen video;
+     * avoid one window scroll/resize/ResizeObserver pipeline per recording.
+     */
+    if (continuous) {
+      column.style.setProperty("--recording-focus", "0");
+      column.style.setProperty("--recording-scale", "1");
+      column.style.setProperty("--recording-opacity", "1");
+      column.style.setProperty(
+        "--recording-height",
+        "var(--recording-readable-height)"
+      );
+      column.style.setProperty("--recording-center-offset-y", "0px");
+      column.style.setProperty("--recording-frame-inset", "7px");
+      column.style.setProperty("--recording-frame-border-width", "1px");
+      column.dataset.recordingFocusValue = "0";
+      column.dataset.recordingFocus = "idle";
+      column.dataset.recordingOverlay = "false";
+      column.dataset.recordingFullscreen = "false";
+      syncRecordingShellFocus(shell);
+
+      const visibilityObserver =
+        typeof IntersectionObserver === "undefined"
+          ? null
+          : new IntersectionObserver(
+              ([entry]) => {
+                const video = videoRef.current;
+                if (!entry.isIntersecting && video && !video.paused) {
+                  video.pause();
+                }
+              },
+              { rootMargin: "80px 0px", threshold: 0 }
+            );
+
+      visibilityObserver?.observe(column);
+
+      return () => {
+        visibilityObserver?.disconnect();
+        resetPresentation();
+        syncRecordingShellFocus(shell);
+      };
+    }
+
     const update = () => {
       frame = 0;
       const rootRect = scrollRoot.getBoundingClientRect();
       const columnRect = column.getBoundingClientRect();
-      const viewportTop = continuous ? 80 : 0;
-      const viewportHeight = continuous
-        ? Math.max(1, window.innerHeight - viewportTop)
-        : window.innerHeight;
-
-      /*
-       * The public website treats product recordings as readable content
-       * cards. Keep them in the document flow at the responsive size defined
-       * in continuous-overrides.css instead of promoting them into the
-       * presentation-only fixed/fullscreen state.
-       */
-      if (continuous) {
-        column.style.setProperty("--recording-focus", "0");
-        column.style.setProperty("--recording-scale", "1");
-        column.style.setProperty("--recording-opacity", "1");
-        column.style.setProperty(
-          "--recording-height",
-          "var(--recording-readable-height)"
-        );
-        column.style.setProperty("--recording-center-offset-y", "0px");
-        column.style.setProperty(
-          "--recording-viewport-center-y",
-          `${(viewportTop + viewportHeight / 2).toFixed(2)}px`
-        );
-        column.style.setProperty("--recording-frame-inset", "7px");
-        column.style.setProperty("--recording-frame-border-width", "1px");
-        column.dataset.recordingFocusValue = "0";
-        column.dataset.recordingFocus = "idle";
-        column.dataset.recordingOverlay = "false";
-        column.dataset.recordingFullscreen = "false";
-        syncRecordingShellFocus(shell);
-
-        const video = videoRef.current;
-        const outsideViewport =
-          columnRect.bottom < viewportTop ||
-          columnRect.top > window.innerHeight;
-        if (outsideViewport && video && !video.paused) video.pause();
-        return;
-      }
+      const viewportTop = 0;
+      const viewportHeight = window.innerHeight;
 
       const rootCenter = viewportTop + viewportHeight / 2;
       const columnCenter = columnRect.top + columnRect.height / 2;
@@ -985,10 +1059,7 @@ function useRecordingFocus(
       const focus = reducedMotion
         ? easedFocus
         : clampProgress(easedFocus / 0.985);
-      const restingHeight = Math.min(
-        1100,
-        Math.max(280, (continuous ? viewportHeight : rootRect.height) - 72)
-      );
+      const restingHeight = Math.min(1100, Math.max(280, rootRect.height - 72));
       const recordingHeight =
         restingHeight + (viewportHeight - restingHeight) * focus;
       const centerOffsetY = (rootCenter - columnCenter) * focus;
@@ -1032,11 +1103,11 @@ function useRecordingFocus(
     };
 
     update();
-    const scrollTarget: Window | HTMLElement = continuous ? window : scrollRoot;
+    const scrollTarget: HTMLElement = scrollRoot;
     scrollTarget.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
     const resizeObserver = new ResizeObserver(requestUpdate);
-    if (!continuous) resizeObserver.observe(scrollRoot);
+    resizeObserver.observe(scrollRoot);
     resizeObserver.observe(column);
 
     return () => {
@@ -1044,17 +1115,7 @@ function useRecordingFocus(
       scrollTarget.removeEventListener("scroll", requestUpdate);
       window.removeEventListener("resize", requestUpdate);
       resizeObserver.disconnect();
-      column.style.removeProperty("--recording-focus");
-      column.style.removeProperty("--recording-scale");
-      column.style.removeProperty("--recording-opacity");
-      column.style.removeProperty("--recording-height");
-      column.style.removeProperty("--recording-center-offset-y");
-      column.style.removeProperty("--recording-viewport-center-y");
-      column.style.removeProperty("--recording-frame-inset");
-      column.style.removeProperty("--recording-frame-border-width");
-      delete column.dataset.recordingFocusValue;
-      delete column.dataset.recordingOverlay;
-      delete column.dataset.recordingFullscreen;
+      resetPresentation();
       syncRecordingShellFocus(shell);
     };
   }, [columnRef, focusWeight, videoRef, reducedMotion]);

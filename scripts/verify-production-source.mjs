@@ -3,6 +3,9 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 export const REQUIRED_TRACKED_PATHS = [
+  "client/public/demo/index.html",
+  "client/public/avery-portfolio-book/index.html",
+  "client/public/manifesto-the-future-of-being-remembered/index.html",
   "client/public/odmpartnership/index.html",
   "client/public/team/weilijiang/index.html",
   "client/public/thebookofmemova/index.html",

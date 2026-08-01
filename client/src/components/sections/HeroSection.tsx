@@ -17,12 +17,14 @@ import {
   Search,
   Eye,
 } from "lucide-react";
+import { shouldSkipInitialMarketingMotion } from "@/seo/seoHandoff";
 
 interface HeroSectionProps {
   onSeeWorkflow: () => void;
 }
 
 export default function HeroSection({ onSeeWorkflow }: HeroSectionProps) {
+  const skipInitialMotion = shouldSkipInitialMarketingMotion();
   const [hoveredSide, setHoveredSide] = useState<"before" | "after" | null>(
     null
   );
@@ -54,7 +56,7 @@ export default function HeroSection({ onSeeWorkflow }: HeroSectionProps) {
           {/* Left Column: Granola-Inspired Editorial Header */}
           <div className="min-w-0 max-w-full lg:col-span-6 space-y-6 text-left flex flex-col justify-center">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={skipInitialMotion ? false : { opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
               className="memova-eyebrow inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--memova-blue)]/10 border border-[var(--memova-blue)]/20 w-fit"
@@ -68,7 +70,7 @@ export default function HeroSection({ onSeeWorkflow }: HeroSectionProps) {
             <div className="space-y-4">
               <motion.h1
                 id="home-hero-heading"
-                initial={{ opacity: 0, y: 25 }}
+                initial={skipInitialMotion ? false : { opacity: 0, y: 25 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
                   duration: 0.9,
@@ -85,7 +87,7 @@ export default function HeroSection({ onSeeWorkflow }: HeroSectionProps) {
               </motion.h1>
 
               <motion.p
-                initial={{ opacity: 0, y: 15 }}
+                initial={skipInitialMotion ? false : { opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
                   duration: 0.8,
@@ -102,7 +104,7 @@ export default function HeroSection({ onSeeWorkflow }: HeroSectionProps) {
 
             {/* CTA Buttons with Snappy Scale Feedbacks */}
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
+              initial={skipInitialMotion ? false : { opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
                 duration: 0.7,
@@ -137,7 +139,7 @@ export default function HeroSection({ onSeeWorkflow }: HeroSectionProps) {
 
             {/* Trust badges */}
             <motion.div
-              initial={{ opacity: 0 }}
+              initial={skipInitialMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
               className="flex max-w-[22rem] items-center gap-3 overflow-hidden flex-wrap pt-6 sm:max-w-xl"
@@ -179,7 +181,9 @@ export default function HeroSection({ onSeeWorkflow }: HeroSectionProps) {
           <div className="min-w-0 lg:col-span-6 flex justify-center">
             <motion.div
               id="alignment-loop-preview"
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              initial={
+                skipInitialMotion ? false : { opacity: 0, scale: 0.95, y: 30 }
+              }
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
               className="memova-brand-panel w-full max-w-[310px] sm:max-w-lg bg-slate-50/50 border border-slate-200/60 rounded-3xl p-4 sm:p-5 shadow-xl relative overflow-hidden backdrop-blur-md"

@@ -3,7 +3,12 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
-import { defineConfig, type Plugin, type ProxyOptions, type ViteDevServer } from "vite";
+import {
+  defineConfig,
+  type Plugin,
+  type ProxyOptions,
+  type ViteDevServer,
+} from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 
 // =============================================================================
@@ -56,7 +61,7 @@ function writeToLogFile(source: LogSource, entries: unknown[]) {
   const logPath = path.join(LOG_DIR, `${source}.log`);
 
   // Format entries with timestamps
-  const lines = entries.map((entry) => {
+  const lines = entries.map(entry => {
     const ts = new Date().toISOString();
     return `[${ts}] ${JSON.stringify(entry)}`;
   });
@@ -132,7 +137,7 @@ function vitePluginManusDebugCollector(): Plugin {
         }
 
         let body = "";
-        req.on("data", (chunk) => {
+        req.on("data", chunk => {
           body += chunk.toString();
         });
 
@@ -156,7 +161,10 @@ function vitePluginStorageProxy(): Plugin {
     configureServer(server: ViteDevServer) {
       server.middlewares.use("/manus-storage", async (req, res) => {
         const key = decodeURIComponent(
-          new URL(req.url || "/", "http://localhost").pathname.replace(/^\//, "")
+          new URL(req.url || "/", "http://localhost").pathname.replace(
+            /^\//,
+            ""
+          )
         );
         if (!key) {
           res.writeHead(400, { "Content-Type": "text/plain" });
@@ -164,7 +172,12 @@ function vitePluginStorageProxy(): Plugin {
           return;
         }
 
-        const publicStorageDir = path.join(PROJECT_ROOT, "client", "public", "manus-storage");
+        const publicStorageDir = path.join(
+          PROJECT_ROOT,
+          "client",
+          "public",
+          "manus-storage"
+        );
         const localPath = path.join(publicStorageDir, key);
         if (
           localPath.startsWith(publicStorageDir) &&
@@ -172,14 +185,19 @@ function vitePluginStorageProxy(): Plugin {
           fs.statSync(localPath).isFile()
         ) {
           res.writeHead(200, {
-            "Content-Type": key.endsWith(".png") ? "image/png" : "application/octet-stream",
+            "Content-Type": key.endsWith(".png")
+              ? "image/png"
+              : "application/octet-stream",
             "Cache-Control": "no-store",
           });
           fs.createReadStream(localPath).pipe(res);
           return;
         }
 
-        const forgeBaseUrl = (process.env.BUILT_IN_FORGE_API_URL || "").replace(/\/+$/, "");
+        const forgeBaseUrl = (process.env.BUILT_IN_FORGE_API_URL || "").replace(
+          /\/+$/,
+          ""
+        );
         const forgeKey = process.env.BUILT_IN_FORGE_API_KEY;
 
         if (!forgeBaseUrl || !forgeKey) {
@@ -189,7 +207,10 @@ function vitePluginStorageProxy(): Plugin {
         }
 
         try {
-          const forgeUrl = new URL("v1/storage/presign/get", forgeBaseUrl + "/");
+          const forgeUrl = new URL(
+            "v1/storage/presign/get",
+            forgeBaseUrl + "/"
+          );
           forgeUrl.searchParams.set("path", key);
 
           const forgeResp = await fetch(forgeUrl, {
@@ -220,12 +241,11 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
 const memovaApiProxy: ProxyOptions = {
   target: process.env.VITE_API_PROXY_TARGET || "https://api.memova.ai",
   changeOrigin: true,
   secure: true,
-  rewrite: (proxyPath) => proxyPath.replace(/^\/__memova_api/, ""),
+  rewrite: proxyPath => proxyPath.replace(/^\/__memova_api/, ""),
 };
 const waitlistApiProxy: ProxyOptions = {
   target: process.env.WAITLIST_API_ORIGIN || "https://memova.ai",
@@ -233,8 +253,19 @@ const waitlistApiProxy: ProxyOptions = {
   secure: true,
 };
 
-export default defineConfig({
-  plugins,
+export default defineConfig(({ command, isPreview }) => ({
+  plugins: [
+    react(),
+    tailwindcss(),
+    ...(command === "serve" && !isPreview
+      ? [
+          jsxLocPlugin(),
+          vitePluginManusRuntime(),
+          vitePluginManusDebugCollector(),
+          vitePluginStorageProxy(),
+        ]
+      : []),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -276,4 +307,4 @@ export default defineConfig({
       "/__memova_api": memovaApiProxy,
     },
   },
-});
+}));

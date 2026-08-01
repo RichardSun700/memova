@@ -16,6 +16,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import SiteMetadata from "./seo/SiteMetadata";
+import SpaNavigation from "./navigation/SpaNavigation";
 import AgentMemory from "./pages/AgentMemory";
 import HowItWorks from "./pages/HowItWorks";
 import IOS from "./pages/IOS";
@@ -41,7 +42,7 @@ function Router() {
       <Route path={"/agent-memory"} component={AgentMemory} />
       <Route path={"/how-it-works"} component={HowItWorks} />
       <Route path={"/use-cases/:slug"}>
-        {(params) => <UseCaseDetailPage slug={params.slug} />}
+        {params => <UseCaseDetailPage slug={params.slug} />}
       </Route>
       <Route
         path={"/bay-area-agent-demo-2"}
@@ -50,7 +51,7 @@ function Router() {
       <Route path={"/login"} component={Login} />
       <Route path={"/profile"} component={Profile} />
       <Route path={"/connected-clients"} component={ConnectedClients} />
-      {privacyPolicyPaths.map((path) => (
+      {privacyPolicyPaths.map(path => (
         <Route key={path} path={path} component={PrivacyPolicyPage} />
       ))}
       <Route path={"/terms"} component={TermsOfServicePage} />
@@ -83,6 +84,7 @@ function App() {
         <AuthProvider>
           <TooltipProvider>
             <SiteMetadata />
+            <SpaNavigation />
             <AnalyticsTracker />
             <Toaster />
             <Router />
