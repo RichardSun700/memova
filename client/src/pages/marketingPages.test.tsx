@@ -231,7 +231,7 @@ describe("US iOS acquisition pages", () => {
     expect(baseStyles).toContain("pointer-events: none");
   });
 
-  it("uses a dedicated tap-controlled Chapter 01 presentation on phones", () => {
+  it("restores the single scroll-driven Chapter 01 story with stable mobile scenes", () => {
     const storySource = fs.readFileSync(
       path.resolve(
         process.cwd(),
@@ -246,44 +246,51 @@ describe("US iOS acquisition pages", () => {
       ),
       "utf8"
     );
-    const mobileStart = storySource.indexOf(
-      "function MobileKnowledgeBaseChapter"
+    const chapterStart = storySource.indexOf("function KnowledgeBaseChapter");
+    const chapterEnd = storySource.indexOf(
+      "function NoteChapter",
+      chapterStart
     );
-    const wrapperStart = storySource.indexOf("function KnowledgeBaseChapter");
-    const desktopStart = storySource.indexOf(
-      "function DesktopKnowledgeBaseChapter"
-    );
-    const mobileChapterSource = storySource.slice(mobileStart, wrapperStart);
+    const chapterSource = storySource.slice(chapterStart, chapterEnd);
 
-    expect(mobileStart).toBeGreaterThan(-1);
-    expect(wrapperStart).toBeGreaterThan(mobileStart);
-    expect(desktopStart).toBeGreaterThan(wrapperStart);
-    expect(storySource).toContain(
-      'const phoneLayout = useMediaQuery("(max-width: 720px)")'
+    expect(storySource).toContain("const MOBILE_KNOWLEDGE_QUERY");
+    expect(chapterSource).toContain(
+      "const phoneLayout = useMediaQuery(MOBILE_KNOWLEDGE_QUERY)"
     );
-    expect(storySource).toContain("KNOWLEDGE_BASE_MOBILE_STEPS");
     expect(storySource).toContain(
-      'data-testid="chapter-01-mobile-step-flow"'
+      "const MOBILE_KNOWLEDGE_MAGNET_STOPS = [0.03, 0.35, 0.62, 0.93]"
     );
-    expect(storySource).toContain('aria-label="Chapter 01 mobile steps"');
-    expect(storySource).toContain("aria-pressed={index === stepIndex}");
     expect(storySource).toContain(
-      'data-testid="chapter-01-mobile-recording"'
+      "const MOBILE_KNOWLEDGE_FORWARD_THRESHOLDS = [0.23, 0.49, 0.85]"
     );
-    expect(storySource).toContain("<MobileKnowledgeBaseChapter");
-    expect(storySource).toContain("<DesktopKnowledgeBaseChapter");
-    expect(mobileChapterSource).not.toContain("useProjectIngestProgress");
-    expect(mobileChapterSource).not.toContain("scroll-driven-story");
-    expect(mobileChapterSource).not.toContain("onTouchMove");
-    expect(mobileChapterSource).not.toContain('addEventListener("touchmove"');
+    expect(storySource).toContain(
+      "const MOBILE_KNOWLEDGE_BACK_THRESHOLDS = [0.18, 0.43, 0.79]"
+    );
+    expect(chapterSource).toContain("useProjectIngestProgress");
+    expect(chapterSource).toContain("useMobileKnowledgeDisplayProgress");
+    expect(chapterSource).toContain("useMobileKnowledgeMagnet");
+    expect(chapterSource).toContain(
+      'className="kb-story-scroll scroll-driven-story scroll-driven-story--four"'
+    );
+    expect(chapterSource).toContain(
+      'data-mobile-discrete={phoneLayout ? "true" : "false"}'
+    );
+    expect(chapterSource).toContain('data-testid="chapter-01-scroll-story"');
+    expect(storySource).not.toContain("function MobileKnowledgeBaseChapter");
+    expect(storySource).not.toContain("KNOWLEDGE_BASE_MOBILE_STEPS");
+    expect(storySource).not.toContain(
+      'data-testid="chapter-01-mobile-scroll-story"'
+    );
+    expect(storySource).toContain("function useMobileKnowledgeMagnet");
+    expect(storySource).toContain('!("onscrollend" in window)');
+    expect(storySource).toContain("travelled < 24");
+    expect(storySource).toContain("Math.min(72, distance * 0.04)");
+    expect(storySource).not.toContain('addEventListener("touchmove"');
+    expect(storySource).not.toContain('addEventListener("wheel"');
     expect(continuousStyles).toContain(
-      "Chapter 01 · phone presentation"
+      '.kb-story-scroll[data-mobile-discrete="true"]'
     );
-    expect(continuousStyles).toContain(
-      ".framework-shell--continuous .kb-mobile-stage"
-    );
-    expect(continuousStyles).toContain("min-height: 1020px");
-    expect(continuousStyles).toContain("touch-action: pan-y pinch-zoom");
+    expect(continuousStyles).toContain("contain: layout paint");
     expect(continuousStyles).not.toContain("touch-action: none");
   });
 

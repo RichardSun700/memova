@@ -321,52 +321,8 @@ const KB_ROOT_FILES = [
   { id: "readme", label: "README.md", detail: "Human guide" },
 ] as const;
 
-const KNOWLEDGE_BASE_MOBILE_STEPS = [
-  {
-    id: "capture",
-    number: "01",
-    label: "Capture",
-    time: "00:00–00:04",
-    title: "Everyday context, collected.",
-    detail: "Notes, ideas, files, and conversations enter one private context layer.",
-    narrationId: "01-everyday-context",
-  },
-  {
-    id: "structure",
-    number: "02",
-    label: "Structure",
-    time: "00:04–00:08",
-    title: "One Personal LLM Wiki.",
-    detail: "Memova connects what matters into a structure both people and agents can use.",
-    narrationId: "01-personal-llm-wiki",
-  },
-  {
-    id: "recording",
-    number: "03",
-    label: "Real UI",
-    time: "00:08–00:18",
-    title: "See the real setup.",
-    detail: "Tap the recording to play. The page remains free to scroll while it runs.",
-    narrationId: "01-knowledge-base-ui",
-  },
-  {
-    id: "case",
-    number: "04",
-    label: "Case",
-    time: "00:18–00:20",
-    title: "Start with one real context.",
-    detail: "Open the Apollo 11 Note and continue the story from knowledge into action.",
-    narrationId: "01-apollo-case",
-  },
-] as const satisfies ReadonlyArray<{
-  id: string;
-  number: string;
-  label: string;
-  time: string;
-  title: string;
-  detail: string;
-  narrationId: NarrationSegment["id"];
-}>;
+const MOBILE_KNOWLEDGE_QUERY =
+  "(max-width: 720px), (max-width: 960px) and (hover: none) and (pointer: coarse)";
 
 const KB_ORBIT_TRACKS = [
   { radiusX: 25, radiusY: 19, turns: 0.64 },
@@ -1051,6 +1007,152 @@ function useProjectIngestProgress(
   }, [reducedMotion, sectionRef]);
 
   return reducedMotion ? 1 : progress;
+}
+
+const MOBILE_KNOWLEDGE_MAGNET_STOPS = [0.03, 0.35, 0.62, 0.93] as const;
+const MOBILE_KNOWLEDGE_FORWARD_THRESHOLDS = [0.23, 0.49, 0.85] as const;
+const MOBILE_KNOWLEDGE_BACK_THRESHOLDS = [0.18, 0.43, 0.79] as const;
+
+function useMobileKnowledgeDisplayProgress(
+  rawProgress: number,
+  enabled: boolean,
+  reducedMotion: boolean
+) {
+  const [sceneIndex, setSceneIndex] = useState(0);
+
+  useEffect(() => {
+    if (!enabled || reducedMotion) return;
+
+    setSceneIndex(current => {
+      let next = current;
+
+      while (
+        next < MOBILE_KNOWLEDGE_MAGNET_STOPS.length - 1 &&
+        rawProgress > MOBILE_KNOWLEDGE_FORWARD_THRESHOLDS[next]
+      ) {
+        next += 1;
+      }
+
+      while (
+        next > 0 &&
+        rawProgress < MOBILE_KNOWLEDGE_BACK_THRESHOLDS[next - 1]
+      ) {
+        next -= 1;
+      }
+
+      return next;
+    });
+  }, [enabled, rawProgress, reducedMotion]);
+
+  return enabled && !reducedMotion
+    ? MOBILE_KNOWLEDGE_MAGNET_STOPS[sceneIndex]
+    : rawProgress;
+}
+
+function useMobileKnowledgeMagnet(
+  sectionRef: RefObject<HTMLElement | null>,
+  enabled: boolean,
+  reducedMotion: boolean
+) {
+  useEffect(() => {
+    if (!enabled || reducedMotion || !("onscrollend" in window)) {
+      return undefined;
+    }
+
+    const section = sectionRef.current;
+    const scrollingElement = document.scrollingElement;
+    const scrollRoot = section?.closest<HTMLElement>(".chapter-scroll");
+    if (!section || !scrollRoot || !scrollingElement) return undefined;
+
+    let lastScrollTop = scrollingElement.scrollTop;
+    let travelled = 0;
+    let snapping = false;
+    let snapTimer = 0;
+
+    const readNarrativeInset = () => {
+      const value = Number.parseFloat(
+        window.getComputedStyle(scrollRoot).getPropertyValue("--narrative-top")
+      );
+      return Number.isFinite(value) ? value : 80;
+    };
+
+    const handleScrollEnd = () => {
+      if (snapping || travelled < 24) {
+        travelled = 0;
+        return;
+      }
+      travelled = 0;
+
+      const inset = readNarrativeInset();
+      const sectionRect = section.getBoundingClientRect();
+      if (
+        sectionRect.bottom <= inset ||
+        sectionRect.top >= document.documentElement.clientHeight
+      ) {
+        return;
+      }
+
+      const viewportFrame = section.querySelector<HTMLElement>(
+        ".scroll-driven-story > .concept-beat"
+      );
+      const viewportHeight = Math.max(
+        1,
+        viewportFrame?.getBoundingClientRect().height ??
+          document.documentElement.clientHeight - inset
+      );
+      const distance = Math.max(1, section.offsetHeight - viewportHeight);
+      const visualPageTop = window.visualViewport?.pageTop;
+      const pageTop =
+        typeof visualPageTop === "number" && Number.isFinite(visualPageTop)
+          ? visualPageTop
+          : scrollingElement.scrollTop;
+      const sectionTop = sectionRect.top + pageTop;
+      const currentProgress = clampProgress(
+        (scrollingElement.scrollTop + inset - sectionTop) / distance
+      );
+      const nearest = MOBILE_KNOWLEDGE_MAGNET_STOPS.map(progress => ({
+        progress,
+        delta: progress - currentProgress,
+      })).sort(
+        (left, right) => Math.abs(left.delta) - Math.abs(right.delta)
+      )[0];
+      const threshold = Math.min(72, distance * 0.04) / distance;
+
+      if (
+        !nearest ||
+        Math.abs(nearest.delta) * distance < 2 ||
+        Math.abs(nearest.delta) > threshold
+      ) {
+        return;
+      }
+
+      snapping = true;
+      window.scrollTo({
+        top: sectionTop - inset + nearest.progress * distance,
+        behavior: "smooth",
+      });
+      snapTimer = window.setTimeout(() => {
+        snapping = false;
+        lastScrollTop = scrollingElement.scrollTop;
+      }, 450);
+    };
+
+    const handleScroll = () => {
+      const nextScrollTop = scrollingElement.scrollTop;
+      const delta = Math.abs(nextScrollTop - lastScrollTop);
+      lastScrollTop = nextScrollTop;
+      if (!snapping && delta > 0) travelled += delta;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scrollend", handleScrollEnd);
+
+    return () => {
+      window.clearTimeout(snapTimer);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scrollend", handleScrollEnd);
+    };
+  }, [enabled, reducedMotion, sectionRef]);
 }
 
 function syncRecordingShellFocus(shell: HTMLElement | null) {
@@ -2145,339 +2247,7 @@ function OrbitSignalIcon({
   return <KnowledgeFolderIcon node={fallbackNode} />;
 }
 
-function MobileKnowledgeBaseChapter({
-  footer,
-  onOpenCase,
-}: {
-  footer: ReactNode;
-  onOpenCase: () => void;
-}) {
-  const narration = useContext(NarrationContext);
-  const [stepIndex, setStepIndex] = useState(0);
-  const step = KNOWLEDGE_BASE_MOBILE_STEPS[stepIndex];
-
-  const showStep = useCallback(
-    (nextIndex: number) => {
-      const boundedIndex = Math.min(
-        KNOWLEDGE_BASE_MOBILE_STEPS.length - 1,
-        Math.max(0, nextIndex)
-      );
-      if (boundedIndex === stepIndex) return;
-
-      if (narration?.activeId) {
-        narration.resetNarration(narration.activeId);
-      }
-      setStepIndex(boundedIndex);
-    },
-    [narration, stepIndex]
-  );
-
-  return (
-    <article
-      className="knowledge-chapter knowledge-chapter--mobile"
-      data-content-slot="knowledge-base"
-    >
-      <ConceptBeat
-        label="Chapter 01 · Collect & Understand"
-        time="00:00–00:20"
-        className="kb-mobile-beat"
-        testId="chapter-01-mobile-story"
-        beatId={step.narrationId}
-      >
-        <div
-          className="kb-mobile-shell"
-          data-mobile-step={step.id}
-          data-testid="chapter-01-mobile-step-flow"
-        >
-          <header className="kb-mobile-header">
-            <div>
-              <span>Mobile story · tap to explore</span>
-              <h2>From everyday signals to understood Context.</h2>
-            </div>
-            <p>Normal page scrolling stays available at every step.</p>
-            <PageNarrationAnchor segmentId={step.narrationId} />
-          </header>
-
-          <ol
-            className="kb-mobile-step-tabs"
-            aria-label="Chapter 01 mobile steps"
-          >
-            {KNOWLEDGE_BASE_MOBILE_STEPS.map((item, index) => (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  id={`kb-mobile-tab-${item.id}`}
-                  aria-pressed={index === stepIndex}
-                  aria-controls="kb-mobile-step-panel"
-                  className={index === stepIndex ? "is-active" : ""}
-                  onClick={() => showStep(index)}
-                >
-                  <b>{item.number}</b>
-                  <span>{item.label}</span>
-                </button>
-              </li>
-            ))}
-          </ol>
-
-          <section
-            id="kb-mobile-step-panel"
-            key={step.id}
-            aria-labelledby={`kb-mobile-tab-${step.id}`}
-            className={`kb-mobile-stage kb-mobile-stage--${step.id}`}
-            data-testid={`chapter-01-mobile-${step.id}`}
-          >
-            <nav
-              className="kb-mobile-stage-navigation"
-              aria-label="Chapter 01 step navigation"
-            >
-              <button
-                type="button"
-                className="kb-mobile-arrow kb-mobile-arrow--previous"
-                aria-label={
-                  stepIndex > 0
-                    ? `Show previous step: ${KNOWLEDGE_BASE_MOBILE_STEPS[stepIndex - 1].label}`
-                    : "Previous step"
-                }
-                disabled={stepIndex === 0}
-                onClick={() => showStep(stepIndex - 1)}
-              >
-                <ChevronLeft aria-hidden="true" />
-              </button>
-              <span aria-live="polite">
-                {String(stepIndex + 1).padStart(2, "0")} / {" "}
-                {String(KNOWLEDGE_BASE_MOBILE_STEPS.length).padStart(2, "0")}
-              </span>
-              <button
-                type="button"
-                className="kb-mobile-arrow kb-mobile-arrow--next"
-                aria-label={
-                  stepIndex < KNOWLEDGE_BASE_MOBILE_STEPS.length - 1
-                    ? `Show next step: ${KNOWLEDGE_BASE_MOBILE_STEPS[stepIndex + 1].label}`
-                    : "Next step"
-                }
-                disabled={
-                  stepIndex === KNOWLEDGE_BASE_MOBILE_STEPS.length - 1
-                }
-                onClick={() => showStep(stepIndex + 1)}
-              >
-                <ChevronRight aria-hidden="true" />
-              </button>
-            </nav>
-
-            <header className="kb-mobile-stage-copy" aria-live="polite">
-              <span>
-                {step.number} · {step.label} · {step.time}
-              </span>
-              <h3>{step.title}</h3>
-              <p>{step.detail}</p>
-            </header>
-
-            {step.id === "capture" ? (
-              <div className="kb-mobile-capture-map">
-                <div className="kb-mobile-source-stack">
-                  {KB_SOURCE_FRAGMENTS.map(source => (
-                    <article key={source.id}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        loading="lazy"
-                        decoding="async"
-                        src={source.asset}
-                        alt=""
-                      />
-                      <span>
-                        <strong>{source.label}</strong>
-                        <small>{source.meta}</small>
-                      </span>
-                    </article>
-                  ))}
-                </div>
-                <div className="kb-mobile-flow-line" aria-hidden="true">
-                  <i />
-                  <ArrowDown />
-                </div>
-                <div className="kb-mobile-context-core">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    loading="lazy"
-                    decoding="async"
-                    src="/demo/brand/memova-logo.png"
-                    alt="Memova"
-                  />
-                  <span>Private context layer</span>
-                  <strong>Captured with intent.</strong>
-                  <small>Local · open-source · user-owned</small>
-                </div>
-                <div className="kb-mobile-capture-result">
-                  <span aria-hidden="true" />
-                  Ready for connected agents
-                </div>
-              </div>
-            ) : null}
-
-            {step.id === "structure" ? (
-              <div className="kb-mobile-wiki-card">
-                <header>
-                  <div>
-                    <span>Memova managed root</span>
-                    <strong>Personal LLM Wiki</strong>
-                  </div>
-                  <small>Private · exportable</small>
-                </header>
-                <div className="kb-mobile-wiki-sources">
-                  {KB_SOURCE_FRAGMENTS.map(source => (
-                    <span key={source.id}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        loading="lazy"
-                        decoding="async"
-                        src={source.asset}
-                        alt=""
-                      />
-                      {source.label}
-                    </span>
-                  ))}
-                </div>
-                <div className="kb-mobile-wiki-root">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    loading="lazy"
-                    decoding="async"
-                    src="/demo/icons/memova-book.svg"
-                    alt=""
-                  />
-                  <span>
-                    <strong>Structured by Memova</strong>
-                    <small>Capture · connect · remember · create</small>
-                  </span>
-                </div>
-                <div className="kb-mobile-wiki-groups">
-                  {KB_WIKI_GROUPS.map(group => (
-                    <section key={group.id}>
-                      <header>
-                        <b>{group.number}</b>
-                        <span>
-                          <strong>{group.label}</strong>
-                          <small>{group.detail}</small>
-                        </span>
-                      </header>
-                      <div>
-                        {KB_WIKI_FOLDERS.filter(
-                          node => node.group === group.id
-                        ).map(node => (
-                          <span key={node.id}>
-                            <KnowledgeFolderIcon node={node} />
-                            {node.label}
-                          </span>
-                        ))}
-                      </div>
-                    </section>
-                  ))}
-                </div>
-                <div className="kb-mobile-wiki-files">
-                  {KB_ROOT_FILES.map(file => (
-                    <span key={file.id}>
-                      <FileText aria-hidden="true" />
-                      {file.label}
-                    </span>
-                  ))}
-                </div>
-                <div className="kb-mobile-wiki-ready">
-                  <i aria-hidden="true" />
-                  <strong>LLM Wiki ready</strong>
-                  <small>Available to connected agents</small>
-                </div>
-              </div>
-            ) : null}
-
-            {step.id === "recording" ? (
-              <div
-                className="kb-mobile-recording"
-                data-testid="chapter-01-mobile-recording"
-              >
-                <div className="kb-mobile-recording-context">
-                  <span>Knowledge Base Setup · Real UI</span>
-                  <small>Tap to play · scroll normally at any time</small>
-                </div>
-                <RecordingPlayer
-                  active
-                  focusWeight={1}
-                  label="Knowledge Base setup product recording"
-                  title="Knowledge Base Setup"
-                  src="/demo/recordings/chapter-01-knowledge-base-setup.mp4"
-                  poster="/demo/posters/chapter-01-knowledge-base-setup.png"
-                  durationLabel="10s product recording"
-                  timelineCues={KNOWLEDGE_BASE_SETUP_CUES}
-                  preserveSidecar
-                />
-              </div>
-            ) : null}
-
-            {step.id === "case" ? (
-              <div className="kb-mobile-case-grid">
-                <button
-                  type="button"
-                  className="kb-mobile-case-primary"
-                  aria-label="Open the Apollo 11 Note example"
-                  onClick={onOpenCase}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    loading="lazy"
-                    decoding="async"
-                    src="/demo/media/kb-apollo-case-entry-ui.png"
-                    alt="Memova home showing the Apollo 11 After the Giant Leap sample note"
-                  />
-                  <span>
-                    Open the Apollo 11 Note
-                    <ChevronRight aria-hidden="true" />
-                  </span>
-                </button>
-                <figure>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    loading="lazy"
-                    decoding="async"
-                    src="/demo/media/apollo11-official-crew-portrait.jpg"
-                    alt="Apollo 11 prime crew: Neil Armstrong, Michael Collins, and Buzz Aldrin"
-                  />
-                  <figcaption>NASA · Apollo 11 Prime Crew</figcaption>
-                </figure>
-                <button
-                  type="button"
-                  className="kb-mobile-case-link"
-                  onClick={onOpenCase}
-                >
-                  <span>Apollo 11 · Case context</span>
-                  <strong>Continue into the Note</strong>
-                  <ChevronRight aria-hidden="true" />
-                </button>
-              </div>
-            ) : null}
-          </section>
-          {footer}
-        </div>
-      </ConceptBeat>
-    </article>
-  );
-}
-
 function KnowledgeBaseChapter({
-  footer,
-  onOpenCase,
-}: {
-  footer: ReactNode;
-  onOpenCase: () => void;
-}) {
-  const phoneLayout = useMediaQuery("(max-width: 720px)");
-
-  return phoneLayout ? (
-    <MobileKnowledgeBaseChapter footer={footer} onOpenCase={onOpenCase} />
-  ) : (
-    <DesktopKnowledgeBaseChapter footer={footer} onOpenCase={onOpenCase} />
-  );
-}
-
-function DesktopKnowledgeBaseChapter({
   footer,
   onOpenCase,
 }: {
@@ -2486,8 +2256,16 @@ function DesktopKnowledgeBaseChapter({
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const compact = useMediaQuery("(max-width: 900px)");
+  const phoneLayout = useMediaQuery(MOBILE_KNOWLEDGE_QUERY);
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const progress = useProjectIngestProgress(sectionRef, reducedMotion);
+  const rawProgress = useProjectIngestProgress(sectionRef, reducedMotion);
+  const progress = useMobileKnowledgeDisplayProgress(
+    rawProgress,
+    phoneLayout,
+    reducedMotion
+  );
+
+  useMobileKnowledgeMagnet(sectionRef, phoneLayout, reducedMotion);
 
   const orbitTravel = easeInOutCubic(progressRange(progress, 0.005, 0.18));
   const snapToWiki = easeInOutCubic(progressRange(progress, 0.13, 0.285));
@@ -2547,6 +2325,7 @@ function DesktopKnowledgeBaseChapter({
         ref={sectionRef}
         className="kb-story-scroll scroll-driven-story scroll-driven-story--four"
         data-auto-stage={stage}
+        data-mobile-discrete={phoneLayout ? "true" : "false"}
         data-testid="chapter-01-scroll-story"
       >
         <ConceptBeat
@@ -3127,10 +2906,7 @@ function NoteChapter({ footer }: { footer: ReactNode }) {
             <span>Generated from this Note</span>
             <h2>The complete Note, ready to explore.</h2>
           </div>
-          <div
-            className="html-output-actions"
-            aria-label="Page action preview"
-          >
+          <div className="html-output-actions" aria-label="Page action preview">
             <span>Share link</span>
             <span>Encrypt</span>
           </div>
@@ -3269,9 +3045,7 @@ function OutputPlatformResults() {
         <div className="output-actions" aria-label="Output action preview">
           <span>Edit</span>
           <span>Iterate</span>
-          <span className="is-primary">
-            Share
-          </span>
+          <span className="is-primary">Share</span>
         </div>
       </div>
     </ConceptBeat>
