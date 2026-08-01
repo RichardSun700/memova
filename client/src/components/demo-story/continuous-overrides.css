@@ -882,3 +882,827 @@
     transform: none;
   }
 }
+
+/*
+ * Chapter 01 · phone presentation
+ * --------------------------------
+ * Phones use a tap-controlled story instead of the desktop scroll scrub. The
+ * entire chapter stays in normal document flow, so browser chrome, video
+ * playback, and vertical page scrolling never compete for the same gesture.
+ */
+
+@media (max-width: 720px) {
+  .framework-shell--continuous .knowledge-chapter--mobile,
+  .framework-shell--continuous .kb-mobile-beat,
+  .framework-shell--continuous .kb-mobile-shell,
+  .framework-shell--continuous .kb-mobile-stage {
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .framework-shell--continuous .knowledge-chapter--mobile {
+    min-height: 0;
+    background:
+      radial-gradient(circle at 88% 8%, rgba(99, 126, 255, 0.13), transparent 25%),
+      linear-gradient(180deg, #f7f9ff 0%, #eef4ff 58%, #f9fbff 100%);
+  }
+
+  .framework-shell--continuous .kb-mobile-beat {
+    min-height: 0;
+    display: block;
+    padding: 24px 14px 34px;
+    overflow: hidden;
+    background:
+      linear-gradient(rgba(126, 148, 207, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(126, 148, 207, 0.045) 1px, transparent 1px);
+    background-size: 38px 38px;
+  }
+
+  .framework-shell--continuous .kb-mobile-beat > .beat-meta {
+    min-height: 0 !important;
+    margin: 0 auto 14px;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between;
+    gap: 12px !important;
+  }
+
+  .framework-shell--continuous .kb-mobile-beat > .beat-meta p {
+    font-size: 9px;
+  }
+
+  .framework-shell--continuous .kb-mobile-beat > .beat-meta time {
+    flex: 0 0 auto;
+    font-size: 8px;
+  }
+
+  .framework-shell--continuous .kb-mobile-shell {
+    max-width: 430px;
+    margin: 0 auto;
+    display: grid;
+    gap: 14px;
+  }
+
+  .kb-mobile-header {
+    display: grid;
+    gap: 10px;
+    padding: 17px 17px 15px;
+    border: 1px solid rgba(119, 143, 201, 0.22);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow:
+      0 18px 48px rgba(37, 64, 130, 0.09),
+      inset 0 1px rgba(255, 255, 255, 0.9);
+  }
+
+  .kb-mobile-header > div > span,
+  .kb-mobile-stage-copy > span,
+  .kb-mobile-recording-context > span {
+    color: var(--brand-blue);
+    font-family: var(--mono);
+    font-size: 8px;
+    font-weight: 780;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .kb-mobile-header h2 {
+    margin: 7px 0 0;
+    color: var(--brand-ink);
+    font-family: var(--serif);
+    font-size: clamp(30px, 9.2vw, 39px);
+    font-weight: 430;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+  }
+
+  .kb-mobile-header > p {
+    margin: 0;
+    color: var(--brand-body);
+    font-size: 11.5px;
+    line-height: 1.55;
+  }
+
+  .kb-mobile-header > .page-narration-anchor {
+    position: static;
+    inset: auto;
+    width: min(250px, 100%);
+    max-width: 100%;
+    margin: 2px 0 0 auto;
+  }
+
+  .kb-mobile-header > .page-narration-anchor .inline-narration-control {
+    width: 100%;
+  }
+
+  .kb-mobile-step-tabs {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    list-style: none;
+  }
+
+  .kb-mobile-step-tabs li {
+    min-width: 0;
+  }
+
+  .kb-mobile-step-tabs button {
+    width: 100%;
+    min-height: 56px;
+    padding: 8px 4px 7px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 3px;
+    color: var(--brand-muted);
+    border: 1px solid rgba(119, 143, 201, 0.26);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.74);
+    box-shadow: 0 9px 24px rgba(45, 70, 135, 0.06);
+    cursor: pointer;
+    font: inherit;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition:
+      color 160ms ease,
+      border-color 160ms ease,
+      background 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
+  }
+
+  .kb-mobile-step-tabs button:active {
+    transform: scale(0.98);
+  }
+
+  .kb-mobile-step-tabs button:focus-visible {
+    outline: 3px solid rgba(52, 105, 242, 0.34);
+    outline-offset: 2px;
+  }
+
+  .kb-mobile-step-tabs button.is-active {
+    color: #ffffff;
+    border-color: rgba(51, 104, 242, 0.7);
+    background: linear-gradient(145deg, #3979ff 0%, #2459e8 58%, #193fae 100%);
+    box-shadow:
+      0 12px 28px rgba(35, 81, 201, 0.22),
+      inset 0 1px rgba(255, 255, 255, 0.28);
+  }
+
+  .kb-mobile-step-tabs b {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+  }
+
+  .kb-mobile-step-tabs span {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 9px;
+    font-weight: 760;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .framework-shell--continuous .kb-mobile-stage {
+    /* Keep every tap state the same height so switching never shifts the page. */
+    min-height: 1000px;
+    padding: 26px 14px 86px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(110, 139, 211, 0.25);
+    border-radius: 29px;
+    background:
+      radial-gradient(circle at 50% 12%, rgba(70, 115, 245, 0.1), transparent 31%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 246, 255, 0.97));
+    box-shadow:
+      0 24px 60px rgba(32, 59, 124, 0.12),
+      inset 0 1px rgba(255, 255, 255, 0.94);
+    animation: kb-mobile-step-enter 220ms cubic-bezier(0.2, 0.76, 0.2, 1) both;
+  }
+
+  .kb-mobile-stage-copy {
+    max-width: 310px;
+    margin: 0 auto 18px;
+    text-align: center;
+  }
+
+  .kb-mobile-stage-copy h3 {
+    margin: 8px 0 0;
+    color: var(--brand-ink);
+    font-family: var(--serif);
+    font-size: clamp(27px, 8vw, 34px);
+    font-weight: 440;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .kb-mobile-stage-copy p {
+    margin: 10px auto 0;
+    color: var(--brand-body);
+    font-size: 11.5px;
+    line-height: 1.55;
+  }
+
+  .kb-mobile-stage-navigation {
+    position: absolute;
+    z-index: 20;
+    right: 16px;
+    bottom: 18px;
+    left: 16px;
+    display: grid;
+    grid-template-columns: 46px 1fr 46px;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+  }
+
+  .kb-mobile-stage-navigation > span {
+    color: var(--brand-periwinkle);
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 780;
+    letter-spacing: 0.14em;
+    text-align: center;
+  }
+
+  .kb-mobile-arrow {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    color: var(--brand-ink);
+    border: 1px solid rgba(100, 129, 202, 0.3);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 12px 26px rgba(34, 63, 132, 0.14);
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .kb-mobile-arrow:last-child {
+    color: #ffffff;
+    border-color: #2459e8;
+    background: linear-gradient(145deg, #3979ff, #2459e8 62%, #193fae);
+  }
+
+  .kb-mobile-arrow:focus-visible {
+    outline: 3px solid rgba(52, 105, 242, 0.36);
+    outline-offset: 3px;
+  }
+
+  .kb-mobile-arrow:disabled {
+    opacity: 0.24;
+    cursor: default;
+    box-shadow: none;
+  }
+
+  .kb-mobile-arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .kb-mobile-capture-map {
+    position: relative;
+    margin: 22px 0 0;
+    padding: 15px;
+    display: grid;
+    gap: 12px;
+    border: 1px solid rgba(98, 132, 216, 0.22);
+    border-radius: 23px;
+    background:
+      radial-gradient(circle at 50% 100%, rgba(99, 84, 225, 0.11), transparent 38%),
+      rgba(255, 255, 255, 0.86);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.9);
+  }
+
+  .kb-mobile-source-stack {
+    display: grid;
+    gap: 8px;
+  }
+
+  .kb-mobile-source-stack article {
+    min-height: 58px;
+    padding: 9px 11px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(112, 142, 215, 0.22);
+    border-radius: 16px;
+    background: rgba(248, 251, 255, 0.96);
+  }
+
+  .kb-mobile-source-stack img {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
+    object-fit: contain;
+  }
+
+  .kb-mobile-source-stack article > span {
+    min-width: 0;
+    display: grid;
+    gap: 3px;
+  }
+
+  .kb-mobile-source-stack strong {
+    color: var(--brand-ink);
+    font-size: 12px;
+  }
+
+  .kb-mobile-source-stack small,
+  .kb-mobile-context-core small {
+    color: var(--brand-muted);
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .kb-mobile-flow-line {
+    height: 36px;
+    display: grid;
+    place-items: center;
+    color: var(--brand-blue);
+  }
+
+  .kb-mobile-flow-line i {
+    width: 1px;
+    height: 22px;
+    grid-area: 1 / 1;
+    background: linear-gradient(180deg, rgba(36, 89, 232, 0.15), #2459e8);
+  }
+
+  .kb-mobile-flow-line svg {
+    width: 17px;
+    height: 17px;
+    grid-area: 1 / 1;
+    align-self: end;
+    padding-top: 5px;
+    background: #ffffff;
+  }
+
+  .kb-mobile-context-core {
+    padding: 16px 13px;
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    text-align: center;
+    border: 1px solid rgba(71, 111, 236, 0.32);
+    border-radius: 20px;
+    background: linear-gradient(145deg, #eef4ff, #ffffff 52%, #f2edff);
+    box-shadow:
+      0 0 0 5px rgba(51, 100, 238, 0.05),
+      0 15px 32px rgba(38, 70, 151, 0.11);
+  }
+
+  .kb-mobile-context-core img {
+    width: 70px;
+    height: 38px;
+    object-fit: contain;
+  }
+
+  .kb-mobile-context-core > span {
+    color: var(--brand-blue);
+    font-family: var(--mono);
+    font-size: 7px;
+    font-weight: 760;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .kb-mobile-context-core strong {
+    color: var(--brand-ink);
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 470;
+  }
+
+  .kb-mobile-capture-result,
+  .kb-mobile-wiki-ready {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--brand-ink);
+    font-size: 10px;
+    font-weight: 730;
+  }
+
+  .kb-mobile-capture-result > span,
+  .kb-mobile-wiki-ready > i {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--brand-mint);
+    box-shadow: 0 0 0 5px rgba(126, 203, 161, 0.14);
+  }
+
+  .kb-mobile-wiki-card {
+    margin: 22px 0 0;
+    padding: 14px;
+    display: grid;
+    gap: 11px;
+    color: var(--brand-ink);
+    border: 1px solid rgba(102, 135, 215, 0.28);
+    border-radius: 24px;
+    background: rgba(252, 253, 255, 0.96);
+    box-shadow:
+      0 17px 42px rgba(38, 66, 132, 0.11),
+      inset 0 1px rgba(255, 255, 255, 0.96);
+  }
+
+  .kb-mobile-wiki-card > header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(122, 145, 202, 0.2);
+  }
+
+  .kb-mobile-wiki-card > header > div {
+    display: grid;
+    gap: 3px;
+  }
+
+  .kb-mobile-wiki-card > header span,
+  .kb-mobile-wiki-card > header small,
+  .kb-mobile-wiki-root small,
+  .kb-mobile-wiki-groups small {
+    color: var(--brand-muted);
+    font-family: var(--mono);
+    font-size: 6.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .kb-mobile-wiki-card > header > div > strong {
+    font-family: var(--serif);
+    font-size: 21px;
+    font-weight: 480;
+  }
+
+  .kb-mobile-wiki-sources {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .kb-mobile-wiki-sources span {
+    min-width: 0;
+    min-height: 42px;
+    padding: 6px 4px;
+    display: grid;
+    place-items: center;
+    gap: 3px;
+    overflow: hidden;
+    border: 1px solid rgba(120, 147, 214, 0.2);
+    border-radius: 11px;
+    background: #f7faff;
+    font-size: 7.5px;
+    font-weight: 690;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .kb-mobile-wiki-sources img {
+    width: 19px;
+    height: 19px;
+    object-fit: contain;
+  }
+
+  .kb-mobile-wiki-root {
+    min-height: 54px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    border: 1px solid rgba(54, 105, 239, 0.34);
+    border-radius: 15px;
+    background: linear-gradient(135deg, #f0f5ff, #ffffff 60%, #f3efff);
+  }
+
+  .kb-mobile-wiki-root > img {
+    width: 31px;
+    height: 31px;
+    object-fit: contain;
+  }
+
+  .kb-mobile-wiki-root > span {
+    min-width: 0;
+    display: grid;
+    gap: 3px;
+  }
+
+  .kb-mobile-wiki-root strong {
+    font-size: 11.5px;
+  }
+
+  .kb-mobile-wiki-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .kb-mobile-wiki-groups > section {
+    min-width: 0;
+    min-height: 104px;
+    padding: 8px;
+    display: grid;
+    align-content: start;
+    gap: 7px;
+    border: 1px solid rgba(118, 145, 210, 0.2);
+    border-radius: 14px;
+    background: rgba(248, 250, 255, 0.94);
+  }
+
+  .kb-mobile-wiki-groups section > header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .kb-mobile-wiki-groups section > header > b {
+    width: 23px;
+    height: 23px;
+    display: grid;
+    place-items: center;
+    color: var(--brand-blue);
+    border-radius: 8px;
+    background: rgba(58, 111, 241, 0.1);
+    font-family: var(--mono);
+    font-size: 7px;
+  }
+
+  .kb-mobile-wiki-groups section > header > span {
+    min-width: 0;
+    display: grid;
+    gap: 1px;
+  }
+
+  .kb-mobile-wiki-groups section > header strong {
+    font-size: 9px;
+  }
+
+  .kb-mobile-wiki-groups section > div {
+    display: grid;
+    gap: 5px;
+  }
+
+  .kb-mobile-wiki-groups section > div > span {
+    min-width: 0;
+    min-height: 24px;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    overflow: hidden;
+    border: 1px solid rgba(125, 148, 202, 0.18);
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 7.5px;
+    font-weight: 690;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .kb-mobile-wiki-groups section > div svg {
+    width: 13px;
+    height: 13px;
+    flex: 0 0 auto;
+  }
+
+  .kb-mobile-wiki-files {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .kb-mobile-wiki-files span {
+    min-height: 31px;
+    padding: 5px 7px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--brand-muted);
+    border-radius: 9px;
+    background: #f6f8fd;
+    font-family: var(--mono);
+    font-size: 7px;
+    font-weight: 680;
+  }
+
+  .kb-mobile-wiki-files svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+  }
+
+  .kb-mobile-wiki-ready {
+    min-height: 28px;
+    flex-wrap: wrap;
+  }
+
+  .kb-mobile-wiki-ready small {
+    color: var(--brand-muted);
+    font-family: var(--mono);
+    font-size: 6.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .framework-shell--continuous .kb-mobile-stage--recording {
+    padding-right: 6px;
+    padding-left: 6px;
+  }
+
+  .kb-mobile-recording {
+    min-width: 0;
+    margin: 20px 0 0;
+    display: grid;
+    gap: 10px;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .kb-mobile-recording-context {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    text-align: center;
+  }
+
+  .kb-mobile-recording-context small {
+    color: var(--brand-muted);
+    font-size: 9px;
+  }
+
+  .framework-shell--continuous .kb-mobile-recording .recording-column {
+    --recording-readable-height: clamp(380px, 54svh, 460px);
+    --recording-height: var(--recording-readable-height);
+    min-width: 0;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .framework-shell--continuous .kb-mobile-recording .recording-frame,
+  .framework-shell--continuous .kb-mobile-recording video,
+  .framework-shell--continuous .kb-mobile-recording .recording-placeholder {
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .kb-mobile-case-grid {
+    min-width: 0;
+    margin: 22px 0 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 10px;
+  }
+
+  .kb-mobile-case-primary,
+  .kb-mobile-case-link {
+    padding: 0;
+    overflow: hidden;
+    color: var(--brand-ink);
+    border: 1px solid rgba(103, 135, 210, 0.28);
+    border-radius: 19px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 15px 34px rgba(38, 67, 136, 0.1);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    touch-action: manipulation;
+  }
+
+  .kb-mobile-case-primary {
+    grid-column: 1 / -1;
+  }
+
+  .kb-mobile-case-primary > img {
+    width: 100%;
+    max-height: 350px;
+    display: block;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  .kb-mobile-case-primary > span {
+    min-height: 48px;
+    padding: 11px 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #3979ff, #2459e8 60%, #193fae);
+    font-size: 10px;
+    font-weight: 760;
+  }
+
+  .kb-mobile-case-primary svg,
+  .kb-mobile-case-link svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+  }
+
+  .kb-mobile-case-grid figure {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid rgba(103, 135, 210, 0.26);
+    border-radius: 17px;
+    background: #ffffff;
+  }
+
+  .kb-mobile-case-grid figure img {
+    width: 100%;
+    height: 105px;
+    display: block;
+    object-fit: cover;
+  }
+
+  .kb-mobile-case-grid figcaption {
+    padding: 8px;
+    color: var(--brand-muted);
+    font-family: var(--mono);
+    font-size: 6px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .kb-mobile-case-link {
+    min-height: 142px;
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-content: center;
+    gap: 6px;
+  }
+
+  .kb-mobile-case-link span {
+    grid-column: 1 / -1;
+    color: var(--brand-blue);
+    font-family: var(--mono);
+    font-size: 7px;
+    font-weight: 760;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .kb-mobile-case-link strong {
+    font-family: var(--serif);
+    font-size: 17px;
+    font-weight: 480;
+    line-height: 1.05;
+  }
+
+  @keyframes kb-mobile-step-enter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (max-width: 370px) {
+  .framework-shell--continuous .kb-mobile-beat {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .framework-shell--continuous .kb-mobile-stage {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .kb-mobile-step-tabs span {
+    font-size: 8px;
+  }
+
+  .kb-mobile-wiki-card {
+    padding: 11px;
+  }
+}
+
+@media (max-width: 720px) and (prefers-reduced-motion: reduce) {
+  .framework-shell--continuous .kb-mobile-stage,
+  .kb-mobile-step-tabs button {
+    animation: none;
+    transition: none;
+  }
+}

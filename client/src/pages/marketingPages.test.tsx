@@ -231,6 +231,62 @@ describe("US iOS acquisition pages", () => {
     expect(baseStyles).toContain("pointer-events: none");
   });
 
+  it("uses a dedicated tap-controlled Chapter 01 presentation on phones", () => {
+    const storySource = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "client/src/components/demo-story/ContinuousDemoStory.tsx"
+      ),
+      "utf8"
+    );
+    const continuousStyles = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "client/src/components/demo-story/continuous-overrides.css"
+      ),
+      "utf8"
+    );
+    const mobileStart = storySource.indexOf(
+      "function MobileKnowledgeBaseChapter"
+    );
+    const wrapperStart = storySource.indexOf("function KnowledgeBaseChapter");
+    const desktopStart = storySource.indexOf(
+      "function DesktopKnowledgeBaseChapter"
+    );
+    const mobileChapterSource = storySource.slice(mobileStart, wrapperStart);
+
+    expect(mobileStart).toBeGreaterThan(-1);
+    expect(wrapperStart).toBeGreaterThan(mobileStart);
+    expect(desktopStart).toBeGreaterThan(wrapperStart);
+    expect(storySource).toContain(
+      'const phoneLayout = useMediaQuery("(max-width: 720px)")'
+    );
+    expect(storySource).toContain("KNOWLEDGE_BASE_MOBILE_STEPS");
+    expect(storySource).toContain(
+      'data-testid="chapter-01-mobile-step-flow"'
+    );
+    expect(storySource).toContain('aria-label="Chapter 01 mobile steps"');
+    expect(storySource).toContain("aria-pressed={index === stepIndex}");
+    expect(storySource).toContain(
+      'data-testid="chapter-01-mobile-recording"'
+    );
+    expect(storySource).toContain("<MobileKnowledgeBaseChapter");
+    expect(storySource).toContain("<DesktopKnowledgeBaseChapter");
+    expect(mobileChapterSource).not.toContain("useProjectIngestProgress");
+    expect(mobileChapterSource).not.toContain("scroll-driven-story");
+    expect(mobileChapterSource).not.toContain("onTouchMove");
+    expect(mobileChapterSource).not.toContain('addEventListener("touchmove"');
+    expect(continuousStyles).toContain(
+      "Chapter 01 · phone presentation"
+    );
+    expect(continuousStyles).toContain(
+      ".framework-shell--continuous .kb-mobile-stage"
+    );
+    expect(continuousStyles).toContain("min-height: 1000px");
+    expect(continuousStyles).toContain("touch-action: pan-y pinch-zoom");
+    expect(continuousStyles).not.toContain("touch-action: none");
+  });
+
   it("presents every walkthrough page with the same prominent audio-guide control", () => {
     const html = render(
       <AuthProvider>
