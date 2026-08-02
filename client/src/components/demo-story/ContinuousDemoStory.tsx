@@ -861,18 +861,10 @@ function useProjectIngestProgress(
     const readViewportWidth = () =>
       window.visualViewport?.width ?? window.innerWidth;
 
-    const readVisualPageTop = () => {
-      const visualPageTop = window.visualViewport?.pageTop;
-      return typeof visualPageTop === "number" &&
-        Number.isFinite(visualPageTop)
-        ? visualPageTop
-        : readDocumentScrollTop();
-    };
-
     const measureContinuousSectionTop = () => {
       if (!continuous) return;
       continuousSectionTop =
-        section.getBoundingClientRect().top + readVisualPageTop();
+        section.getBoundingClientRect().top + readDocumentScrollTop();
     };
 
     const measureContinuousViewport = () => {
@@ -1007,159 +999,6 @@ function useProjectIngestProgress(
   }, [reducedMotion, sectionRef]);
 
   return reducedMotion ? 1 : progress;
-}
-
-const MOBILE_KNOWLEDGE_MAGNET_STOPS = [0.03, 0.35, 0.62, 0.93] as const;
-const MOBILE_KNOWLEDGE_FORWARD_THRESHOLDS = [0.23, 0.49, 0.85] as const;
-const MOBILE_KNOWLEDGE_BACK_THRESHOLDS = [0.18, 0.43, 0.79] as const;
-
-const MOBILE_PROJECT_INGEST_MAGNET_STOPS = [0.03, 0.42, 0.68, 0.94] as const;
-const MOBILE_PROJECT_INGEST_FORWARD_THRESHOLDS = [0.22, 0.58, 0.84] as const;
-const MOBILE_PROJECT_INGEST_BACK_THRESHOLDS = [0.16, 0.5, 0.76] as const;
-
-function useMobileDiscreteProgress(
-  rawProgress: number,
-  enabled: boolean,
-  reducedMotion: boolean,
-  stops: readonly number[],
-  forwardThresholds: readonly number[],
-  backThresholds: readonly number[]
-) {
-  const [sceneIndex, setSceneIndex] = useState(0);
-
-  useEffect(() => {
-    if (!enabled || reducedMotion) return;
-
-    setSceneIndex(current => {
-      let next = current;
-
-      while (next < stops.length - 1 && rawProgress > forwardThresholds[next]) {
-        next += 1;
-      }
-
-      while (next > 0 && rawProgress < backThresholds[next - 1]) {
-        next -= 1;
-      }
-
-      return next;
-    });
-  }, [
-    backThresholds,
-    enabled,
-    forwardThresholds,
-    rawProgress,
-    reducedMotion,
-    stops,
-  ]);
-
-  return enabled && !reducedMotion ? stops[sceneIndex] : rawProgress;
-}
-
-function useMobileStoryMagnet(
-  sectionRef: RefObject<HTMLElement | null>,
-  enabled: boolean,
-  reducedMotion: boolean,
-  stops: readonly number[]
-) {
-  useEffect(() => {
-    if (!enabled || reducedMotion || !("onscrollend" in window)) {
-      return undefined;
-    }
-
-    const section = sectionRef.current;
-    const scrollingElement = document.scrollingElement;
-    const scrollRoot = section?.closest<HTMLElement>(".chapter-scroll");
-    if (!section || !scrollRoot || !scrollingElement) return undefined;
-
-    let lastScrollTop = scrollingElement.scrollTop;
-    let travelled = 0;
-    let snapping = false;
-    let snapTimer = 0;
-
-    const readNarrativeInset = () => {
-      const value = Number.parseFloat(
-        window.getComputedStyle(scrollRoot).getPropertyValue("--narrative-top")
-      );
-      return Number.isFinite(value) ? value : 80;
-    };
-
-    const handleScrollEnd = () => {
-      if (snapping || travelled < 24) {
-        travelled = 0;
-        return;
-      }
-      travelled = 0;
-
-      const inset = readNarrativeInset();
-      const sectionRect = section.getBoundingClientRect();
-      if (
-        sectionRect.bottom <= inset ||
-        sectionRect.top >= document.documentElement.clientHeight
-      ) {
-        return;
-      }
-
-      const viewportFrame = section.querySelector<HTMLElement>(
-        ".scroll-driven-story > .concept-beat"
-      );
-      const viewportHeight = Math.max(
-        1,
-        viewportFrame?.getBoundingClientRect().height ??
-          document.documentElement.clientHeight - inset
-      );
-      const distance = Math.max(1, section.offsetHeight - viewportHeight);
-      const visualPageTop = window.visualViewport?.pageTop;
-      const pageTop =
-        typeof visualPageTop === "number" && Number.isFinite(visualPageTop)
-          ? visualPageTop
-          : scrollingElement.scrollTop;
-      const sectionTop = sectionRect.top + pageTop;
-      const currentProgress = clampProgress(
-        (scrollingElement.scrollTop + inset - sectionTop) / distance
-      );
-      const nearest = stops
-        .map(progress => ({
-          progress,
-          delta: progress - currentProgress,
-        }))
-        .sort((left, right) => Math.abs(left.delta) - Math.abs(right.delta))[0];
-      const threshold = Math.min(72, distance * 0.04) / distance;
-
-      if (
-        !nearest ||
-        Math.abs(nearest.delta) * distance < 2 ||
-        Math.abs(nearest.delta) > threshold
-      ) {
-        return;
-      }
-
-      snapping = true;
-      window.scrollTo({
-        top: sectionTop - inset + nearest.progress * distance,
-        behavior: "smooth",
-      });
-      snapTimer = window.setTimeout(() => {
-        snapping = false;
-        lastScrollTop = scrollingElement.scrollTop;
-      }, 450);
-    };
-
-    const handleScroll = () => {
-      const nextScrollTop = scrollingElement.scrollTop;
-      const delta = Math.abs(nextScrollTop - lastScrollTop);
-      lastScrollTop = nextScrollTop;
-      if (!snapping && delta > 0) travelled += delta;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("scrollend", handleScrollEnd);
-
-    return () => {
-      window.clearTimeout(snapTimer);
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("scrollend", handleScrollEnd);
-    };
-  }, [enabled, reducedMotion, sectionRef, stops]);
 }
 
 function syncRecordingShellFocus(shell: HTMLElement | null) {
@@ -2053,22 +1892,7 @@ function ProjectIngestBeat() {
   const phoneLayout = useMediaQuery(MOBILE_STORY_QUERY);
   const compact = narrowLayout || phoneLayout;
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const rawProgress = useProjectIngestProgress(sectionRef, reducedMotion);
-  const progress = useMobileDiscreteProgress(
-    rawProgress,
-    phoneLayout,
-    reducedMotion,
-    MOBILE_PROJECT_INGEST_MAGNET_STOPS,
-    MOBILE_PROJECT_INGEST_FORWARD_THRESHOLDS,
-    MOBILE_PROJECT_INGEST_BACK_THRESHOLDS
-  );
-
-  useMobileStoryMagnet(
-    sectionRef,
-    phoneLayout,
-    reducedMotion,
-    MOBILE_PROJECT_INGEST_MAGNET_STOPS
-  );
+  const progress = useProjectIngestProgress(sectionRef, reducedMotion);
 
   const collector = {
     x: compact ? 50 : 46,
@@ -2091,7 +1915,6 @@ function ProjectIngestBeat() {
     <section
       ref={sectionRef}
       className="project-ingest-beat"
-      data-mobile-discrete={phoneLayout ? "true" : "false"}
       data-testid="project-book-ingest"
       data-story-beat="03-project-ingest"
     >
@@ -2281,24 +2104,8 @@ function KnowledgeBaseChapter({
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const compact = useMediaQuery("(max-width: 900px)");
-  const phoneLayout = useMediaQuery(MOBILE_STORY_QUERY);
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const rawProgress = useProjectIngestProgress(sectionRef, reducedMotion);
-  const progress = useMobileDiscreteProgress(
-    rawProgress,
-    phoneLayout,
-    reducedMotion,
-    MOBILE_KNOWLEDGE_MAGNET_STOPS,
-    MOBILE_KNOWLEDGE_FORWARD_THRESHOLDS,
-    MOBILE_KNOWLEDGE_BACK_THRESHOLDS
-  );
-
-  useMobileStoryMagnet(
-    sectionRef,
-    phoneLayout,
-    reducedMotion,
-    MOBILE_KNOWLEDGE_MAGNET_STOPS
-  );
+  const progress = useProjectIngestProgress(sectionRef, reducedMotion);
 
   const orbitTravel = easeInOutCubic(progressRange(progress, 0.005, 0.18));
   const snapToWiki = easeInOutCubic(progressRange(progress, 0.13, 0.285));
@@ -2358,7 +2165,6 @@ function KnowledgeBaseChapter({
         ref={sectionRef}
         className="kb-story-scroll scroll-driven-story scroll-driven-story--four"
         data-auto-stage={stage}
-        data-mobile-discrete={phoneLayout ? "true" : "false"}
         data-testid="chapter-01-scroll-story"
       >
         <ConceptBeat

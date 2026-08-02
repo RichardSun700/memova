@@ -603,52 +603,39 @@
     filter: none;
   }
 
-  .framework-shell--continuous
-    .project-ingest-beat[data-mobile-discrete="true"]
-    .project-ingest-sticky {
+  .framework-shell--continuous .project-ingest-sticky {
     contain: layout paint;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
   }
 
-  .framework-shell--continuous
-    .project-ingest-beat[data-mobile-discrete="true"]
-    .project-ingest-book {
+  .framework-shell--continuous .project-ingest-book {
     width: min(92%, 430px);
   }
 
-  .framework-shell--continuous
-    .project-ingest-beat[data-mobile-discrete="true"]
-    .project-ingest-finale {
+  .framework-shell--continuous .project-ingest-finale {
     bottom: 76px;
   }
 
   .framework-shell--continuous
-    .project-ingest-beat[data-mobile-discrete="true"]
+    .project-ingest-beat
     :is(.project-ingest-intro, .project-ingest-finale) {
     will-change: auto;
-    transition:
-      opacity 240ms ease,
-      transform 280ms cubic-bezier(0.2, 0.78, 0.2, 1);
+    transition: none;
   }
 
   .framework-shell--continuous
-    .project-ingest-beat[data-mobile-discrete="true"]
+    .project-ingest-beat
     :is(.project-ingest-material, .project-ingest-glow, .project-ingest-book) {
     will-change: auto;
-    transition:
-      left 280ms cubic-bezier(0.2, 0.78, 0.2, 1),
-      top 280ms cubic-bezier(0.2, 0.78, 0.2, 1),
-      opacity 240ms ease,
-      transform 280ms cubic-bezier(0.2, 0.78, 0.2, 1);
+    transition: none;
   }
 
-  .framework-shell--continuous
-    .project-ingest-beat[data-mobile-discrete="true"]
-    .project-ingest-book
-    figcaption {
+  .framework-shell--continuous .project-ingest-book figcaption {
     will-change: auto;
-    transition:
-      opacity 220ms ease,
-      transform 260ms cubic-bezier(0.2, 0.78, 0.2, 1);
+    transition: none;
   }
 
   /*
@@ -657,6 +644,13 @@
    * separate compositing layer. This prevents WebKit from visibly re-rastering
    * the scene while browser chrome or a system banner settles.
    */
+  .framework-shell--continuous .kb-story-scroll > .kb-story-beat {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+  }
+
   .framework-shell--continuous .kb-story-stage {
     contain: layout paint;
   }
@@ -691,16 +685,14 @@
   }
 
   .framework-shell--continuous
-    .kb-story-scroll[data-mobile-discrete="true"]
+    .kb-story-scroll
     :is(.kb-story-concept, .kb-story-video-layer, .kb-story-case-layer) {
     will-change: auto;
-    transition:
-      opacity 260ms ease,
-      transform 280ms cubic-bezier(0.2, 0.78, 0.2, 1);
+    transition: none;
   }
 
   .framework-shell--continuous
-    .kb-story-scroll[data-mobile-discrete="true"]
+    .kb-story-scroll
     :is(
       .kb-lunar-scene,
       .kb-lunar-backdrop,
@@ -713,9 +705,7 @@
       .kb-cosmos-trace,
       .kb-wiki-shell
     ) {
-    transition:
-      opacity 240ms ease,
-      transform 280ms cubic-bezier(0.2, 0.78, 0.2, 1);
+    transition: none;
   }
 
   .framework-shell--continuous .recording-play-control,
@@ -1785,7 +1775,7 @@
   }
 
   .framework-shell--continuous
-    .kb-story-scroll[data-mobile-discrete="true"]
+    .kb-story-scroll
     :is(
       .kb-story-concept,
       .kb-story-video-layer,
@@ -1805,7 +1795,7 @@
   }
 
   .framework-shell--continuous
-    .project-ingest-beat[data-mobile-discrete="true"]
+    .project-ingest-beat
     :is(
       .project-ingest-intro,
       .project-ingest-finale,

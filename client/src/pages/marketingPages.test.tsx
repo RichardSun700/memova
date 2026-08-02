@@ -231,7 +231,7 @@ describe("US iOS acquisition pages", () => {
     expect(baseStyles).toContain("pointer-events: none");
   });
 
-  it("restores the single scroll-driven Chapter 01 story with stable mobile scenes", () => {
+  it("keeps the single Chapter 01 story continuous and stable on phones", () => {
     const storySource = fs.readFileSync(
       path.resolve(
         process.cwd(),
@@ -253,27 +253,11 @@ describe("US iOS acquisition pages", () => {
     );
     const chapterSource = storySource.slice(chapterStart, chapterEnd);
 
-    expect(storySource).toContain("const MOBILE_STORY_QUERY");
     expect(chapterSource).toContain(
-      "const phoneLayout = useMediaQuery(MOBILE_STORY_QUERY)"
+      "const progress = useProjectIngestProgress(sectionRef, reducedMotion)"
     );
-    expect(storySource).toContain(
-      "const MOBILE_KNOWLEDGE_MAGNET_STOPS = [0.03, 0.35, 0.62, 0.93]"
-    );
-    expect(storySource).toContain(
-      "const MOBILE_KNOWLEDGE_FORWARD_THRESHOLDS = [0.23, 0.49, 0.85]"
-    );
-    expect(storySource).toContain(
-      "const MOBILE_KNOWLEDGE_BACK_THRESHOLDS = [0.18, 0.43, 0.79]"
-    );
-    expect(chapterSource).toContain("useProjectIngestProgress");
-    expect(chapterSource).toContain("useMobileDiscreteProgress");
-    expect(chapterSource).toContain("useMobileStoryMagnet");
     expect(chapterSource).toContain(
       'className="kb-story-scroll scroll-driven-story scroll-driven-story--four"'
-    );
-    expect(chapterSource).toContain(
-      'data-mobile-discrete={phoneLayout ? "true" : "false"}'
     );
     expect(chapterSource).toContain('data-testid="chapter-01-scroll-story"');
     expect(storySource).not.toContain("function MobileKnowledgeBaseChapter");
@@ -281,20 +265,28 @@ describe("US iOS acquisition pages", () => {
     expect(storySource).not.toContain(
       'data-testid="chapter-01-mobile-scroll-story"'
     );
-    expect(storySource).toContain("function useMobileStoryMagnet");
-    expect(storySource).toContain('!("onscrollend" in window)');
-    expect(storySource).toContain("travelled < 24");
-    expect(storySource).toContain("Math.min(72, distance * 0.04)");
+    expect(storySource).not.toContain("useMobileDiscreteProgress");
+    expect(storySource).not.toContain("useMobileStoryMagnet");
+    expect(storySource).not.toContain("MOBILE_KNOWLEDGE_MAGNET_STOPS");
+    expect(storySource).not.toContain("MOBILE_KNOWLEDGE_FORWARD_THRESHOLDS");
+    expect(storySource).not.toContain("MOBILE_KNOWLEDGE_BACK_THRESHOLDS");
+    expect(storySource).not.toContain("scrollend");
+    expect(storySource).not.toContain("window.scrollTo");
+    expect(storySource).not.toContain("data-mobile-discrete");
     expect(storySource).not.toContain('addEventListener("touchmove"');
     expect(storySource).not.toContain('addEventListener("wheel"');
-    expect(continuousStyles).toContain(
-      '.kb-story-scroll[data-mobile-discrete="true"]'
+    expect(continuousStyles).not.toContain("data-mobile-discrete");
+    expect(continuousStyles).toMatch(
+      /\.framework-shell--continuous \.kb-story-scroll > \.kb-story-beat\s*\{[^}]*transform: translate3d\(0, 0, 0\);[^}]*will-change: transform;/
+    );
+    expect(continuousStyles).toMatch(
+      /\.framework-shell--continuous\s+\.kb-story-scroll\s+:is\([^}]*\)\s*\{[^}]*transition: none;/
     );
     expect(continuousStyles).toContain("contain: layout paint");
     expect(continuousStyles).not.toContain("touch-action: none");
   });
 
-  it("stabilizes Chapter 03 project ingest on phones without changing desktop", () => {
+  it("keeps Chapter 03 project ingest continuous and stable on phones", () => {
     const storySource = fs.readFileSync(
       path.resolve(
         process.cwd(),
@@ -316,39 +308,37 @@ describe("US iOS acquisition pages", () => {
     );
     const projectSource = storySource.slice(projectStart, projectEnd);
 
-    expect(storySource).toContain(
-      "const MOBILE_PROJECT_INGEST_MAGNET_STOPS = [0.03, 0.42, 0.68, 0.94]"
-    );
-    expect(storySource).toContain(
-      "const MOBILE_PROJECT_INGEST_FORWARD_THRESHOLDS = [0.22, 0.58, 0.84]"
-    );
-    expect(storySource).toContain(
-      "const MOBILE_PROJECT_INGEST_BACK_THRESHOLDS = [0.16, 0.5, 0.76]"
-    );
     expect(projectSource).toContain(
-      "const rawProgress = useProjectIngestProgress"
-    );
-    expect(projectSource).toContain("useMobileDiscreteProgress");
-    expect(projectSource).toContain("useMobileStoryMagnet");
-    expect(projectSource).toContain("MOBILE_PROJECT_INGEST_MAGNET_STOPS");
-    expect(projectSource).toContain(
-      'data-mobile-discrete={phoneLayout ? "true" : "false"}'
+      "const progress = useProjectIngestProgress(sectionRef, reducedMotion)"
     );
     expect(projectSource).toContain(
       "const compact = narrowLayout || phoneLayout"
     );
     expect(projectSource).not.toContain('data-mobile-discrete="true"');
+    expect(storySource).not.toContain("useMobileDiscreteProgress");
+    expect(storySource).not.toContain("useMobileStoryMagnet");
+    expect(storySource).not.toContain("MOBILE_PROJECT_INGEST_MAGNET_STOPS");
+    expect(storySource).not.toContain(
+      "MOBILE_PROJECT_INGEST_FORWARD_THRESHOLDS"
+    );
+    expect(storySource).not.toContain(
+      "MOBILE_PROJECT_INGEST_BACK_THRESHOLDS"
+    );
+    expect(storySource).not.toContain("scrollend");
+    expect(storySource).not.toContain("window.scrollTo");
+    expect(storySource).not.toContain("data-mobile-discrete");
     expect(projectSource).not.toContain('addEventListener("touchmove"');
     expect(projectSource).not.toContain('addEventListener("wheel"');
-    expect(continuousStyles).toContain(
-      '.project-ingest-beat[data-mobile-discrete="true"]'
+    expect(continuousStyles).not.toContain("data-mobile-discrete");
+    expect(continuousStyles).toMatch(
+      /\.framework-shell--continuous \.project-ingest-sticky\s*\{[^}]*transform: translate3d\(0, 0, 0\);[^}]*will-change: transform;/
     );
     expect(continuousStyles).toContain("contain: layout paint");
     expect(continuousStyles).toContain("will-change: auto");
     expect(continuousStyles).toContain("width: min(92%, 430px)");
     expect(continuousStyles).toContain("bottom: 76px");
     expect(continuousStyles).toMatch(
-      /project-ingest-beat\[data-mobile-discrete="true"\][\s\S]*transition: none/
+      /\.framework-shell--continuous\s+\.project-ingest-beat\s+:is\([^}]*\)\s*\{[^}]*transition: none;/
     );
   });
 
