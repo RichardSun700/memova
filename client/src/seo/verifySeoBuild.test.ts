@@ -60,6 +60,25 @@ describe("SEO build verification", () => {
     ).toBe(true);
   });
 
+  it("rejects an analytics bootstrap that cannot run as a classic script", () => {
+    const output = path.resolve(process.cwd(), "dist/public");
+    const directory = fs.mkdtempSync(
+      path.join(os.tmpdir(), "memova-seo-module-only-analytics-")
+    );
+    temporaryDirectories.push(directory);
+    fs.cpSync(output, directory, { recursive: true });
+    fs.appendFileSync(
+      path.join(directory, "analytics", "ga4-consent.js"),
+      "\nexport {};\n"
+    );
+
+    const errors = collectSeoBuildErrors(directory, sitePages);
+
+    expect(
+      errors.some(error => error.includes("not classic-script compatible"))
+    ).toBe(true);
+  });
+
   it("rejects a stale or unstyled SEO shell", () => {
     const output = path.resolve(process.cwd(), "dist/public");
     const directory = fs.mkdtempSync(

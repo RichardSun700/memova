@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { Script } from "node:vm";
 import { describe, expect, it } from "vitest";
 import {
   PRIVATE_SPA_PAGES,
@@ -291,6 +292,20 @@ describe("SEO build generator", () => {
     expect(bootstrap).toContain("send_page_view: false");
     expect(bootstrap.indexOf('gtag("consent", "default"')).toBeLessThan(
       bootstrap.indexOf("\n  addGoogleTag();")
+    );
+  });
+
+  it("keeps the shared analytics bootstrap valid for classic and module loaders", () => {
+    const bootstrap = fs.readFileSync(
+      path.resolve(process.cwd(), "client/public/analytics/ga4-consent.js"),
+      "utf8"
+    );
+
+    expect(() => new Script(bootstrap)).not.toThrow();
+    expect(bootstrap).not.toMatch(/^\s*(?:import|export)\b/m);
+    expect(bootstrap).not.toContain("chapter01-mobile-motion-fix");
+    expect(bootstrap).toContain(
+      'script[data-spa="true"][src^="/analytics/ga4-consent.js"]'
     );
   });
 

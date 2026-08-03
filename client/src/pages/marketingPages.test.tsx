@@ -254,8 +254,19 @@ describe("US iOS acquisition pages", () => {
     const chapterSource = storySource.slice(chapterStart, chapterEnd);
 
     expect(chapterSource).toContain(
-      "const progress = useProjectIngestProgress(sectionRef, reducedMotion)"
+      "const progress = useProjectIngestProgress(sectionRef, reducedMotion, true)"
     );
+    expect(chapterSource).toContain(
+      "const mobileMotionLayout = useMediaQuery(MOBILE_STORY_QUERY)"
+    );
+    expect(chapterSource).toContain("const useTransformOnlyOrbit =");
+    expect(chapterSource).toContain('CSS.supports("width", "1cqw")');
+    expect(chapterSource).toContain('CSS.supports("height", "1cqh")');
+    expect(chapterSource).toContain(
+      "translate3d(calc(${x}cqw - 50%), calc(${y}cqh - 50%), 0)"
+    );
+    expect(chapterSource).toContain("left: `${x}%`");
+    expect(chapterSource).toContain("top: `${y}%`");
     expect(chapterSource).toContain(
       'className="kb-story-scroll scroll-driven-story scroll-driven-story--four"'
     );
@@ -283,6 +294,14 @@ describe("US iOS acquisition pages", () => {
       /\.framework-shell--continuous\s+\.kb-story-scroll\s+:is\([^}]*\)\s*\{[^}]*transition: none;/
     );
     expect(continuousStyles).toContain("contain: layout paint");
+    expect(continuousStyles).toContain("container-type: size");
+    expect(continuousStyles).toContain("touch-action: pan-y pinch-zoom");
+    expect(storySource).toContain("stabilizeTouchGeometry");
+    expect(storySource).toContain("window.matchMedia(TOUCH_INPUT_QUERY).matches");
+    expect(storySource).not.toContain(
+      "Element.prototype.getBoundingClientRect"
+    );
+    expect(storySource).not.toContain("data-kb-transform-motion");
     expect(continuousStyles).not.toContain("touch-action: none");
   });
 

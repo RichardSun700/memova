@@ -323,6 +323,7 @@ const KB_ROOT_FILES = [
 
 const MOBILE_STORY_QUERY =
   "(max-width: 720px), (max-width: 960px) and (hover: none) and (pointer: coarse)";
+const TOUCH_INPUT_QUERY = "(hover: none) and (pointer: coarse)";
 
 const KB_ORBIT_TRACKS = [
   { radiusX: 25, radiusY: 19, turns: 0.64 },
@@ -835,7 +836,8 @@ function useNearViewport<T extends Element>(
 
 function useProjectIngestProgress(
   sectionRef: RefObject<HTMLElement | null>,
-  reducedMotion: boolean
+  reducedMotion: boolean,
+  stabilizeTouchGeometry = false
 ) {
   const [progress, setProgress] = useState(0);
 
@@ -962,6 +964,12 @@ function useProjectIngestProgress(
 
     const refreshGeometryForInput = () => {
       if (!continuous) return;
+      if (
+        stabilizeTouchGeometry &&
+        window.matchMedia(TOUCH_INPUT_QUERY).matches
+      ) {
+        return;
+      }
       measureContinuousSectionTop();
     };
 
@@ -979,6 +987,7 @@ function useProjectIngestProgress(
       passive: true,
       capture: true,
     });
+    window.addEventListener("load", handlePageShow, { once: true });
     window.addEventListener("pageshow", handlePageShow);
 
     void document.fonts?.ready.then(() => {
@@ -994,9 +1003,10 @@ function useProjectIngestProgress(
       window.removeEventListener("resize", handleResize);
       window.visualViewport?.removeEventListener("resize", handleResize);
       window.removeEventListener("pointerdown", refreshGeometryForInput, true);
+      window.removeEventListener("load", handlePageShow);
       window.removeEventListener("pageshow", handlePageShow);
     };
-  }, [reducedMotion, sectionRef]);
+  }, [reducedMotion, sectionRef, stabilizeTouchGeometry]);
 
   return reducedMotion ? 1 : progress;
 }
@@ -2104,8 +2114,14 @@ function KnowledgeBaseChapter({
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const compact = useMediaQuery("(max-width: 900px)");
+  const mobileMotionLayout = useMediaQuery(MOBILE_STORY_QUERY);
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const progress = useProjectIngestProgress(sectionRef, reducedMotion);
+  const progress = useProjectIngestProgress(sectionRef, reducedMotion, true);
+  const useTransformOnlyOrbit =
+    mobileMotionLayout &&
+    typeof CSS !== "undefined" &&
+    CSS.supports("width", "1cqw") &&
+    CSS.supports("height", "1cqh");
 
   const orbitTravel = easeInOutCubic(progressRange(progress, 0.005, 0.18));
   const snapToWiki = easeInOutCubic(progressRange(progress, 0.13, 0.285));
@@ -2321,11 +2337,19 @@ function KnowledgeBaseChapter({
                     <article
                       key={item.id}
                       className={`kb-orbit-card kb-orbit-card--${item.type}`}
-                      style={{
-                        left: `${x}%`,
-                        top: `${y}%`,
-                        transform: `translate(-50%, -50%) rotate(${item.rotation * (1 - snapToWiki)}deg) scale(${cardScale})`,
-                      }}
+                      style={
+                        useTransformOnlyOrbit
+                          ? {
+                              left: 0,
+                              top: 0,
+                              transform: `translate3d(calc(${x}cqw - 50%), calc(${y}cqh - 50%), 0) rotate(${item.rotation * (1 - snapToWiki)}deg) scale(${cardScale})`,
+                            }
+                          : {
+                              left: `${x}%`,
+                              top: `${y}%`,
+                              transform: `translate(-50%, -50%) rotate(${item.rotation * (1 - snapToWiki)}deg) scale(${cardScale})`,
+                            }
+                      }
                     >
                       <OrbitSignalIcon type={item.type} />
                       <span>

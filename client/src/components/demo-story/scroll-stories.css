@@ -412,7 +412,7 @@
     0 12px 30px rgba(65, 87, 133, 0.16),
     inset 0 1px rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(13px) saturate(125%);
-  will-change: left, top, transform;
+  will-change: transform;
 }
 
 .kb-orbit-card > svg,
