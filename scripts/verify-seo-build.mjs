@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { Script } from "node:vm";
 import {
   SITE_URL,
   getCanonicalUrl,
@@ -53,11 +54,13 @@ export function collectSeoBuildErrors(outputDir, pages) {
   const notFoundPath = path.join(outputDir, "404.html");
   const redirectsPath = path.join(outputDir, "_redirects");
   const headersPath = path.join(outputDir, "_headers");
+  const analyticsPath = path.join(outputDir, "analytics", "ga4-consent.js");
   const robots = readIfPresent(robotsPath);
   const sitemap = readIfPresent(sitemapPath);
   const notFound = readIfPresent(notFoundPath);
   const redirects = readIfPresent(redirectsPath);
   const headers = readIfPresent(headersPath);
+  const analytics = readIfPresent(analyticsPath);
 
   for (const legalRoute of ["/privacy-policy", "/privacy"]) {
     const legalShellPath = path.join(
@@ -90,6 +93,17 @@ export function collectSeoBuildErrors(outputDir, pages) {
     );
   if (!redirects) errors.push("Missing _redirects");
   if (!headers) errors.push("Missing _headers");
+  if (!analytics) {
+    errors.push("Missing analytics/ga4-consent.js");
+  } else {
+    try {
+      new Script(analytics);
+    } catch (error) {
+      errors.push(
+        `analytics/ga4-consent.js is not classic-script compatible: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
 
   if (robots) {
     for (const required of [

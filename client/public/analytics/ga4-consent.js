@@ -1,3 +1,5 @@
+// Keep this bootstrap free of static import/export syntax. Some legacy pages
+// load it as a classic deferred script while the main app loads it as a module.
 const MEASUREMENT_ID = "G-9YJQ994J98";
 const STORAGE_KEY = "memova.analytics.consent.v1";
 const PROTECTED_REGIONS = [
@@ -177,7 +179,7 @@ function install() {
   const ready = () => {
     installChoiceSurface();
     installClickTracking();
-    const spaScript = document.querySelector('script[src="/analytics/ga4-consent.js"][data-spa="true"]');
+    const spaScript = document.querySelector('script[data-spa="true"][src^="/analytics/ga4-consent.js"]');
     if (!spaScript) trackPageView();
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ready, { once: true });
@@ -185,5 +187,3 @@ function install() {
 }
 
 install();
-
-export { MEASUREMENT_ID, PROTECTED_REGIONS, STORAGE_KEY, trackEvent, trackPageView, updateConsent };

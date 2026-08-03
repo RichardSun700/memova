@@ -576,6 +576,9 @@
   .framework-shell--continuous {
     --narrative-top: 80px;
     --recording-readable-height: clamp(420px, 61svh, 530px);
+    /* The document root still clips overflow; keeping this story surface
+       visible prevents mobile WebKit from treating it as a scroll container. */
+    overflow-x: visible;
   }
 
   /* Keep the scroll-driven project scene inside the mobile paint area. */
@@ -653,6 +656,19 @@
 
   .framework-shell--continuous .kb-story-stage {
     contain: layout paint;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  /* Moving cards with one compositor transform avoids the left/top layout
+     churn that made the scene shake while mobile browser chrome was settling. */
+  @supports (width: 1cqw) and (height: 1cqh) {
+    .framework-shell--continuous .kb-orbit-field {
+      container-type: size;
+    }
+
+    .framework-shell--continuous .kb-orbit-card {
+      will-change: transform !important;
+    }
   }
 
   .framework-shell--continuous .kb-lunar-backdrop {
