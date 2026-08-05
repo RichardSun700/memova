@@ -1,15 +1,7 @@
 "use client";
 
 import type { CSSProperties, ReactNode, RefObject } from "react";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
   ArrowDown,
@@ -26,6 +18,8 @@ import {
   Pause,
   Play,
   Sparkles,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 
 import "./demo-base.css";
@@ -33,6 +27,11 @@ import "./migrated-sections.css";
 import "./brand-unification.css";
 import "./scroll-stories.css";
 import "./continuous-overrides.css";
+import {
+  ControlledShareFlow,
+  KnowledgeNoteActionOverview,
+  MarkdownHtmlBridge,
+} from "./StoryArchitectureBridges";
 
 const PAGES = [
   {
@@ -91,126 +90,63 @@ const PAGES = [
   },
 ] as const;
 
-const NARRATION_SEGMENTS = [
+type StoryPageId = (typeof PAGES)[number]["id"];
+
+const DESKTOP_BOOK_SPINE_QUERY = "(min-width: 1180px)";
+
+export const FOUNDER_GUIDE_CHAPTERS = [
   {
-    id: "01-everyday-context",
+    id: "knowledge-base",
     number: "01",
-    title: "Everyday Context",
-    src: "/demo/audio/pages/01-everyday-context.m4a",
-    duration: 14,
+    title: "Collect & Understand",
+    src: "/demo/founder-guide/chapter-01.mp4",
+    duration: 33.576923,
   },
   {
-    id: "01-personal-llm-wiki",
-    number: "01",
-    title: "Personal LLM Wiki",
-    src: "/demo/audio/pages/01-personal-llm-wiki.m4a",
-    duration: 6.492993,
-  },
-  {
-    id: "01-knowledge-base-ui",
-    number: "01",
-    title: "Knowledge Base Setup",
-    src: "/demo/audio/pages/01-knowledge-base-ui.m4a",
-    duration: 7.545011,
-  },
-  {
-    id: "01-apollo-case",
-    number: "01",
-    title: "Apollo 11 Case",
-    src: "/demo/audio/pages/01-apollo-case.m4a",
-    duration: 2.253991,
-  },
-  {
-    id: "02-note-workflow",
+    id: "note",
     number: "02",
-    title: "Note Workflow",
-    src: "/demo/audio/pages/02-note-workflow.m4a",
-    duration: 21.006009,
+    title: "Act",
+    src: "/demo/founder-guide/chapter-02.mp4",
+    duration: 27.153396,
   },
   {
-    id: "02-complete-note",
-    number: "02",
-    title: "The Complete Note",
-    src: "/demo/audio/pages/02-complete-note.m4a",
-    duration: 5.381995,
-  },
-  {
-    id: "03-project-ingest",
+    id: "book",
     number: "03",
-    title: "Sources Into a Book",
-    src: "/demo/audio/pages/03-project-ingest.m4a",
-    duration: 12.541995,
+    title: "Connect",
+    src: "/demo/founder-guide/chapter-03.mp4",
+    duration: 32.346154,
   },
   {
-    id: "03-project-book-ui",
-    number: "03",
-    title: "Project Book Generation",
-    src: "/demo/audio/pages/03-project-book-ui.m4a",
-    duration: 19.652993,
-  },
-  {
-    id: "04-platform-results",
+    id: "output-share",
     number: "04",
-    title: "Platform Results",
-    src: "/demo/audio/pages/04-platform-results.m4a",
-    duration: 4.87,
+    title: "Express",
+    src: "/demo/founder-guide/chapter-04.mp4",
+    duration: 40.999549,
   },
   {
-    id: "04-standalone-note-sharing",
-    number: "04",
-    title: "Standalone Note Sharing",
-    src: "/demo/audio/pages/04-standalone-note-sharing.m4a",
-    duration: 26.308005,
-  },
-  {
-    id: "04-project-html-sharing",
-    number: "04",
-    title: "Project HTML Sharing",
-    src: "/demo/audio/pages/04-project-html-sharing.m4a",
-    duration: 9.686009,
-  },
-  {
-    id: "05-context-return",
+    id: "alignment",
     number: "05",
     title: "Context Return",
-    src: "/demo/audio/pages/05-context-return.m4a",
-    duration: 15.326009,
+    src: "/demo/founder-guide/chapter-05.mp4",
+    duration: 43.307692,
   },
   {
-    id: "05-ask-memova",
-    number: "05",
-    title: "Ask Memova",
-    src: "/demo/audio/pages/05-ask-memova.m4a",
-    duration: 27.831995,
-  },
-  {
-    id: "06-end",
+    id: "end",
     number: "06",
-    title: "End",
-    src: "/demo/audio/pages/06-end.m4a",
-    duration: 10.990998,
+    title: "Compound",
+    src: "/demo/founder-guide/chapter-06.mp4",
+    duration: 11.153846,
   },
 ] as const;
 
-type NarrationSegment = (typeof NARRATION_SEGMENTS)[number];
-type NarrationPlaybackState =
-  | "idle"
+type FounderGuideChapter = (typeof FOUNDER_GUIDE_CHAPTERS)[number];
+type FounderGuidePlaybackState =
+  | "ready"
   | "loading"
   | "playing"
   | "paused"
   | "complete"
   | "error";
-
-type NarrationContextValue = {
-  activeId: NarrationSegment["id"] | null;
-  playbackState: NarrationPlaybackState;
-  playbackTime: number;
-  duration: number;
-  toggleNarration: (segment: NarrationSegment) => Promise<void>;
-  resetNarration: (segmentId: NarrationSegment["id"]) => void;
-};
-
-const NarrationContext = createContext<NarrationContextValue | null>(null);
 
 const KB_SOURCE_FRAGMENTS = [
   {
@@ -951,10 +887,7 @@ function useProjectIngestProgress(
       const mobileViewport = window.matchMedia("(max-width: 900px)").matches;
 
       /* Height-only changes are browser chrome, not story input. */
-      if (
-        mobileViewport &&
-        Math.abs(previousWidth - nextWidth) <= 1
-      ) {
+      if (mobileViewport && Math.abs(previousWidth - nextWidth) <= 1) {
         return;
       }
 
@@ -1296,155 +1229,548 @@ const formatPlaybackTime = (seconds: number) => {
   return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
 };
 
-export async function settleNarrationPlayback({
+export async function settleFounderGuidePlayback({
   media,
   isCurrent,
   onPlaying,
   onFailure,
-  onCancelled,
 }: {
-  media: Pick<HTMLAudioElement, "play">;
+  media: Pick<HTMLMediaElement, "play">;
   isCurrent: () => boolean;
   onPlaying: () => void;
   onFailure: () => void;
-  onCancelled?: () => void;
 }) {
   try {
     await media.play();
-    if (!isCurrent()) {
-      onCancelled?.();
-      return;
-    }
+    if (!isCurrent()) return;
     onPlaying();
   } catch {
     if (isCurrent()) onFailure();
   }
 }
 
-export function isNarrationBeatCurrent(
-  bounds: Pick<DOMRect, "top" | "bottom">,
-  viewportHeight: number
-) {
-  const listeningBandTop = viewportHeight * 0.2;
-  const listeningBandBottom = viewportHeight * 0.8;
-  return bounds.bottom > listeningBandTop && bounds.top < listeningBandBottom;
+export function findFounderGuideChapterAtAnchor<
+  T extends { id: string; top: number; bottom: number },
+>(chapters: readonly T[], viewportHeight: number) {
+  const anchor = Math.min(160, Math.max(96, viewportHeight * 0.18));
+  return chapters.find(
+    chapter => chapter.top <= anchor && chapter.bottom > anchor
+  )?.id;
 }
 
-function useNarrationController() {
-  const controller = useContext(NarrationContext);
-  if (!controller) {
-    throw new Error(
-      "InlineNarrationControl must be rendered inside NarrationContext"
-    );
-  }
-  return controller;
+export function scrollToStoryChapter(chapterId: StoryPageId) {
+  const target = document.querySelector<HTMLElement>(
+    `[data-story-chapter="${chapterId}"]`
+  );
+  if (!target) return;
+
+  target.scrollIntoView({
+    behavior: "instant" as ScrollBehavior,
+    block: "start",
+  });
 }
 
-function InlineNarrationControl({
-  segmentId,
-}: {
-  segmentId: NarrationSegment["id"];
-}) {
-  const segment = NARRATION_SEGMENTS.find(item => item.id === segmentId);
-  const {
-    activeId,
-    playbackState,
-    playbackTime,
-    duration,
-    toggleNarration,
-    resetNarration,
-  } = useNarrationController();
-  const previousSegmentId = useRef(segmentId);
+function DesktopBookSpine() {
+  const desktop = useMediaQuery(DESKTOP_BOOK_SPINE_QUERY);
+  const [activeChapterId, setActiveChapterId] =
+    useState<StoryPageId>("knowledge-base");
 
   useEffect(() => {
-    if (previousSegmentId.current !== segmentId) {
-      resetNarration(previousSegmentId.current);
-      previousSegmentId.current = segmentId;
-    }
-  }, [resetNarration, segmentId]);
+    if (!desktop) return undefined;
 
-  if (!segment) return null;
+    let animationFrame = 0;
+    const updateActiveChapter = () => {
+      animationFrame = 0;
+      const chapterBounds = PAGES.flatMap(page => {
+        const element = document.querySelector<HTMLElement>(
+          `[data-story-chapter="${page.id}"]`
+        );
+        if (!element) return [];
+        const bounds = element.getBoundingClientRect();
+        return [{ id: page.id, top: bounds.top, bottom: bounds.bottom }];
+      });
+      const nextChapterId = findFounderGuideChapterAtAnchor(
+        chapterBounds,
+        window.innerHeight
+      ) as StoryPageId | undefined;
 
-  const isActive = activeId === segment.id;
-  const isPlaying = isActive && playbackState === "playing";
-  const resolvedDuration =
-    isActive && duration > 0 ? duration : segment.duration;
-  const resolvedTime = isActive ? playbackTime : 0;
-  const progress =
-    resolvedDuration > 0
-      ? Math.min(1, Math.max(0, resolvedTime / resolvedDuration))
-      : 0;
-  const actionLabel =
-    isActive && playbackState === "loading"
-      ? "Cancel"
-      : isPlaying
-        ? "Pause"
-        : isActive && playbackState === "paused"
-          ? "Resume"
-          : isActive && playbackState === "complete"
-            ? "Replay"
-            : isActive && playbackState === "error"
-              ? "Try again"
-              : "Listen";
+      if (nextChapterId) {
+        setActiveChapterId(current =>
+          current === nextChapterId ? current : nextChapterId
+        );
+      }
+    };
+    const scheduleUpdate = () => {
+      if (animationFrame) return;
+      animationFrame = window.requestAnimationFrame(updateActiveChapter);
+    };
+    const observer =
+      typeof IntersectionObserver === "undefined"
+        ? null
+        : new IntersectionObserver(scheduleUpdate, { threshold: 0 });
+
+    PAGES.forEach(page => {
+      const element = document.querySelector<HTMLElement>(
+        `[data-story-chapter="${page.id}"]`
+      );
+      if (element) observer?.observe(element);
+    });
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    scheduleUpdate();
+
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    };
+  }, [desktop]);
+
+  const activeIndex = Math.max(
+    0,
+    PAGES.findIndex(page => page.id === activeChapterId)
+  );
+  const activePage = PAGES[activeIndex];
+
+  const navigateToChapter = useCallback((chapterId: StoryPageId) => {
+    setActiveChapterId(chapterId);
+    scrollToStoryChapter(chapterId);
+  }, []);
 
   return (
-    <div
-      className="narration-slot"
-      data-narration-ui="audio-guide"
-      data-narration-control={segment.id}
-      data-narration-chapter={segment.number}
-      data-state={isActive ? playbackState : "idle"}
+    <aside
+      className="page-spine page-spine--continuous"
+      aria-label="Book chapter index"
+      aria-hidden={desktop ? undefined : true}
+      data-product-journey="sidebar"
     >
-      <button
-        type="button"
-        className={`inline-narration-control${isActive ? " is-active" : ""}${isPlaying ? " is-playing" : ""}`}
-        data-state={isActive ? playbackState : "idle"}
-        aria-label={`${actionLabel}: ${segment.title}`}
-        aria-pressed={isPlaying}
-        onClick={() => void toggleNarration(segment)}
-      >
-        <span className="inline-narration-control__icon" aria-hidden="true">
-          {isPlaying ? <Pause /> : <Play />}
-        </span>
-        <span className="inline-narration-control__identity">
-          <small className="inline-narration-control__eyebrow">
-            Audio guide
-          </small>
-          <strong className="inline-narration-control__title">
-            {segment.title}
-          </strong>
-        </span>
-        <span className="inline-narration-control__copy">
-          <strong className="inline-narration-control__label">
-            {actionLabel}
-          </strong>
-          <small className="inline-narration-control__time">
-            {isActive && resolvedTime > 0
-              ? `${formatPlaybackTime(resolvedTime)} / `
-              : ""}
-            {formatPlaybackTime(resolvedDuration)}
-          </small>
-        </span>
-        <progress
-          className="inline-narration-control__progress"
-          aria-label={`${segment.title} narration progress`}
-          max={1}
-          value={progress}
-        />
-      </button>
-    </div>
+      <p className="spine-kicker">Product Journey</p>
+      <ol className="spine-list">
+        {PAGES.map((page, index) => (
+          <li
+            key={page.id}
+            className={`${activeChapterId === page.id ? "is-active" : ""}${
+              index < activeIndex ? " is-complete" : ""
+            }`}
+          >
+            <button
+              type="button"
+              onClick={() => navigateToChapter(page.id)}
+              aria-current={activeChapterId === page.id ? "step" : undefined}
+              aria-label={`Scroll to ${page.navTitle} chapter`}
+              aria-controls={`story-chapter-${page.id}`}
+              data-product-journey-chapter={page.id}
+              tabIndex={desktop ? undefined : -1}
+            >
+              <span>{page.number}</span>
+              <strong>{page.navTitle}</strong>
+            </button>
+          </li>
+        ))}
+      </ol>
+      <div className="folio" aria-live="polite">
+        <span>{activePage.number}</span>
+        <strong>{activePage.navTitle}</strong>
+        <small>{activePage.time}</small>
+      </div>
+    </aside>
   );
 }
 
-function PageNarrationAnchor({
-  segmentId,
-}: {
-  segmentId: NarrationSegment["id"];
-}) {
+function FounderGuideRail() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const activeChapterRef = useRef<FounderGuideChapter["id"] | null>(null);
+  const playbackStateRef = useRef<FounderGuidePlaybackState>("ready");
+  const playbackEpochRef = useRef(0);
+  const playIntentRef = useRef(false);
+  const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const [activeChapterId, setActiveChapterId] = useState<
+    FounderGuideChapter["id"] | null
+  >(null);
+  const [playbackState, setPlaybackState] =
+    useState<FounderGuidePlaybackState>("ready");
+  const [playbackTime, setPlaybackTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [muted, setMuted] = useState(true);
+
+  const activeChapter =
+    FOUNDER_GUIDE_CHAPTERS.find(chapter => chapter.id === activeChapterId) ??
+    null;
+  const displayChapter = activeChapter ?? FOUNDER_GUIDE_CHAPTERS[0];
+
+  const commitPlaybackState = useCallback(
+    (state: FounderGuidePlaybackState) => {
+      playbackStateRef.current = state;
+      setPlaybackState(state);
+    },
+    []
+  );
+
+  const playChapter = useCallback(
+    async ({
+      chapter,
+      audible,
+      restart,
+    }: {
+      chapter: FounderGuideChapter;
+      audible: boolean;
+      restart: boolean;
+    }) => {
+      const video = videoRef.current;
+      if (!video || activeChapterRef.current !== chapter.id) return;
+
+      const requestEpoch = playbackEpochRef.current + 1;
+      playbackEpochRef.current = requestEpoch;
+      playIntentRef.current = false;
+      video.pause();
+      if (restart) {
+        try {
+          video.currentTime = 0;
+        } catch {
+          // Metadata may still be loading after a chapter source switch.
+        }
+        setPlaybackTime(0);
+      }
+      video.muted = !audible;
+      setMuted(!audible);
+      playIntentRef.current = true;
+      commitPlaybackState("loading");
+
+      await settleFounderGuidePlayback({
+        media: video,
+        isCurrent: () =>
+          playbackEpochRef.current === requestEpoch &&
+          playIntentRef.current &&
+          activeChapterRef.current === chapter.id,
+        onPlaying: () => commitPlaybackState("playing"),
+        onFailure: () => {
+          playIntentRef.current = false;
+          commitPlaybackState("error");
+        },
+      });
+    },
+    [commitPlaybackState]
+  );
+
+  useEffect(() => {
+    let animationFrame = 0;
+    const updateActiveChapter = () => {
+      animationFrame = 0;
+      const chapterBounds = FOUNDER_GUIDE_CHAPTERS.flatMap(chapter => {
+        const element = document.querySelector<HTMLElement>(
+          `[data-story-chapter="${chapter.id}"]`
+        );
+        if (!element) return [];
+        const bounds = element.getBoundingClientRect();
+        return [{ id: chapter.id, top: bounds.top, bottom: bounds.bottom }];
+      });
+      const nextChapterId = findFounderGuideChapterAtAnchor(
+        chapterBounds,
+        window.innerHeight
+      ) as FounderGuideChapter["id"] | undefined;
+      setActiveChapterId(current =>
+        current === (nextChapterId ?? null) ? current : (nextChapterId ?? null)
+      );
+    };
+    const scheduleUpdate = () => {
+      if (animationFrame) return;
+      animationFrame = window.requestAnimationFrame(updateActiveChapter);
+    };
+    const observer =
+      typeof IntersectionObserver === "undefined"
+        ? null
+        : new IntersectionObserver(scheduleUpdate, { threshold: 0 });
+
+    FOUNDER_GUIDE_CHAPTERS.forEach(chapter => {
+      const element = document.querySelector<HTMLElement>(
+        `[data-story-chapter="${chapter.id}"]`
+      );
+      if (element) observer?.observe(element);
+    });
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    scheduleUpdate();
+
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    playbackEpochRef.current += 1;
+    playIntentRef.current = false;
+    video?.pause();
+    activeChapterRef.current = activeChapter?.id ?? null;
+
+    if (!video || !activeChapter) {
+      if (video) {
+        video.removeAttribute("src");
+        video.load();
+      }
+      setPlaybackTime(0);
+      setDuration(0);
+      setMuted(true);
+      commitPlaybackState("ready");
+      return;
+    }
+
+    video.muted = true;
+    setMuted(true);
+    setPlaybackTime(0);
+    setDuration(activeChapter.duration);
+    commitPlaybackState("ready");
+    video.src = activeChapter.src;
+    video.load();
+
+    if (reducedMotion) return;
+    const frame = window.requestAnimationFrame(() => {
+      void playChapter({
+        chapter: activeChapter,
+        audible: false,
+        restart: true,
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeChapter, commitPlaybackState, playChapter, reducedMotion]);
+
+  useEffect(() => {
+    const suspendGuide = () => {
+      playbackEpochRef.current += 1;
+      playIntentRef.current = false;
+      const video = videoRef.current;
+      video?.pause();
+      if (activeChapterRef.current) {
+        commitPlaybackState(
+          video && video.currentTime > 0 ? "paused" : "ready"
+        );
+      }
+    };
+    const pauseGuide = () => {
+      if (!document.hidden) return;
+      suspendGuide();
+    };
+    const pauseOnPageHide = () => suspendGuide();
+    document.addEventListener("visibilitychange", pauseGuide);
+    window.addEventListener("pagehide", pauseOnPageHide);
+    return () => {
+      document.removeEventListener("visibilitychange", pauseGuide);
+      window.removeEventListener("pagehide", pauseOnPageHide);
+      playbackEpochRef.current += 1;
+      playIntentRef.current = false;
+      videoRef.current?.pause();
+    };
+  }, [commitPlaybackState]);
+
+  const handlePrimaryAction = () => {
+    if (!activeChapter) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (muted) {
+      void playChapter({
+        chapter: activeChapter,
+        audible: true,
+        restart: true,
+      });
+      return;
+    }
+
+    if (playbackState === "playing" || playbackState === "loading") {
+      playbackEpochRef.current += 1;
+      playIntentRef.current = false;
+      video.pause();
+      commitPlaybackState(video.currentTime > 0 ? "paused" : "ready");
+      return;
+    }
+
+    if (playbackState === "complete" || playbackState === "error") {
+      void playChapter({
+        chapter: activeChapter,
+        audible: true,
+        restart: true,
+      });
+      return;
+    }
+
+    void playChapter({ chapter: activeChapter, audible: true, restart: false });
+  };
+
+  const actionLabel = muted
+    ? "Muted · Tap to hear"
+    : playbackState === "loading"
+      ? "Starting…"
+      : playbackState === "playing"
+        ? "Pause"
+        : playbackState === "paused"
+          ? "Resume"
+          : playbackState === "complete"
+            ? "Replay"
+            : playbackState === "error"
+              ? "Try again"
+              : "Hear from start";
+  const resolvedDuration = duration || displayChapter.duration;
+  const progress =
+    resolvedDuration > 0
+      ? Math.min(1, Math.max(0, playbackTime / resolvedDuration))
+      : 0;
+
   return (
-    <div className="page-narration-anchor" data-page-narration={segmentId}>
-      <InlineNarrationControl segmentId={segmentId} />
-    </div>
+    <aside
+      className="founder-guide-rail"
+      data-founder-guide="rail"
+      data-visible={activeChapter ? "true" : "false"}
+      aria-hidden={activeChapter ? undefined : true}
+    >
+      <div
+        className="founder-guide-card"
+        data-founder-guide-card={displayChapter.id}
+        data-state={playbackState}
+        data-muted={muted ? "true" : "false"}
+      >
+        <div className="founder-guide-card__portrait">
+          <video
+            ref={videoRef}
+            muted={muted}
+            playsInline
+            preload="metadata"
+            aria-label={`${displayChapter.title} founder guide`}
+            onLoadedMetadata={event => {
+              if (
+                event.currentTarget !== videoRef.current ||
+                !activeChapter ||
+                !event.currentTarget.currentSrc.endsWith(activeChapter.src)
+              ) {
+                return;
+              }
+              setDuration(
+                event.currentTarget.duration || activeChapter.duration
+              );
+              setPlaybackTime(event.currentTarget.currentTime);
+            }}
+            onTimeUpdate={event => {
+              if (
+                event.currentTarget !== videoRef.current ||
+                !activeChapterRef.current
+              ) {
+                return;
+              }
+              setPlaybackTime(event.currentTarget.currentTime);
+            }}
+            onPlay={event => {
+              if (
+                event.currentTarget === videoRef.current &&
+                playIntentRef.current
+              ) {
+                commitPlaybackState("playing");
+              }
+            }}
+            onPause={event => {
+              if (
+                event.currentTarget !== videoRef.current ||
+                event.currentTarget.ended ||
+                playbackStateRef.current === "loading" ||
+                !activeChapterRef.current
+              ) {
+                return;
+              }
+              if (playIntentRef.current) return;
+              commitPlaybackState(
+                event.currentTarget.currentTime > 0 ? "paused" : "ready"
+              );
+            }}
+            onEnded={event => {
+              if (
+                event.currentTarget !== videoRef.current ||
+                !activeChapterRef.current
+              ) {
+                return;
+              }
+              playbackEpochRef.current += 1;
+              playIntentRef.current = false;
+              setPlaybackTime(event.currentTarget.duration);
+              commitPlaybackState("complete");
+            }}
+            onError={event => {
+              if (
+                event.currentTarget !== videoRef.current ||
+                !activeChapterRef.current ||
+                !playIntentRef.current
+              ) {
+                return;
+              }
+              playbackEpochRef.current += 1;
+              playIntentRef.current = false;
+              commitPlaybackState("error");
+            }}
+          />
+          <span className="founder-guide-card__live-dot" aria-hidden="true" />
+        </div>
+
+        <div className="founder-guide-card__body">
+          <span className="founder-guide-card__eyebrow">
+            Founder guide · Chapter {displayChapter.number}
+          </span>
+          <strong>{displayChapter.title}</strong>
+          <button
+            type="button"
+            className="founder-guide-card__action"
+            aria-label={`${actionLabel}: Chapter ${displayChapter.number} ${displayChapter.title}`}
+            aria-pressed={!muted && playbackState === "playing"}
+            onClick={handlePrimaryAction}
+          >
+            {muted ? (
+              <VolumeX aria-hidden="true" />
+            ) : playbackState === "playing" || playbackState === "loading" ? (
+              <Pause aria-hidden="true" />
+            ) : (
+              <Play aria-hidden="true" />
+            )}
+            <span className="founder-guide-card__action-label">
+              {actionLabel}
+            </span>
+            <span className="founder-guide-card__action-label--compact">
+              {muted ? "Tap for sound" : actionLabel}
+            </span>
+          </button>
+        </div>
+
+        {!muted ? (
+          <button
+            type="button"
+            className="founder-guide-card__mute"
+            aria-label="Mute founder guide"
+            onClick={() => {
+              if (!videoRef.current) return;
+              videoRef.current.muted = true;
+              setMuted(true);
+            }}
+          >
+            <Volume2 aria-hidden="true" />
+          </button>
+        ) : null}
+
+        <span className="founder-guide-card__time" aria-hidden="true">
+          {formatPlaybackTime(playbackTime)} /{" "}
+          {formatPlaybackTime(resolvedDuration)}
+        </span>
+        <progress
+          className="founder-guide-card__progress"
+          aria-label={`${displayChapter.title} founder guide progress`}
+          max={1}
+          value={progress}
+        />
+      </div>
+      <span className="sr-only" aria-live="polite">
+        {activeChapter
+          ? `Chapter ${activeChapter.number} founder guide ${muted ? "muted" : "audible"}, ${playbackState}`
+          : "Founder guide ready"}
+      </span>
+    </aside>
   );
 }
 
@@ -1707,8 +2033,7 @@ type ConceptBeatProps = {
   time: string;
   className?: string;
   testId?: string;
-  beatId?: NarrationSegment["id"];
-  narrationId?: NarrationSegment["id"];
+  beatId?: string;
   children: ReactNode;
 };
 
@@ -1718,7 +2043,6 @@ function ConceptBeat({
   className = "",
   testId,
   beatId,
-  narrationId,
   children,
 }: ConceptBeatProps) {
   return (
@@ -1727,7 +2051,6 @@ function ConceptBeat({
       data-testid={testId}
       data-story-beat={beatId}
     >
-      {narrationId ? <PageNarrationAnchor segmentId={narrationId} /> : null}
       <div className="beat-meta">
         <p>{label}</p>
         <time>{time}</time>
@@ -1929,7 +2252,6 @@ function ProjectIngestBeat() {
       data-story-beat="03-project-ingest"
     >
       <div className="project-ingest-sticky">
-        <PageNarrationAnchor segmentId="03-project-ingest" />
         <div className="beat-meta">
           <p>Chapter 03 · Connect</p>
           <time>00:52–00:58</time>
@@ -2020,10 +2342,10 @@ function ProjectIngestBeat() {
               transform: `translate(-50%, ${20 - finaleEnter * 20}px)`,
             }}
           >
-            <h2>Project Book ready.</h2>
+            <h2>One Book. Three polished pages.</h2>
             <p>
-              Every source and output stays connected—and becomes context for
-              what comes next.
+              Built from the same connected context—and ready for what comes
+              next.
             </p>
           </div>
 
@@ -2159,15 +2481,6 @@ function KnowledgeBaseChapter({
     progress < 0.46 ? "context" : progress < 0.82 ? "video" : "case";
   const conceptPhase =
     progress < 0.205 ? "orbit" : progress < 0.435 ? "wiki" : "handoff";
-  const narrationId: NarrationSegment["id"] =
-    stage === "video"
-      ? "01-knowledge-base-ui"
-      : stage === "case"
-        ? "01-apollo-case"
-        : conceptPhase === "orbit"
-          ? "01-everyday-context"
-          : "01-personal-llm-wiki";
-
   const wikiWidth =
     (compact ? 342 : 1040) + shellMorph * (compact ? -120 : -798);
   const wikiHeight = (compact ? 452 : 520) + shellMorph * 24;
@@ -2188,8 +2501,7 @@ function KnowledgeBaseChapter({
           time="00:00–00:20"
           className="kb-story-beat"
           testId="chapter-01-intro"
-          beatId={narrationId}
-          narrationId={narrationId}
+          beatId="01-knowledge-base"
         >
           <div
             className="kb-story-stage"
@@ -2742,7 +3054,6 @@ function NoteChapter({ footer }: { footer: ReactNode }) {
         className="recording-beat note-recording-beat"
         testId="note-recording"
         beatId="02-note-workflow"
-        narrationId="02-note-workflow"
       >
         <RecordingPlayer
           label="Note workflow recording"
@@ -2762,7 +3073,6 @@ function NoteChapter({ footer }: { footer: ReactNode }) {
         className="html-output-beat note-share-page"
         testId="note-overview-page"
         beatId="02-complete-note"
-        narrationId="02-complete-note"
       >
         <div className="html-output-heading">
           <div>
@@ -2774,6 +3084,8 @@ function NoteChapter({ footer }: { footer: ReactNode }) {
             <span>Encrypt</span>
           </div>
         </div>
+
+        <MarkdownHtmlBridge />
 
         <div className="html-page-browser">
           <div className="browser-bar">
@@ -2814,7 +3126,6 @@ function BookChapter({ footer }: { footer: ReactNode }) {
         className="recording-beat project-recording-beat chapter-ending-recording-beat"
         testId="project-book-recording"
         beatId="03-project-book-ui"
-        narrationId="03-project-book-ui"
       >
         <RecordingPlayer
           label="Project Book generation recording"
@@ -2839,7 +3150,6 @@ function OutputPlatformResults() {
       className="output-convergence-beat output-opening-beat"
       testId="platform-triptych"
       beatId="04-platform-results"
-      narrationId="04-platform-results"
     >
       <header className="output-convergence-heading">
         <div>
@@ -2855,7 +3165,7 @@ function OutputPlatformResults() {
         </div>
         <div className="output-convergence-intro">
           <span>Three Platform Results</span>
-          <strong>One Page. Native expressions.</strong>
+          <strong>One Page. Three native voices.</strong>
         </div>
       </header>
 
@@ -2919,6 +3229,7 @@ function OutputShareChapter({ footer }: { footer: ReactNode }) {
   return (
     <article className="scripted-chapter" data-content-slot="output-share">
       <OutputPlatformResults />
+      <ControlledShareFlow />
 
       <ConceptBeat
         label="Standalone Note Output · Real UI"
@@ -2926,7 +3237,6 @@ function OutputShareChapter({ footer }: { footer: ReactNode }) {
         className="output-single-recording-beat"
         testId="standalone-note-sharing"
         beatId="04-standalone-note-sharing"
-        narrationId="04-standalone-note-sharing"
       >
         <div className="output-single-recording-stage">
           <div className="output-recording-context">
@@ -2953,7 +3263,6 @@ function OutputShareChapter({ footer }: { footer: ReactNode }) {
         className="output-single-recording-beat chapter-ending-recording-beat"
         testId="project-html-sharing"
         beatId="04-project-html-sharing"
-        narrationId="04-project-html-sharing"
       >
         <div className="output-single-recording-stage">
           <div className="output-recording-context">
@@ -3218,7 +3527,6 @@ function ContextReturnLoop() {
         data-testid="context-return-loop"
         data-story-beat="05-context-return"
       >
-        <PageNarrationAnchor segmentId="05-context-return" />
         <div
           className="return-story-shell"
           data-scene={activeScene}
@@ -3528,7 +3836,6 @@ function AlignmentChapter({ footer }: { footer: ReactNode }) {
         className="recording-beat alignment-recording-beat alignment-match-cut-beat chapter-ending-recording-beat"
         testId="ask-memova-recording"
         beatId="05-ask-memova"
-        narrationId="05-ask-memova"
       >
         <RecordingPlayer
           title="Ask Memova & Why This"
@@ -3604,7 +3911,6 @@ function EndChapter({ footer }: { footer: ReactNode }) {
         className="end-beat"
         testId="final-frame"
         beatId="06-end"
-        narrationId="06-end"
       >
         <div className="final-frame-layout">
           <div className="final-book-network">
@@ -3655,232 +3961,11 @@ function EmptyChapter({
 }
 
 export default function ContinuousDemoStory() {
-  const narrationRef = useRef<HTMLAudioElement>(null);
-  const activeNarrationIdRef = useRef<NarrationSegment["id"] | null>(null);
-  const narrationStateRef = useRef<NarrationPlaybackState>("idle");
-  const narrationRequestEpochRef = useRef(0);
-  const narrationPlayIntentRef = useRef(false);
-  const [activeNarrationId, setActiveNarrationId] = useState<
-    NarrationSegment["id"] | null
-  >(null);
-  const [narrationState, setNarrationState] =
-    useState<NarrationPlaybackState>("idle");
-  const [narrationTime, setNarrationTime] = useState(0);
-  const [narrationDuration, setNarrationDuration] = useState(0);
-
-  const commitNarrationState = useCallback((state: NarrationPlaybackState) => {
-    narrationStateRef.current = state;
-    setNarrationState(state);
-  }, []);
-
   const scrollToNote = () => {
     document
       .querySelector<HTMLElement>('[data-story-chapter="note"]')
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-
-  const pauseNarration = useCallback(
-    (segmentId?: NarrationSegment["id"]) => {
-      if (segmentId && activeNarrationIdRef.current !== segmentId) {
-        return;
-      }
-
-      narrationRequestEpochRef.current += 1;
-      narrationPlayIntentRef.current = false;
-      const audio = narrationRef.current;
-      audio?.pause();
-
-      if (activeNarrationIdRef.current) {
-        commitNarrationState(
-          audio && audio.currentTime > 0 ? "paused" : "idle"
-        );
-      }
-    },
-    [commitNarrationState]
-  );
-
-  const resetNarration = useCallback(
-    (segmentId: NarrationSegment["id"]) => {
-      if (activeNarrationIdRef.current !== segmentId) return;
-
-      narrationRequestEpochRef.current += 1;
-      narrationPlayIntentRef.current = false;
-      const audio = narrationRef.current;
-      audio?.pause();
-      if (audio) {
-        try {
-          audio.currentTime = 0;
-        } catch {
-          // A source can be reset before metadata is available.
-        }
-      }
-
-      activeNarrationIdRef.current = null;
-      setActiveNarrationId(null);
-      setNarrationTime(0);
-      setNarrationDuration(0);
-      commitNarrationState("idle");
-    },
-    [commitNarrationState]
-  );
-
-  const toggleNarration = useCallback(
-    async (segment: NarrationSegment) => {
-      const audio = narrationRef.current;
-      if (!audio) return;
-
-      const sameSegment = activeNarrationIdRef.current === segment.id;
-      const cancelPendingOrPlaying =
-        sameSegment && narrationPlayIntentRef.current;
-      const requestEpoch = narrationRequestEpochRef.current + 1;
-      narrationRequestEpochRef.current = requestEpoch;
-
-      // Every request starts by stopping the previous media operation.
-      audio.pause();
-      narrationPlayIntentRef.current = false;
-
-      if (cancelPendingOrPlaying) {
-        commitNarrationState(audio.currentTime > 0 ? "paused" : "idle");
-        return;
-      }
-
-      if (!sameSegment) {
-        audio.dataset.narrationId = segment.id;
-        audio.src = segment.src;
-        try {
-          audio.currentTime = 0;
-        } catch {
-          // The new source may not have metadata yet.
-        }
-        activeNarrationIdRef.current = segment.id;
-        setActiveNarrationId(segment.id);
-        setNarrationTime(0);
-        setNarrationDuration(segment.duration);
-      } else if (
-        audio.ended ||
-        narrationStateRef.current === "complete" ||
-        narrationStateRef.current === "error"
-      ) {
-        audio.currentTime = 0;
-        setNarrationTime(0);
-      }
-
-      narrationPlayIntentRef.current = true;
-      commitNarrationState("loading");
-
-      await settleNarrationPlayback({
-        media: audio,
-        isCurrent: () =>
-          narrationRequestEpochRef.current === requestEpoch &&
-          narrationPlayIntentRef.current &&
-          activeNarrationIdRef.current === segment.id,
-        onCancelled: () => {
-          if (
-            activeNarrationIdRef.current === segment.id &&
-            !narrationPlayIntentRef.current
-          ) {
-            audio.pause();
-          }
-        },
-        onPlaying: () => commitNarrationState("playing"),
-        onFailure: () => {
-          narrationPlayIntentRef.current = false;
-          commitNarrationState("error");
-        },
-      });
-    },
-    [commitNarrationState]
-  );
-
-  useEffect(() => {
-    if (!activeNarrationId) return;
-
-    const activeBeat = document.querySelector<HTMLElement>(
-      `[data-story-beat="${activeNarrationId}"]`
-    );
-    const audio = narrationRef.current;
-    if (!activeBeat || !audio) {
-      pauseNarration(activeNarrationId);
-      return;
-    }
-
-    const pauseIfBeatLeft = () => {
-      const beatBounds = activeBeat.getBoundingClientRect();
-      const beatIsCurrent = isNarrationBeatCurrent(
-        beatBounds,
-        window.innerHeight
-      );
-
-      if (!beatIsCurrent && (!audio.paused || narrationPlayIntentRef.current)) {
-        pauseNarration(activeNarrationId);
-      }
-    };
-    let animationFrame = 0;
-    const scheduleVisibilityCheck = () => {
-      if (animationFrame) return;
-      animationFrame = window.requestAnimationFrame(() => {
-        animationFrame = 0;
-        pauseIfBeatLeft();
-      });
-    };
-    const observer =
-      typeof IntersectionObserver === "undefined"
-        ? null
-        : new IntersectionObserver(() => scheduleVisibilityCheck(), {
-            rootMargin: "-20% 0px -20% 0px",
-            threshold: 0,
-          });
-
-    observer?.observe(activeBeat);
-    window.addEventListener("scroll", scheduleVisibilityCheck, {
-      passive: true,
-    });
-    window.addEventListener("resize", scheduleVisibilityCheck);
-    scheduleVisibilityCheck();
-
-    return () => {
-      observer?.disconnect();
-      window.removeEventListener("scroll", scheduleVisibilityCheck);
-      window.removeEventListener("resize", scheduleVisibilityCheck);
-      if (animationFrame) window.cancelAnimationFrame(animationFrame);
-    };
-  }, [activeNarrationId, pauseNarration]);
-
-  useEffect(() => {
-    const pauseWhenHidden = () => {
-      if (document.hidden) pauseNarration();
-    };
-    const pauseOnPageHide = () => pauseNarration();
-
-    document.addEventListener("visibilitychange", pauseWhenHidden);
-    window.addEventListener("pagehide", pauseOnPageHide);
-    return () => {
-      document.removeEventListener("visibilitychange", pauseWhenHidden);
-      window.removeEventListener("pagehide", pauseOnPageHide);
-      narrationRequestEpochRef.current += 1;
-      narrationPlayIntentRef.current = false;
-      narrationRef.current?.pause();
-    };
-  }, [pauseNarration]);
-
-  const narrationContextValue = useMemo<NarrationContextValue>(
-    () => ({
-      activeId: activeNarrationId,
-      playbackState: narrationState,
-      playbackTime: narrationTime,
-      duration: narrationDuration,
-      toggleNarration,
-      resetNarration,
-    }),
-    [
-      activeNarrationId,
-      narrationDuration,
-      narrationState,
-      narrationTime,
-      resetNarration,
-      toggleNarration,
-    ]
-  );
 
   return (
     <section
@@ -3890,13 +3975,12 @@ export default function ContinuousDemoStory() {
     >
       <header className="demo-story-intro">
         <span>THE MEMOVA LOOP</span>
-        <h2 id="product-tour-heading">
-          See how everyday context becomes reusable knowledge.
-        </h2>
+        <h2 id="product-tour-heading">Scattered in. Shareable out.</h2>
         <p>
-          Follow one continuous product story—from capture and understanding to
-          action, expression, and a context layer that keeps compounding.
+          Meetings, files, images, and ideas become connected knowledge, useful
+          Pages, and actions you approve.
         </p>
+        <KnowledgeNoteActionOverview />
         <div
           className="demo-story-intro-path"
           aria-label="Product story chapters"
@@ -3910,100 +3994,14 @@ export default function ContinuousDemoStory() {
         </div>
       </header>
 
-      <audio
-        ref={narrationRef}
-        preload="none"
-        onLoadedMetadata={event => {
-          if (
-            event.currentTarget.dataset.narrationId !==
-            activeNarrationIdRef.current
-          ) {
-            return;
-          }
-          setNarrationDuration(event.currentTarget.duration);
-          setNarrationTime(event.currentTarget.currentTime);
-        }}
-        onTimeUpdate={event => {
-          if (
-            event.currentTarget.dataset.narrationId !==
-            activeNarrationIdRef.current
-          ) {
-            return;
-          }
-          setNarrationTime(event.currentTarget.currentTime);
-        }}
-        onPlay={event => {
-          if (
-            event.currentTarget.dataset.narrationId !==
-              activeNarrationIdRef.current ||
-            !narrationPlayIntentRef.current
-          ) {
-            event.currentTarget.pause();
-            return;
-          }
-          commitNarrationState("playing");
-        }}
-        onPause={event => {
-          if (
-            event.currentTarget.dataset.narrationId !==
-              activeNarrationIdRef.current ||
-            event.currentTarget.ended
-          ) {
-            return;
-          }
+      <FounderGuideRail />
 
-          if (
-            narrationPlayIntentRef.current &&
-            narrationStateRef.current === "loading"
-          ) {
-            return;
-          }
+      <div className="book-layout">
+        <DesktopBookSpine />
 
-          if (!event.currentTarget.paused) return;
-
-          narrationRequestEpochRef.current += 1;
-          narrationPlayIntentRef.current = false;
-          if (event.currentTarget.currentTime > 0) {
-            commitNarrationState("paused");
-          } else {
-            commitNarrationState("idle");
-          }
-        }}
-        onEnded={event => {
-          if (
-            event.currentTarget.dataset.narrationId !==
-            activeNarrationIdRef.current
-          ) {
-            return;
-          }
-          narrationRequestEpochRef.current += 1;
-          narrationPlayIntentRef.current = false;
-          setNarrationTime(event.currentTarget.duration);
-          commitNarrationState("complete");
-        }}
-        onError={event => {
-          if (
-            event.currentTarget.dataset.narrationId !==
-              activeNarrationIdRef.current ||
-            (!narrationPlayIntentRef.current &&
-              narrationStateRef.current !== "loading")
-          ) {
-            return;
-          }
-          narrationRequestEpochRef.current += 1;
-          narrationPlayIntentRef.current = false;
-          commitNarrationState("error");
-        }}
-      />
-      <span className="sr-only" aria-live="polite">
-        {activeNarrationId
-          ? `${NARRATION_SEGMENTS.find(segment => segment.id === activeNarrationId)?.title} narration ${narrationState}`
-          : "Chapter narration ready"}
-      </span>
-
-      <NarrationContext.Provider value={narrationContextValue}>
-        <div className="book-layout">
+        <div className="demo-story-chapter-flow">
           <section
+            id="story-chapter-knowledge-base"
             className="chapter-scroll demo-story-chapter"
             data-continuous-scroll="true"
             data-story-chapter="knowledge-base"
@@ -4013,6 +4011,7 @@ export default function ContinuousDemoStory() {
           </section>
 
           <section
+            id="story-chapter-note"
             className="chapter-scroll demo-story-chapter"
             data-continuous-scroll="true"
             data-story-chapter="note"
@@ -4022,6 +4021,7 @@ export default function ContinuousDemoStory() {
           </section>
 
           <section
+            id="story-chapter-book"
             className="chapter-scroll demo-story-chapter"
             data-continuous-scroll="true"
             data-story-chapter="book"
@@ -4031,6 +4031,7 @@ export default function ContinuousDemoStory() {
           </section>
 
           <section
+            id="story-chapter-output-share"
             className="chapter-scroll demo-story-chapter"
             data-continuous-scroll="true"
             data-story-chapter="output-share"
@@ -4040,6 +4041,7 @@ export default function ContinuousDemoStory() {
           </section>
 
           <section
+            id="story-chapter-alignment"
             className="chapter-scroll demo-story-chapter"
             data-continuous-scroll="true"
             data-story-chapter="alignment"
@@ -4049,6 +4051,7 @@ export default function ContinuousDemoStory() {
           </section>
 
           <section
+            id="story-chapter-end"
             className="chapter-scroll demo-story-chapter"
             data-continuous-scroll="true"
             data-story-chapter="end"
@@ -4057,7 +4060,7 @@ export default function ContinuousDemoStory() {
             <EndChapter footer={null} />
           </section>
         </div>
-      </NarrationContext.Provider>
+      </div>
     </section>
   );
 }

@@ -14,37 +14,14 @@ import CTASection from "@/components/sections/CTASection";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { privacyPolicyPaths } from "@/App";
 import {
-  isNarrationBeatCurrent,
-  settleNarrationPlayback,
+  FOUNDER_GUIDE_CHAPTERS,
+  findFounderGuideChapterAtAnchor,
+  scrollToStoryChapter,
+  settleFounderGuidePlayback,
 } from "@/components/demo-story/ContinuousDemoStory";
 
 function render(component: React.ReactElement) {
   return renderToStaticMarkup(component);
-}
-
-function findDivsByClass(html: string, className: string) {
-  const matches: string[] = [];
-  const stack: Array<{ start: number; isMatch: boolean }> = [];
-  const divPattern = /<\/?div\b[^>]*>/g;
-  let match: RegExpExecArray | null;
-
-  while ((match = divPattern.exec(html)) !== null) {
-    const tag = match[0];
-    const index = match.index;
-
-    if (tag.startsWith("</")) {
-      const opening = stack.pop();
-      if (opening?.isMatch) {
-        matches.push(html.slice(opening.start, index + tag.length));
-      }
-      continue;
-    }
-
-    const classes = tag.match(/\bclass="([^"]*)"/)?.[1].split(/\s+/) ?? [];
-    stack.push({ start: index, isMatch: classes.includes(className) });
-  }
-
-  return matches;
 }
 
 describe("US iOS acquisition pages", () => {
@@ -76,9 +53,7 @@ describe("US iOS acquisition pages", () => {
     );
 
     expect(html).toContain("Your everyday context");
-    expect(html).toContain(
-      "See how everyday context becomes reusable knowledge"
-    );
+    expect(html).toContain("Scattered in. Shareable out.");
     expect(html).not.toContain("<iframe");
     expect(html).not.toContain("/demo/index.html?embed=1");
     const storyChapters = [
@@ -108,6 +83,136 @@ describe("US iOS acquisition pages", () => {
     expect(html).toContain("Private. Local.");
     expect(html).toContain("Start with Memova on iPhone");
     expect(html).not.toContain("fixed inset-0");
+  });
+
+  it("adds the App Store-inspired architecture bridges without changing the six chapters", () => {
+    const html = render(
+      <AuthProvider>
+        <Home />
+      </AuthProvider>
+    );
+    const bridgeStyles = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "client/src/components/demo-story/story-architecture-bridges.css"
+      ),
+      "utf8"
+    );
+
+    expect(html.match(/data-architecture-step=/g)).toHaveLength(3);
+    expect(html).toContain('data-architecture-step="Sources"');
+    expect(html).toContain('data-architecture-step="Book"');
+    expect(html).toContain('data-architecture-step="Pages"');
+
+    expect(html).toContain('data-story-narrative="markdown-to-html"');
+    expect(html).toContain("private, editable source stays in Markdown");
+    expect(html).toContain("source-linked HTML Page");
+    expect(html).toContain("Your work, already a webpage.");
+    expect(html).toContain(
+      "The format changes. The source connection does not."
+    );
+
+    expect(html).toContain('data-story-narrative="controlled-sharing"');
+    expect(html.match(/data-share-safety-step=/g)).toHaveLength(4);
+    ["Private", "Auto-remove", "Review", "Publish"].forEach(step => {
+      expect(html).toContain(`data-share-safety-step="${step}"`);
+    });
+    expect(html).toContain("Auto-remove sensitive details");
+    expect(html).toContain("One Book. Three polished pages.");
+    expect(html).toContain("One Page. Three native voices.");
+
+    expect(html.match(/data-story-chapter=/g)).toHaveLength(6);
+    expect(bridgeStyles).not.toContain("position: sticky");
+    expect(bridgeStyles).not.toContain("100svh");
+    expect(bridgeStyles).toContain("prefers-reduced-motion: reduce");
+  });
+
+  it("restores the Product Journey book spine on desktop without changing the mobile story", () => {
+    const html = render(
+      <AuthProvider>
+        <Home />
+      </AuthProvider>
+    );
+    const storySource = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "client/src/components/demo-story/ContinuousDemoStory.tsx"
+      ),
+      "utf8"
+    );
+    const continuousStyles = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "client/src/components/demo-story/continuous-overrides.css"
+      ),
+      "utf8"
+    );
+    const sidebar =
+      html.match(
+        /<aside\b[^>]*data-product-journey="sidebar"[^>]*>[\s\S]*?<\/aside>/
+      )?.[0] ?? "";
+    const expectedChapters = [
+      ["knowledge-base", "01", "Knowledge Base"],
+      ["note", "02", "Note"],
+      ["book", "03", "Book"],
+      ["output-share", "04", "Output &amp; Share"],
+      ["alignment", "05", "Context Return"],
+      ["end", "06", "End"],
+    ] as const;
+
+    expect(sidebar).not.toBe("");
+    expect(sidebar).toContain('aria-label="Book chapter index"');
+    expect(sidebar).toContain("Product Journey");
+    expect(sidebar.match(/data-product-journey-chapter=/g)).toHaveLength(6);
+    expect(sidebar.match(/aria-current="step"/g)).toHaveLength(1);
+
+    expectedChapters.forEach(([id, number, title]) => {
+      expect(sidebar).toContain(`data-product-journey-chapter="${id}"`);
+      expect(sidebar).toContain(`aria-controls="story-chapter-${id}"`);
+      expect(sidebar).toContain(`>${number}</span>`);
+      expect(sidebar).toContain(`>${title}</strong>`);
+      expect(html).toContain(`id="story-chapter-${id}"`);
+    });
+
+    expect(continuousStyles).toContain(
+      ".framework-shell--continuous .page-spine,"
+    );
+    expect(continuousStyles).toContain("display: none !important;");
+    expect(continuousStyles).toContain("@media (min-width: 1180px)");
+    expect(continuousStyles).toMatch(
+      /\.framework-shell--continuous \.page-spine--continuous\s*\{[\s\S]*?display: flex !important;/
+    );
+
+    const spineStart = storySource.indexOf("function DesktopBookSpine");
+    const spineEnd = storySource.indexOf("function FounderGuideRail", spineStart);
+    const spineSource = storySource.slice(spineStart, spineEnd);
+    expect(spineStart).toBeGreaterThan(-1);
+    expect(spineSource.indexOf("if (!desktop) return undefined")).toBeLessThan(
+      spineSource.indexOf('window.addEventListener("scroll"')
+    );
+    expect(spineSource).toContain(
+      'window.addEventListener("scroll", scheduleUpdate, { passive: true })'
+    );
+    expect(spineSource).not.toContain('addEventListener("touchmove"');
+    expect(spineSource).not.toContain('addEventListener("wheel"');
+    expect(spineSource).not.toContain("window.scrollTo");
+  });
+
+  it("scrolls a Product Journey spine selection to its matching chapter", () => {
+    const scrollIntoView = vi.fn();
+    const querySelector = vi.fn(() => ({ scrollIntoView }));
+    vi.stubGlobal("document", { querySelector });
+
+    try {
+      scrollToStoryChapter("book");
+      expect(querySelector).toHaveBeenCalledWith('[data-story-chapter="book"]');
+      expect(scrollIntoView).toHaveBeenCalledWith({
+        behavior: "instant",
+        block: "start",
+      });
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("scopes the Demo-aligned marketing palette away from product-story media", () => {
@@ -297,7 +402,9 @@ describe("US iOS acquisition pages", () => {
     expect(continuousStyles).toContain("container-type: size");
     expect(continuousStyles).toContain("touch-action: pan-y pinch-zoom");
     expect(storySource).toContain("stabilizeTouchGeometry");
-    expect(storySource).toContain("window.matchMedia(TOUCH_INPUT_QUERY).matches");
+    expect(storySource).toContain(
+      "window.matchMedia(TOUCH_INPUT_QUERY).matches"
+    );
     expect(storySource).not.toContain(
       "Element.prototype.getBoundingClientRect"
     );
@@ -340,9 +447,7 @@ describe("US iOS acquisition pages", () => {
     expect(storySource).not.toContain(
       "MOBILE_PROJECT_INGEST_FORWARD_THRESHOLDS"
     );
-    expect(storySource).not.toContain(
-      "MOBILE_PROJECT_INGEST_BACK_THRESHOLDS"
-    );
+    expect(storySource).not.toContain("MOBILE_PROJECT_INGEST_BACK_THRESHOLDS");
     expect(storySource).not.toContain("scrollend");
     expect(storySource).not.toContain("window.scrollTo");
     expect(storySource).not.toContain("data-mobile-discrete");
@@ -361,7 +466,7 @@ describe("US iOS acquisition pages", () => {
     );
   });
 
-  it("presents every walkthrough page with the same prominent audio-guide control", () => {
+  it("maps one six-chapter Founder Guide rail to the six product-story chapters", () => {
     const html = render(
       <AuthProvider>
         <Home />
@@ -374,214 +479,127 @@ describe("US iOS acquisition pages", () => {
       ),
       "utf8"
     );
-    const continuousStyles = fs.readFileSync(
-      path.resolve(
-        process.cwd(),
-        "client/src/components/demo-story/continuous-overrides.css"
-      ),
-      "utf8"
-    );
-    const narrationRoot = path.resolve(
-      process.cwd(),
-      "client/public/demo/audio/pages"
-    );
-    const narrationSegments = [
+    const guideRoot = path.resolve(process.cwd(), "client/public");
+    const expectedChapters = [
       {
-        id: "01-everyday-context",
-        title: "Everyday Context",
-        file: "01-everyday-context.m4a",
+        id: "knowledge-base",
+        number: "01",
+        title: "Collect & Understand",
+        src: "/demo/founder-guide/chapter-01.mp4",
       },
       {
-        id: "01-personal-llm-wiki",
-        title: "Personal LLM Wiki",
-        file: "01-personal-llm-wiki.m4a",
+        id: "note",
+        number: "02",
+        title: "Act",
+        src: "/demo/founder-guide/chapter-02.mp4",
       },
       {
-        id: "01-knowledge-base-ui",
-        title: "Knowledge Base Setup",
-        file: "01-knowledge-base-ui.m4a",
+        id: "book",
+        number: "03",
+        title: "Connect",
+        src: "/demo/founder-guide/chapter-03.mp4",
       },
       {
-        id: "01-apollo-case",
-        title: "Apollo 11 Case",
-        file: "01-apollo-case.m4a",
+        id: "output-share",
+        number: "04",
+        title: "Express",
+        src: "/demo/founder-guide/chapter-04.mp4",
       },
       {
-        id: "02-note-workflow",
-        title: "Note Workflow",
-        file: "02-note-workflow.m4a",
-      },
-      {
-        id: "02-complete-note",
-        title: "The Complete Note",
-        file: "02-complete-note.m4a",
-      },
-      {
-        id: "03-project-ingest",
-        title: "Sources Into a Book",
-        file: "03-project-ingest.m4a",
-      },
-      {
-        id: "03-project-book-ui",
-        title: "Project Book Generation",
-        file: "03-project-book-ui.m4a",
-      },
-      {
-        id: "04-platform-results",
-        title: "Platform Results",
-        file: "04-platform-results.m4a",
-      },
-      {
-        id: "04-standalone-note-sharing",
-        title: "Standalone Note Sharing",
-        file: "04-standalone-note-sharing.m4a",
-      },
-      {
-        id: "04-project-html-sharing",
-        title: "Project HTML Sharing",
-        file: "04-project-html-sharing.m4a",
-      },
-      {
-        id: "05-context-return",
+        id: "alignment",
+        number: "05",
         title: "Context Return",
-        file: "05-context-return.m4a",
+        src: "/demo/founder-guide/chapter-05.mp4",
       },
       {
-        id: "05-ask-memova",
-        title: "Ask Memova",
-        file: "05-ask-memova.m4a",
-      },
-      {
-        id: "06-end",
-        title: "End",
-        file: "06-end.m4a",
+        id: "end",
+        number: "06",
+        title: "Compound",
+        src: "/demo/founder-guide/chapter-06.mp4",
       },
     ];
-    const renderedNarrationIds = [
-      "01-everyday-context",
-      "02-note-workflow",
-      "02-complete-note",
-      "03-project-ingest",
-      "03-project-book-ui",
-      "04-platform-results",
-      "04-standalone-note-sharing",
-      "04-project-html-sharing",
-      "05-context-return",
-      "05-ask-memova",
-      "06-end",
-    ];
-    const renderedControlIds = Array.from(
-      html.matchAll(/data-narration-control="([^"]+)"/g),
+    const renderedChapterIds = Array.from(
+      html.matchAll(/data-story-chapter="([^"]+)"/g),
       match => match[1]
     );
-    const pageNarrationAnchors = findDivsByClass(html, "page-narration-anchor");
-    const pageNarrationIds = pageNarrationAnchors.map(anchor => {
-      const openingTag = anchor.match(/^<div\b[^>]*>/)?.[0] ?? "";
-      const pageNarrationId =
-        openingTag.match(/\bdata-page-narration="([^"]+)"/)?.[1] ?? "";
-      const nestedControlIds = Array.from(
-        anchor.matchAll(/data-narration-control="([^"]+)"/g),
-        match => match[1]
-      );
 
-      expect(anchor.match(/data-narration-ui="audio-guide"/g)).toHaveLength(1);
-      expect(nestedControlIds).toEqual([pageNarrationId]);
-      return pageNarrationId;
-    });
-    const controlButtons =
-      html.match(/<button[^>]*class="inline-narration-control[^"]*"[^>]*>/g) ??
-      [];
-    const renderedGuideLabels =
-      html.match(/class="inline-narration-control__eyebrow">Audio guide</g) ??
-      [];
-    const renderedActionLabels =
-      html.match(/class="inline-narration-control__label">Listen</g) ?? [];
-    const renderedTitles = Array.from(
-      html.matchAll(
-        /class="inline-narration-control__title">([^<]+)<\/[^>]+>/g
-      ),
-      match => match[1]
-    );
-    const audioMarkup = html.match(/<audio[^>]*>/)?.[0] ?? "";
-
-    // Chapter 01 swaps one control across four scroll stages, so eleven
-    // controls render at once while all fourteen source mappings ship.
-    expect(renderedControlIds).toEqual(renderedNarrationIds);
-    expect(pageNarrationAnchors).toHaveLength(11);
-    expect(pageNarrationIds).toEqual(renderedNarrationIds);
-    expect(new Set(renderedControlIds).size).toBe(renderedNarrationIds.length);
-    expect(html.match(/data-narration-ui="audio-guide"/g)).toHaveLength(11);
-    expect(controlButtons).toHaveLength(11);
-    expect(renderedGuideLabels).toHaveLength(11);
-    expect(renderedActionLabels).toHaveLength(11);
-    expect(renderedTitles).toEqual([
-      "Everyday Context",
-      "Note Workflow",
-      "The Complete Note",
-      "Sources Into a Book",
-      "Project Book Generation",
-      "Platform Results",
-      "Standalone Note Sharing",
-      "Project HTML Sharing",
-      "Context Return",
-      "Ask Memova",
-      "End",
-    ]);
-    controlButtons.forEach(button => {
-      expect(button).toContain('type="button"');
-      expect(button).toContain('data-state="idle"');
-      expect(button).toContain('aria-label="Listen:');
-      expect(button).toContain('aria-pressed="false"');
-    });
+    expect(FOUNDER_GUIDE_CHAPTERS).toHaveLength(6);
     expect(
-      html.match(
-        /class="inline-narration-control__progress" aria-label="[^"]+ narration progress"/g
-      )
-    ).toHaveLength(11);
-    expect(html.match(/<audio/g)).toHaveLength(1);
-    expect(audioMarkup).toContain('preload="none"');
-    expect(audioMarkup).not.toContain("autoplay");
-    narrationSegments.forEach(({ id, title, file }) => {
-      expect(fs.existsSync(path.join(narrationRoot, file))).toBe(true);
-      expect(storySource).toContain(`id: "${id}"`);
-      expect(storySource).toContain(`title: "${title}"`);
-      expect(storySource).toContain(`/demo/audio/pages/${file}`);
+      FOUNDER_GUIDE_CHAPTERS.map(({ id, number, title, src }) => ({
+        id,
+        number,
+        title,
+        src,
+      }))
+    ).toEqual(expectedChapters);
+    expect(renderedChapterIds).toEqual(expectedChapters.map(({ id }) => id));
+    expect(new Set(renderedChapterIds).size).toBe(expectedChapters.length);
+
+    FOUNDER_GUIDE_CHAPTERS.forEach(chapter => {
+      const mediaPath = path.resolve(guideRoot, chapter.src.replace(/^\//, ""));
+      expect(fs.existsSync(mediaPath)).toBe(true);
+      expect(fs.statSync(mediaPath).size).toBeGreaterThan(0);
+      expect(chapter.duration).toBeGreaterThan(0);
     });
-    expect(storySource).toContain("await settleNarrationPlayback");
+
+    const railMarkup =
+      html.match(
+        /<aside\b[^>]*data-founder-guide="rail"[^>]*>[\s\S]*?<\/aside>/
+      )?.[0] ?? "";
+    const videoMarkup = railMarkup.match(/<video\b[^>]*>/)?.[0] ?? "";
+
+    expect(html.match(/data-founder-guide="rail"/g)).toHaveLength(1);
+    expect(railMarkup).not.toBe("");
+    expect(railMarkup.match(/<video\b/g)).toHaveLength(1);
+    expect(videoMarkup).toContain("muted");
+    expect(videoMarkup.toLowerCase()).toContain("playsinline");
+    expect(videoMarkup).toContain('preload="metadata"');
+    expect(railMarkup).toContain("Founder guide");
+    expect(railMarkup).toContain("Muted · Tap to hear");
+
+    const guideStart = storySource.indexOf("function FounderGuideRail");
+    const guideEnd = storySource.indexOf(
+      "function RecordingPlayer",
+      guideStart
+    );
+    const guideSource = storySource.slice(guideStart, guideEnd);
+
+    expect(storySource).toContain("await settleFounderGuidePlayback");
     expect(storySource).toContain("await media.play()");
-    expect(storySource).toContain("audio.pause()");
-    expect(storySource).toContain("new IntersectionObserver");
-    expect(storySource).toContain('"visibilitychange"');
-    expect(storySource).toContain('"pagehide"');
-    expect(storySource).toContain("narrationRequestEpochRef");
-    expect(storySource).not.toContain("narrationTime / window.scrollY");
-    expect(storySource.match(/<InlineNarrationControl\b/g)).toHaveLength(1);
-    expect(html).not.toContain("recording-narration-anchor");
-    expect(storySource).not.toContain("recording-narration-anchor");
-    expect(continuousStyles).not.toContain("recording-narration-anchor");
-    expect(html).not.toContain("chapter-narration-strip");
-    expect(continuousStyles).toContain(".inline-narration-control");
-    expect(continuousStyles).toContain(".page-narration-anchor");
-    expect(continuousStyles).toContain(".inline-narration-control__progress");
-    expect(continuousStyles).toMatch(
-      /\.narration-slot\s*\{[^}]*pointer-events:\s*auto/
+    expect(guideSource).toContain("new IntersectionObserver");
+    expect(guideSource).toContain(
+      'window.addEventListener("scroll", scheduleUpdate, { passive: true })'
     );
-    expect(continuousStyles).toContain(
-      "@media (prefers-reduced-motion: reduce)"
+    expect(guideSource).toContain('"visibilitychange"');
+    expect(guideSource).toContain('"pagehide"');
+    expect(guideSource).not.toContain('addEventListener("wheel"');
+    expect(guideSource).not.toContain('addEventListener("touchmove"');
+    expect(guideSource).not.toContain("preventDefault");
+    expect(guideSource).not.toContain("key={activeChapter");
+    expect(guideSource).toContain("video.src = activeChapter.src");
+    expect(guideSource).toContain('video.removeAttribute("src")');
+    expect(guideSource).toContain("event.currentTarget !== videoRef.current");
+    expect(guideSource).toContain("const suspendGuide");
+    expect(guideSource).toContain(
+      'video && video.currentTime > 0 ? "paused" : "ready"'
     );
+    expect(guideSource.indexOf("if (muted)")).toBeLessThan(
+      guideSource.indexOf('playbackState === "playing"')
+    );
+    expect(guideSource).toContain("audible: true");
+    expect(guideSource).toContain("restart: true");
   });
 
-  it("ignores a stale play promise during a rapid narration switch", async () => {
+  it("ignores a stale play promise during a rapid Founder Guide switch", async () => {
     let resolveFirst!: () => void;
     let resolveSecond!: () => void;
     let activeRequest = "first";
     const firstPlaying = vi.fn();
     const secondPlaying = vi.fn();
-    const firstCancelled = vi.fn();
     const firstFailed = vi.fn();
     const secondFailed = vi.fn();
 
-    const firstAttempt = settleNarrationPlayback({
+    const firstAttempt = settleFounderGuidePlayback({
       media: {
         play: () =>
           new Promise<void>(resolve => {
@@ -591,11 +609,10 @@ describe("US iOS acquisition pages", () => {
       isCurrent: () => activeRequest === "first",
       onPlaying: firstPlaying,
       onFailure: firstFailed,
-      onCancelled: firstCancelled,
     });
 
     activeRequest = "second";
-    const secondAttempt = settleNarrationPlayback({
+    const secondAttempt = settleFounderGuidePlayback({
       media: {
         play: () =>
           new Promise<void>(resolve => {
@@ -610,7 +627,6 @@ describe("US iOS acquisition pages", () => {
     resolveFirst();
     await firstAttempt;
     expect(firstPlaying).not.toHaveBeenCalled();
-    expect(firstCancelled).toHaveBeenCalledOnce();
     expect(firstFailed).not.toHaveBeenCalled();
 
     resolveSecond();
@@ -619,13 +635,30 @@ describe("US iOS acquisition pages", () => {
     expect(secondFailed).not.toHaveBeenCalled();
   });
 
-  it("uses the middle viewport band to pause narration after its page leaves", () => {
-    expect(isNarrationBeatCurrent({ top: 799, bottom: 900 }, 1000)).toBe(true);
-    expect(isNarrationBeatCurrent({ top: -100, bottom: 201 }, 1000)).toBe(true);
-    expect(isNarrationBeatCurrent({ top: 800, bottom: 900 }, 1000)).toBe(false);
-    expect(isNarrationBeatCurrent({ top: -200, bottom: 200 }, 1000)).toBe(
-      false
-    );
+  it("selects the Founder Guide chapter crossing the responsive viewport anchor", () => {
+    const chapters = [
+      { id: "01", top: -200, bottom: 95 },
+      { id: "02", top: 95, bottom: 500 },
+      { id: "03", top: 500, bottom: 900 },
+    ];
+
+    expect(findFounderGuideChapterAtAnchor(chapters, 400)).toBe("02");
+    expect(findFounderGuideChapterAtAnchor(chapters, 1000)).toBe("02");
+    expect(
+      findFounderGuideChapterAtAnchor(
+        [
+          { id: "01", top: -500, bottom: 160 },
+          { id: "02", top: 160, bottom: 700 },
+        ],
+        1000
+      )
+    ).toBe("02");
+    expect(
+      findFounderGuideChapterAtAnchor(
+        [{ id: "01", top: 200, bottom: 600 }],
+        1000
+      )
+    ).toBeUndefined();
   });
 
   it("keeps every Chapter 04 social logo in continuous, reduced-motion-safe movement", () => {
