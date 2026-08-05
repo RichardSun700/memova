@@ -405,6 +405,16 @@ describe("US iOS acquisition pages", () => {
     expect(storySource).toContain(
       "window.matchMedia(TOUCH_INPUT_QUERY).matches"
     );
+    expect(storySource).toContain("const storyIsPinned =");
+    expect(storySource).toContain("if (storyIsPinned) return");
+    expect(storySource).toContain("refreshGeometryForLateAsset");
+    expect(storySource).toContain('"loadedmetadata"');
+    expect(storySource).toContain(
+      'window.addEventListener("touchstart", refreshGeometryForInput'
+    );
+    expect(chapterSource).toContain(
+      "data-scroll-progress={progress.toFixed(4)}"
+    );
     expect(storySource).not.toContain(
       "Element.prototype.getBoundingClientRect"
     );
@@ -435,7 +445,7 @@ describe("US iOS acquisition pages", () => {
     const projectSource = storySource.slice(projectStart, projectEnd);
 
     expect(projectSource).toContain(
-      "const progress = useProjectIngestProgress(sectionRef, reducedMotion)"
+      "const progress = useProjectIngestProgress(sectionRef, reducedMotion, true)"
     );
     expect(projectSource).toContain(
       "const compact = narrowLayout || phoneLayout"
@@ -453,6 +463,11 @@ describe("US iOS acquisition pages", () => {
     expect(storySource).not.toContain("data-mobile-discrete");
     expect(projectSource).not.toContain('addEventListener("touchmove"');
     expect(projectSource).not.toContain('addEventListener("wheel"');
+    expect(projectSource).toContain(
+      "data-scroll-progress={progress.toFixed(4)}"
+    );
+    expect(storySource).toContain("width={1435}");
+    expect(storySource).toContain("height={1096}");
     expect(continuousStyles).not.toContain("data-mobile-discrete");
     expect(continuousStyles).toMatch(
       /\.framework-shell--continuous \.project-ingest-sticky\s*\{[^}]*transform: translate3d\(0, 0, 0\);[^}]*will-change: transform;/
@@ -461,6 +476,12 @@ describe("US iOS acquisition pages", () => {
     expect(continuousStyles).toContain("will-change: auto");
     expect(continuousStyles).toContain("width: min(92%, 430px)");
     expect(continuousStyles).toContain("bottom: 76px");
+    expect(continuousStyles).toMatch(
+      /\.framework-shell--continuous \.project-ingest-stage\s*\{[^}]*touch-action: pan-y pinch-zoom;/
+    );
+    expect(continuousStyles).toMatch(
+      /\.framework-shell--continuous \.project-ingest-material video\s*\{[^}]*pointer-events: none;/
+    );
     expect(continuousStyles).toMatch(
       /\.framework-shell--continuous\s+\.project-ingest-beat\s+:is\([^}]*\)\s*\{[^}]*transition: none;/
     );

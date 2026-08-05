@@ -731,6 +731,14 @@
     will-change: transform;
   }
 
+  .framework-shell--continuous .project-ingest-stage {
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .framework-shell--continuous .project-ingest-material video {
+    pointer-events: none;
+  }
+
   .framework-shell--continuous .project-ingest-book {
     width: min(92%, 430px);
   }
@@ -886,12 +894,18 @@
       0 15px 34px rgba(37, 70, 145, 0.15),
       0 3px 10px rgba(47, 82, 158, 0.09),
       inset 0 1px 0 #ffffff;
+    touch-action: pan-y pinch-zoom;
   }
 
   .founder-guide-card__portrait {
     width: 60px;
     height: 60px;
     padding: 2px;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .founder-guide-card__portrait video {
+    touch-action: pan-y pinch-zoom;
   }
 
   .founder-guide-card__eyebrow {
@@ -912,6 +926,11 @@
     padding: 6px 9px 6px 8px;
     gap: 5px;
     font-size: 8px;
+    touch-action: manipulation;
+  }
+
+  .founder-guide-card__mute {
+    touch-action: manipulation;
   }
 
   .founder-guide-card__action svg {

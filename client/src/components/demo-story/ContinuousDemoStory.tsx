@@ -897,17 +897,56 @@ function useProjectIngestProgress(
 
     const refreshGeometryForInput = () => {
       if (!continuous) return;
+
       if (
         stabilizeTouchGeometry &&
         window.matchMedia(TOUCH_INPUT_QUERY).matches
       ) {
-        return;
+        const sectionBounds = section.getBoundingClientRect();
+        const pinnedTolerance = 2;
+        const storyIsPinned =
+          sectionBounds.top <= continuousViewportTop + pinnedTolerance &&
+          sectionBounds.bottom >=
+            continuousViewportTop + continuousViewportHeight - pinnedTolerance;
+
+        /*
+         * Re-measure before the sticky story is reached so late font/media
+         * layout cannot leave its start coordinate stale. Once the story is
+         * pinned, freeze the cached geometry for the whole touch gesture;
+         * mobile browser chrome can otherwise make the same scroll position
+         * report two different bounding rects and rewind the animation.
+         */
+        if (storyIsPinned) return;
       }
+
       measureContinuousSectionTop();
     };
 
     const handlePageShow = () => {
       measureContinuousSectionTop();
+      requestUpdate();
+    };
+
+    const refreshGeometryForLateAsset = (event: Event) => {
+      if (!continuous) return;
+
+      const target = event.target;
+      if (
+        !(target instanceof HTMLImageElement) &&
+        !(target instanceof HTMLVideoElement)
+      ) {
+        return;
+      }
+
+      const sectionBounds = section.getBoundingClientRect();
+      const storyHasStarted = sectionBounds.top <= continuousViewportTop + 2;
+
+      /* Lazy media above a story can move its document coordinate after the
+         hook mounts. Refresh while the story is still ahead of the viewport,
+         then keep the geometry frozen once the sticky sequence has started. */
+      if (storyHasStarted) return;
+
+      measureContinuousViewport();
       requestUpdate();
     };
 
@@ -920,8 +959,18 @@ function useProjectIngestProgress(
       passive: true,
       capture: true,
     });
+    window.addEventListener("touchstart", refreshGeometryForInput, {
+      passive: true,
+      capture: true,
+    });
     window.addEventListener("load", handlePageShow, { once: true });
     window.addEventListener("pageshow", handlePageShow);
+    document.addEventListener("load", refreshGeometryForLateAsset, true);
+    document.addEventListener(
+      "loadedmetadata",
+      refreshGeometryForLateAsset,
+      true
+    );
 
     void document.fonts?.ready.then(() => {
       if (!active) return;
@@ -936,8 +985,15 @@ function useProjectIngestProgress(
       window.removeEventListener("resize", handleResize);
       window.visualViewport?.removeEventListener("resize", handleResize);
       window.removeEventListener("pointerdown", refreshGeometryForInput, true);
+      window.removeEventListener("touchstart", refreshGeometryForInput, true);
       window.removeEventListener("load", handlePageShow);
       window.removeEventListener("pageshow", handlePageShow);
+      document.removeEventListener("load", refreshGeometryForLateAsset, true);
+      document.removeEventListener(
+        "loadedmetadata",
+        refreshGeometryForLateAsset,
+        true
+      );
     };
   }, [reducedMotion, sectionRef, stabilizeTouchGeometry]);
 
@@ -2225,7 +2281,7 @@ function ProjectIngestBeat() {
   const phoneLayout = useMediaQuery(MOBILE_STORY_QUERY);
   const compact = narrowLayout || phoneLayout;
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const progress = useProjectIngestProgress(sectionRef, reducedMotion);
+  const progress = useProjectIngestProgress(sectionRef, reducedMotion, true);
 
   const collector = {
     x: compact ? 50 : 46,
@@ -2248,6 +2304,7 @@ function ProjectIngestBeat() {
     <section
       ref={sectionRef}
       className="project-ingest-beat"
+      data-scroll-progress={progress.toFixed(4)}
       data-testid="project-book-ingest"
       data-story-beat="03-project-ingest"
     >
@@ -2494,6 +2551,7 @@ function KnowledgeBaseChapter({
         ref={sectionRef}
         className="kb-story-scroll scroll-driven-story scroll-driven-story--four"
         data-auto-stage={stage}
+        data-scroll-progress={progress.toFixed(4)}
         data-testid="chapter-01-scroll-story"
       >
         <ConceptBeat
@@ -3103,6 +3161,8 @@ function NoteChapter({ footer }: { footer: ReactNode }) {
             <img
               loading="lazy"
               decoding="async"
+              width={1435}
+              height={1096}
               src="/demo/media/apollo-html-page.png"
               alt="After the Giant Leap Apollo 11 HTML Page"
             />
