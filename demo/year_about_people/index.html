@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A bilingual essay about making AI accessible, useful, and empowering for everyone.">
+  <meta property="og:title" content="2026: The Year AI Becomes About People, Not Just Technology">
+  <meta property="og:description" content="AI reaches its true potential when everyone can use it to think, create, and solve problems.">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://memova.ai/demo/year_about_people/assets/hero.png">
+  <meta property="og:image:alt" content="A white door on a grassy mountain beneath a clear blue sky">
+  <meta property="og:url" content="https://memova.ai/demo/year_about_people/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="2026: The Year AI Becomes About People, Not Just Technology">
+  <meta name="twitter:description" content="AI reaches its true potential when everyone can use it to think, create, and solve problems.">
+  <meta name="twitter:image" content="https://memova.ai/demo/year_about_people/assets/hero.png">
+  <meta name="twitter:image:alt" content="A white door on a grassy mountain beneath a clear blue sky">
+  <title>2026: The Year AI Becomes About People, Not Just Technology</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,800&amp;family=Noto+Sans+SC:wght@400;500;700&amp;family=Noto+Serif+SC:wght@700;900&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{--brunswick:#1b4436;--moss:#88a33b;--champagne:#f9e4c5;--buff:#ddad8a;--paynes:#5b758c;--blue:var(--paynes);--blue-deep:var(--brunswick);--yellow:var(--buff);--red:var(--moss);--cream:var(--champagne);--cream-deep:var(--buff);--ink:var(--brunswick);--soft:var(--brunswick);--night:var(--brunswick);--paper:var(--champagne);--pad:clamp(1.4rem,5vw,5.5rem);--ease:cubic-bezier(.16,1,.3,1)}
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--cream)}
+    body{margin:0;background:var(--cream);color:var(--ink);font-family:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+    button,a{font:inherit}a{color:inherit}::selection{background:var(--yellow);color:var(--ink)}
+    .lang-zh{display:none!important}.language-zh .lang-en{display:none!important}.language-zh .lang-zh{display:revert!important}
+    .cover{position:relative;min-height:100svh;display:grid;place-items:center;background:var(--night);overflow:hidden}
+    .cover-art{display:block;height:100svh;width:auto;max-width:100%;object-fit:contain}
+    .cover-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(27,68,54,.42),transparent 23%,transparent 70%,rgba(27,68,54,.74));pointer-events:none}
+    .topbar{position:absolute;inset:0 0 auto;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:clamp(1rem,3vw,2.25rem) var(--pad);color:var(--paper)}
+    .edition{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-shadow:0 1px 12px rgba(27,68,54,.52)}
+    .language-toggle{display:inline-flex;min-height:44px;align-items:center;gap:.65rem;padding:.52rem .85rem;border:1px solid rgba(249,228,197,.7);border-radius:999px;background:rgba(27,68,54,.78);color:var(--paper);cursor:pointer;transition:transform .25s var(--ease),background .25s var(--ease),color .25s var(--ease)}
+    .language-toggle .icon{display:grid;place-items:center;width:1.55rem;height:1.55rem;border-radius:50%;background:var(--yellow);color:var(--ink);font-size:.75rem;font-weight:800}
+    .language-toggle:hover{transform:translateY(-2px);background:var(--yellow);color:var(--ink)}
+    .language-toggle:focus-visible,.scroll-cue:focus-visible{outline:3px solid var(--yellow);outline-offset:4px}.back-link:focus-visible{outline:3px solid var(--blue-deep);outline-offset:4px}
+    .scroll-cue{position:absolute;z-index:2;left:var(--pad);bottom:clamp(1.25rem,4vw,3rem);display:flex;align-items:center;gap:1rem;color:var(--paper);font-size:.78rem;font-weight:700;letter-spacing:.08em;text-decoration:none}
+    .scroll-line{width:clamp(3rem,9vw,8rem);height:1px;background:var(--yellow);transform-origin:left;transition:transform .35s var(--ease)}.scroll-cue:hover .scroll-line{transform:scaleX(.66)}
+    .opening{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(18rem,.75fr);gap:clamp(3rem,8vw,9rem);max-width:1440px;margin:auto;padding:clamp(7rem,15vh,12rem) var(--pad);align-items:start}
+    .display{margin:0;font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(3rem,6.7vw,6rem);line-height:.98;letter-spacing:-.035em;text-wrap:balance}.language-zh .display{font-family:"Noto Serif SC",serif;line-height:1.12;letter-spacing:-.025em}
+    .opening-copy{max-width:37rem;padding-top:clamp(1rem,6vw,7rem)}.opening-copy p{margin:0 0 1.4rem;color:var(--soft);font-size:clamp(1rem,1.4vw,1.18rem);line-height:1.9}
+    .opening-copy .turn{margin-top:clamp(3rem,7vw,6rem);color:var(--blue-deep);font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(1.7rem,3vw,2.5rem);font-weight:650;line-height:1.25}
+    .abundance{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(19rem,.72fr);gap:clamp(4rem,9vw,10rem);align-items:end;padding:clamp(6rem,13vh,11rem) var(--pad);background:var(--cream-deep);overflow:hidden}
+    .abundance::after{content:"∞";position:absolute;top:-3vw;right:-1vw;color:rgba(91,117,140,.16);font-family:"Fraunces",serif;font-size:clamp(13rem,35vw,34rem);line-height:.75;pointer-events:none}
+    .abundance-list{position:relative;z-index:1;border-top:3px solid var(--ink)}.abundance-row{padding:clamp(1.6rem,3vw,2.8rem) 0;border-bottom:1px solid rgba(27,68,54,.22)}
+    .abundance-row p{margin:0;font-size:clamp(1.15rem,2vw,1.85rem);line-height:1.35}.abundance-row strong{color:var(--blue-deep);font-family:"Fraunces","Noto Serif SC",serif;font-size:1.35em}
+    .abundance-statement{position:relative;z-index:1;max-width:33rem}.abundance-statement h2{margin:0 0 1.5rem;font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(2.1rem,4.2vw,4.25rem);line-height:1.05;letter-spacing:-.03em}.abundance-statement p{margin:0;color:var(--soft);font-size:1rem;line-height:1.9}
+    .question{position:relative;min-height:78svh;display:grid;place-items:center;padding:clamp(6rem,14vh,11rem) var(--pad);background:var(--night);color:var(--paper);overflow:hidden}.question-orbit{position:absolute;width:min(68vw,58rem);aspect-ratio:1;border:40px solid var(--moss);border-radius:50%;opacity:.18}.question-orbit::after{content:"";position:absolute;inset:16%;border:1px solid rgba(91,117,140,.78);border-radius:inherit}
+    .question-copy{position:relative;width:100%;max-width:69rem}.question-copy>p{max-width:39rem;margin:0 0 clamp(1.5rem,4vw,3rem);color:rgba(249,228,197,.84);font-size:clamp(.95rem,1.5vw,1.2rem);line-height:1.8}.question-copy h2{max-width:12ch;margin:0;font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(4rem,9vw,6rem);line-height:.9;letter-spacing:-.04em;text-wrap:balance}.language-zh .question-copy h2{font-family:"Noto Serif SC",serif;line-height:1.05}
+    .choice{display:grid;grid-template-columns:minmax(0,1fr) minmax(16rem,.42fr);gap:clamp(3rem,7vw,8rem);align-items:end;max-width:1440px;margin:auto;padding:clamp(7rem,15vh,13rem) var(--pad) clamp(4rem,9vh,8rem)}
+    .choice-answer{display:inline;margin:.45em 0 0;background:linear-gradient(180deg,transparent 54%,rgba(221,173,138,.82) 54%);box-decoration-break:clone;color:var(--blue-deep);font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(2.4rem,5.3vw,5rem);font-weight:800;line-height:1.12}.choice-note{margin:0 0 .6rem;padding-top:1.5rem;border-top:3px solid var(--moss);color:var(--soft);font-size:clamp(1rem,1.5vw,1.2rem);line-height:1.8}
+    .tensions{max-width:1440px;margin:auto;padding:0 var(--pad) clamp(7rem,15vh,13rem)}.tension{display:grid;grid-template-columns:minmax(0,1fr) clamp(3.5rem,7vw,7rem) minmax(0,1fr);gap:clamp(1rem,3vw,3.5rem);align-items:center;padding:clamp(2.2rem,5vw,4.5rem) 0;border-bottom:1px solid rgba(27,68,54,.22)}.tension:first-child{border-top:1px solid rgba(27,68,54,.22)}.tension p{margin:0;font-size:clamp(1.15rem,2.2vw,2rem);line-height:1.35;text-wrap:balance}.machine{color:var(--soft)}.human{color:var(--blue-deep);font-weight:700}.pivot{position:relative;height:1px;background:var(--moss)}.pivot::after{content:"";position:absolute;right:0;top:50%;width:.65rem;height:.65rem;border-top:2px solid var(--moss);border-right:2px solid var(--moss);transform:translateY(-50%) rotate(45deg)}
+    .taste{display:grid;grid-template-columns:minmax(0,.78fr) minmax(20rem,1fr);gap:clamp(4rem,10vw,12rem);align-items:start;padding:clamp(7rem,15vh,13rem) var(--pad);background:var(--blue-deep);color:var(--cream)}.taste-lead{position:sticky;top:6rem}.taste-lead>p{max-width:35rem;margin:0 0 3rem;color:rgba(249,228,197,.94);font-size:clamp(1rem,1.5vw,1.2rem);line-height:1.9}.taste-lead h2{margin:0;font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(4rem,8vw,6rem);line-height:.9;letter-spacing:-.04em}.taste-list{margin:0;padding:0;list-style:none}.taste-list li{padding:clamp(2rem,5vw,4.4rem) 0;border-top:1px solid rgba(249,228,197,.32)}.taste-list li:last-child{border-bottom:1px solid rgba(249,228,197,.32)}.taste-list p{margin:0;font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(1.75rem,3.9vw,3.8rem);line-height:1.08;letter-spacing:-.025em}
+    .ending{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(6rem,12vh,9rem) var(--pad) clamp(2rem,5vw,4rem);background:var(--cream);overflow:hidden}.ending-glow{position:absolute;left:8%;bottom:-35%;width:min(80vw,70rem);aspect-ratio:1.5;background:radial-gradient(ellipse,rgba(221,173,138,.68),rgba(136,163,59,.2) 31%,rgba(91,117,140,.13) 54%,transparent 72%)}.ending-copy{position:relative;max-width:69rem;margin:auto 0}.ending-copy>p{max-width:48rem;margin:0 0 2.4rem;color:var(--soft);font-size:clamp(1rem,1.7vw,1.35rem);line-height:1.8}.ending h2{color:var(--blue-deep)}.back-link{position:relative;align-self:flex-end;display:inline-flex;align-items:center;gap:.7rem;color:var(--ink);font-size:.82rem;font-weight:700;text-decoration-color:var(--moss);text-decoration-thickness:3px;text-underline-offset:5px}.back-link::after{content:"";width:.55rem;height:.55rem;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(-45deg)}
+    .focal-reveal{opacity:1;transform:none;transition:opacity .8s var(--ease),transform .8s var(--ease),filter .8s var(--ease)}.js .focal-reveal:not(.visible){opacity:0;transform:translateY(2rem);filter:blur(6px)}
+    @media(max-width:900px){.opening,.abundance,.choice,.taste{grid-template-columns:1fr}.opening-copy{padding-top:0}.abundance-statement{max-width:42rem}.choice-note{max-width:35rem}.tension{grid-template-columns:1fr}.pivot{width:4rem;transform:rotate(90deg);transform-origin:left center}.taste-lead{position:static}}
+    @media(max-width:600px){.cover{min-height:auto}.cover-art{width:100%;height:auto}.topbar{padding-top:.8rem}.edition{font-size:.62rem;letter-spacing:.08em}.language-toggle{min-height:40px;padding:.4rem .65rem}.scroll-cue{bottom:1rem}.display{font-size:clamp(2.7rem,14vw,4.3rem)}.language-zh .display{font-size:clamp(2.4rem,12vw,3.8rem)}.question{min-height:68svh}.question-orbit{width:120vw}.question-copy h2{font-size:clamp(3.4rem,18vw,5.2rem)}.language-zh .question-copy h2{font-size:clamp(3.1rem,16vw,4.8rem)}.tension{padding:2.2rem 0}.taste{gap:4.5rem}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}.js .focal-reveal:not(.visible){opacity:1;transform:none;filter:none}}
+  </style>
+</head>
+<body class="language-en">
+  <!--
+  THESIS: AI reaches its full potential when technical power becomes human possibility.
+  OWN-WORLD: Brunswick green, moss, champagne, buff, and Payne's gray echo the supplied mountain artwork across warm editorial fields and deep-green chambers.
+  STORY: The model race gives way to access, access gives ordinary people agency, and empowerment becomes the measure of progress.
+  FIRST VIEWPORT: The supplied artwork is shown uncropped; only an edition label, language switch, and reading cue share the frame.
+  FORM: A cinematic editorial aperture, grounded structure 7, seed 6faddbed.
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+  -->
+  <main>
+    <section class="cover" id="top" aria-label="Article cover">
+      <img class="cover-art" src="assets/hero.png" width="1080" height="1350" alt="A white door standing on a grassy mountain beneath the title 2026: The Year AI Becomes About People, Not Just Technology">
+      <div class="cover-shade" aria-hidden="true"></div>
+      <div class="topbar">
+        <span class="edition lang-en">English edition</span><span class="edition lang-zh">中文版</span>
+        <button class="language-toggle" id="languageToggle" type="button" aria-label="Read this article in Chinese"><span class="icon" aria-hidden="true">文</span><span class="lang-en">中文</span><span class="lang-zh">EN</span></button>
+      </div>
+      <a class="scroll-cue" href="#article-start"><span class="lang-en">Begin reading</span><span class="lang-zh">开始阅读</span><span class="scroll-line" aria-hidden="true"></span></a>
+    </section>
+
+    <section class="opening" id="article-start">
+      <h1 class="display" data-reveal><span class="lang-en">We may be standing at one of the biggest turning points in the history of technology.</span><span class="lang-zh">我们正站在科技历史的一个转折点。</span></h1>
+      <div class="opening-copy" data-reveal>
+        <div class="lang-en"><p>For years, the AI race has been defined by one question:</p><p class="turn">Who can build the most powerful model?</p></div>
+        <div class="lang-zh"><p>过去几年，AI 竞争的核心问题一直是：</p><p class="turn">谁能创造更强大的模型？</p></div>
+      </div>
+    </section>
+
+    <section class="abundance">
+      <div class="abundance-list">
+        <div class="abundance-row"><p class="lang-en"><strong>Bigger</strong> models.</p><p class="lang-zh"><strong>更大的</strong>模型。</p></div>
+        <div class="abundance-row"><p class="lang-en"><strong>More</strong> parameters.</p><p class="lang-zh"><strong>更多的</strong>参数。</p></div>
+        <div class="abundance-row"><p class="lang-en"><strong>More advanced</strong> capabilities.</p><p class="lang-zh"><strong>更强的</strong>能力。</p></div>
+      </div>
+      <div class="abundance-statement" data-reveal>
+        <div class="lang-en"><h2>But as AI continues to evolve, a more important question is emerging.</h2><p>Who can make AI truly accessible and useful for everyone?</p></div>
+        <div class="lang-zh"><h2>但随着 AI 越来越强，另一个问题开始变得更加重要。</h2><p>谁能让 AI 真正服务于更多普通人？</p></div>
+      </div>
+    </section>
+
+    <section class="question">
+      <div class="question-orbit" aria-hidden="true"></div>
+      <div class="question-copy focal-reveal" data-reveal>
+        <div class="lang-en"><p>The future of AI should not belong only to engineers, researchers, or people who know how to write complex prompts.</p><h2>It should belong to everyone.</h2></div>
+        <div class="lang-zh"><p>未来的 AI 不应该只属于工程师、研究者，或者懂复杂提示词的人。</p><h2>它应该属于每一个人。</h2></div>
+      </div>
+    </section>
+
+    <section class="choice">
+      <div data-reveal>
+        <h2 class="display lang-en">The most impactful AI products will not be the ones that simply showcase what technology can do.</h2><h2 class="display lang-zh">真正有价值的 AI 产品，不是展示技术有多炫酷。</h2>
+        <p class="choice-answer lang-en">They will be the ones that help ordinary people do things they could never do before.</p><p class="choice-answer lang-zh">而是让普通人能够完成过去做不到的事情。</p>
+      </div>
+      <p class="choice-note lang-en" data-reveal>Powerful technology matters most when it expands what people can do.</p><p class="choice-note lang-zh" data-reveal>真正重要的，是技术能让更多人做到什么。</p>
+    </section>
+
+    <section class="tensions" id="tensionsSection" aria-label="How technology becomes transformative">
+      <article class="tension"><p class="machine lang-en">The internet became transformative</p><p class="machine lang-zh">技术真正改变世界的时候</p><span class="pivot" aria-hidden="true"></span><p class="human lang-en">when everyone could connect.</p><p class="human lang-zh">往往是它变得无形的时候。</p></article>
+      <article class="tension"><p class="machine lang-en">Smartphones changed the world</p><p class="machine lang-zh">当人们不再关注技术本身</p><span class="pivot" aria-hidden="true"></span><p class="human lang-en">when everyone could create and share.</p><p class="human lang-zh">而只是自然地用它工作、创造和生活。</p></article>
+      <article class="tension"><p class="machine lang-en">AI will reach its true potential</p><p class="machine lang-zh">2026 年，我希望更多企业意识到：</p><span class="pivot" aria-hidden="true"></span><p class="human lang-en">when everyone can use it to think, create, and solve problems.</p><p class="human lang-zh">AI 的未来，不只是制造更聪明的机器。</p></article>
+    </section>
+
+    <section class="taste">
+      <div class="taste-lead" data-reveal>
+        <p class="lang-en">The history of technology has always followed the same pattern:</p><p class="lang-zh">技术真正改变世界的时候，往往是它变得无形的时候——</p>
+        <h2 class="lang-en">Powerful tools become simple enough for everyone to use.</h2><h2 class="lang-zh">人们只是自然地用它工作、创造和生活。</h2>
+      </div>
+      <ol class="taste-list">
+        <li><p class="lang-en">Lowering barriers.</p><p class="lang-zh">降低创造的门槛。</p></li>
+        <li><p class="lang-en">Expanding access.</p><p class="lang-zh">消除能力的壁垒。</p></li>
+        <li><p class="lang-en">Turning ideas into reality.</p><p class="lang-zh">帮助每个人把想法变成现实。</p></li>
+      </ol>
+    </section>
+
+    <section class="ending">
+      <div class="ending-glow" aria-hidden="true"></div>
+      <div class="ending-copy" data-reveal>
+        <div class="lang-en"><p>The future of AI is not just about building smarter machines.</p><h2 class="display">It is about empowering more humans.</h2></div>
+        <div class="lang-zh"><p>AI 的未来，不只是制造更聪明的机器。</p><h2 class="display">而是赋予更多人创造的能力。</h2></div>
+      </div>
+      <a class="back-link" href="#top"><span class="lang-en">Back to the beginning</span><span class="lang-zh">回到开头</span></a>
+    </section>
+  </main>
+  <script>
+    document.documentElement.classList.replace('no-js','js');
+    const body=document.body,toggle=document.getElementById('languageToggle'),cover=document.getElementById('top'),tensions=document.getElementById('tensionsSection');
+    toggle.addEventListener('click',()=>{
+      const toChinese=body.classList.contains('language-en');
+      body.classList.toggle('language-en',!toChinese);body.classList.toggle('language-zh',toChinese);
+      document.documentElement.lang=toChinese?'zh-CN':'en';
+      document.title=toChinese?'2026：AI不再只是技术竞赛，而是关于人的时代':'2026: The Year AI Becomes About People, Not Just Technology';
+      toggle.setAttribute('aria-label',toChinese?'Read this article in English':'Read this article in Chinese');
+      cover.setAttribute('aria-label',toChinese?'文章封面':'Article cover');
+      tensions.setAttribute('aria-label',toChinese?'技术如何真正改变世界':'How technology becomes transformative');
+    });
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target)}}),{threshold:.12});
+    document.querySelectorAll('[data-reveal]').forEach(el=>observer.observe(el));
+  </script>
+</body>
+</html>
