@@ -7,7 +7,10 @@ import AgentMemory from "./AgentMemory";
 import HowItWorks from "./HowItWorks";
 import IOS from "./IOS";
 import Home from "./Home";
+import HomeFrameworkPreview from "./HomeFrameworkPreview";
 import Mcp from "./Mcp";
+import ProductJournal from "./ProductJournal";
+import { getPublishFanScrollProgress } from "@/components/home/PublishPhoneFan";
 import { UseCaseDetailPage, useCaseDetails } from "./UseCaseDetail";
 import HeroSection from "@/components/sections/HeroSection";
 import CTASection from "@/components/sections/CTASection";
@@ -45,17 +48,33 @@ describe("US iOS acquisition pages", () => {
     expect(privacyPolicyPaths).toEqual(["/privacy", "/privacy-policy"]);
   });
 
-  it("composes the official homepage around the complete product journey", () => {
-    const html = render(
+  it("keeps the homepage concise and opens the complete journey in a dedicated Product Journal", () => {
+    const homeHtml = render(
       <AuthProvider>
         <Home />
       </AuthProvider>
     );
+    const journalHtml = render(<ProductJournal />);
 
-    expect(html).toContain("Your everyday context");
-    expect(html).toContain("Scattered in. Shareable out.");
-    expect(html).not.toContain("<iframe");
-    expect(html).not.toContain("/demo/index.html?embed=1");
+    expect(homeHtml).toContain("Your everyday context");
+    expect(homeHtml).toContain("Open Product Journal");
+    expect(homeHtml).toContain('href="/product-journal"');
+    expect(homeHtml).toContain("Real use cases");
+    expect(homeHtml).toContain("Private. Local.");
+    expect(homeHtml).toContain("Start with Memova on iPhone");
+    expect(homeHtml).not.toContain("Scattered in. Shareable out.");
+    expect(homeHtml).not.toContain("data-story-chapter=");
+    expect(homeHtml).not.toContain('data-founder-guide="rail"');
+
+    expect(journalHtml).toContain('data-product-journal="page"');
+    expect(journalHtml).toContain("Memova Product Journal");
+    expect(journalHtml).toContain(
+      'aria-label="Close Product Journal and return to the Memova homepage"'
+    );
+    expect(journalHtml).not.toContain('href="/"');
+    expect(journalHtml).toContain("Scattered in. Shareable out.");
+    expect(journalHtml).not.toContain("<iframe");
+    expect(journalHtml).not.toContain("/demo/index.html?embed=1");
     const storyChapters = [
       "knowledge-base",
       "note",
@@ -65,32 +84,509 @@ describe("US iOS acquisition pages", () => {
       "end",
     ];
     storyChapters.forEach(chapter => {
-      expect(html).toContain(`data-story-chapter="${chapter}"`);
+      expect(journalHtml).toContain(`data-story-chapter="${chapter}"`);
     });
     const chapterPositions = storyChapters.map(chapter =>
-      html.indexOf(`data-story-chapter="${chapter}"`)
+      journalHtml.indexOf(`data-story-chapter="${chapter}"`)
     );
     expect(chapterPositions).toEqual(
       [...chapterPositions].sort((a, b) => a - b)
     );
-    expect(html).not.toContain("Previous chapter");
-    expect(html).not.toContain("Next chapter");
-    expect(html).toContain("Page enters Book");
-    expect(html).toContain("Pages form a Book");
-    expect(html).toContain("Reveal provenance");
-    expect(html).toContain("Ask Memova");
-    expect(html).toContain("Real use cases");
-    expect(html).toContain("Private. Local.");
-    expect(html).toContain("Start with Memova on iPhone");
-    expect(html).not.toContain("fixed inset-0");
+    expect(journalHtml).not.toContain("Previous chapter");
+    expect(journalHtml).not.toContain("Next chapter");
+    expect(journalHtml).toContain("Page enters Book");
+    expect(journalHtml).toContain("Pages form a Book");
+    expect(journalHtml).toContain("Reveal provenance");
+    expect(journalHtml).toContain("Ask Memova");
+  });
+
+  it("keeps the homepage framework universal while proving the workflow with Apollo", () => {
+    const html = render(<HomeFrameworkPreview />);
+
+    expect(html).toContain('data-scroll-hero="true"');
+    expect(html).toContain("YOUR CONTEXT,");
+    expect(html).toContain("FINALLY UNDERSTOOD.");
+    expect(html).toContain("Turn your thoughts and experiences");
+    expect(html).toContain("A Living Book keeps the sources");
+    expect(html).toContain("every new Page can build on the context");
+    expect(html).toContain("Personal superalignment starts with Memova.");
+    expect(html).not.toContain("Scroll to see your Book take shape");
+    expect(html).toContain("Customer interview");
+    expect(html).toContain("Founder voice note");
+    expect(html).toContain("Launch plan.pdf");
+    expect(html).toContain("Building in Public:");
+    expect(html).toContain("AI Product Launch");
+    expect(html).toContain("Building in Public");
+    expect(html).toContain("Illustrative case");
+    expect(html).toContain("Suggested actions");
+    expect(html).toContain("Clarify the product story");
+    expect(html).toContain("Clarify one core outcome.");
+    expect(html).toContain("Move customer insights");
+    expect(html).toContain("Move insights into the story.");
+    expect(html).toContain("Share the beta journey");
+    expect(html).toContain("Signals reviewed");
+    expect(html).toContain("12</strong><span");
+    expect(html).toContain("Customer interviews");
+    expect(html).toContain("Product discussions");
+    expect(html).toContain("Prototype reviews");
+    expect(html).toContain("Founder notes");
+    expect(html).toContain("31 sources connected");
+    expect(html).toContain("Capture");
+    expect(html).toContain("Synthesize");
+    expect(html).toContain("Share");
+    expect(html).toContain("Audience");
+    expect(html).toContain("Early adopters");
+    expect(html).toContain("AI builders");
+    expect(html).toContain("Design partners");
+    expect(html).toContain("Output");
+    expect(html).toContain("Social drafts");
+    expect(html).toContain("Status");
+    expect(html).toContain("Ready for founder review");
+    expect(html).toContain("For review");
+    expect(html).toContain("Private until shared");
+    expect(html).toContain(
+      'src="/demo/media/ai-product-launch-workspace-v1-480.webp"'
+    );
+    expect(html).toContain("ai-product-launch-workspace-v1-960.webp 960w");
+    expect(html).toContain('src="/demo/media/hero-open-book-complete-v4.webp"');
+    expect(html).toContain(
+      'src="/demo/media/hero-book-final-reference-v5-960.webp"'
+    );
+    expect(html).toContain("hero-book-final-reference-v5-1857.webp 1857w");
+    expect(html).toContain("How Memova works · Open a real story");
+    expect(html).toContain("One story. The full Memova loop.");
+    expect(html).toContain("Apollo 11: After the Giant Leap");
+    expect(html).not.toContain("The Architecture of Sleep");
+    expect(html).toContain("Open a Memova case page");
+    expect(html).toContain("LAUNCH");
+    expect(html).toContain("Press LAUNCH to open the full story.");
+    expect(html).toContain('data-case-story-image="apollo"');
+    expect(html).toContain('src="/demo/media/apollo11-earth-horizon.jpg"');
+    expect(html).toContain(
+      'src="/demo/media/apollo-case-launch/rocket-idle-v1.png"'
+    );
+    expect(html).toContain(
+      'src="/demo/media/apollo-case-launch/rocket-v1.png"'
+    );
+    expect(html).toContain('src="/memova-logo-transparent.png"');
+    expect(html).not.toContain(
+      'src="/demo/media/memova-closed-book-shell-v1.webp"'
+    );
+    expect(html).not.toContain('src="/demo/media/earthrise-book-cover.jpg"');
+    expect(html).not.toContain('src="/demo/media/dream-atlas-cover-v1.webp"');
+    expect(html).toContain('href="/product-journal"');
+    expect(html.match(/data-case-book-trigger=/g)).toHaveLength(1);
+    expect(html).not.toContain('id="home-v2-case-book-reader"');
+    expect(html).toContain("Review required");
+    expect(html).toContain("Your context should grow—not start over.");
+    expect(html).toContain("data-living-book-archive");
+    expect(html).toContain("Customer interview #12");
+    expect(html).toContain("What this changes");
+    expect(html).toContain("Simplify onboarding.");
+    expect(html).toContain("Building in Public: AI Product Launch");
+    expect(html.match(/data-living-book-art=/g)).toHaveLength(4);
+    expect(html.match(/data-living-book-visual-panel=/g)).toHaveLength(4);
+    expect(html).toContain("living-book-source-editorial-v1-480.webp");
+    expect(html).toContain("living-book-thinking-editorial-v1-480.webp");
+    expect(html).toContain("living-book-decision-editorial-v1-480.webp");
+    expect(html).toContain("living-book-output-editorial-v1-480.webp");
+    expect(html).toContain("living-book-output-editorial-v1-960.webp 960w");
+    expect(html).toContain(
+      "The new Page still knows why each decision was made."
+    );
+    expect(html).toContain("31 sources connected");
+    expect(html).toContain("Two directions");
+    expect(html).toContain(
+      "For what you&#x27;re building—and who you&#x27;re becoming."
+    );
+    expect(html).toContain("Build with context");
+    expect(html).toContain("Keep the why behind the work.");
+    expect(html).toContain("Understand yourself over time");
+    expect(html).toContain("See the patterns across your life.");
+    expect(html).toContain(
+      "/demo/media/context-directions/project-flow-v1.webp"
+    );
+    expect(html).toContain(
+      "/demo/media/context-directions/living-book-growth-v1.webp"
+    );
+    expect(html.match(/home-v2-context-direction-illustration/g)).toHaveLength(
+      2
+    );
+    expect(html).toContain("Project Book");
+    expect(html).toContain("Personal Manual");
+    expect(html).toContain("Selected Pages");
+    expect(html.match(/data-context-direction=/g)).toHaveLength(2);
+    expect(html).toContain('id="personal-manual"');
+    expect(html).toContain("A living manual for being you.");
+    expect(html).toContain("Living context, not a personality test.");
+    expect(html).toContain("Illustrative Personal Manual");
+    expect(html).toContain("Marilyn Monroe · public archive");
+    expect(html).toContain("illustrative fictional Personal Manual poster");
+    expect(html).toContain("not verified biographical information");
+    expect(html).toContain("not a real Memova account");
+    expect(html).toContain("inferred profile of Marilyn Monroe");
+    expect(html).toContain("not a personality");
+    expect(html).toContain(
+      'src="/demo/media/personal-manual-marilyn-poster-v1-640.webp"'
+    );
+    expect(html).toContain(
+      "/demo/media/personal-manual-marilyn-poster-v1-1200.webp 1199w"
+    );
+    expect(html).toContain("Open full-size");
+    expect(html).toContain("Open the image at full size to read every detail.");
+    expect(html).not.toContain(
+      'href="/demo/media/personal-manual-marilyn-poster-v1-1200.webp"'
+    );
+    expect(html).toContain('aria-haspopup="dialog"');
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain("home-v2-manual-visual-poster");
+    expect(html).toContain(
+      "Public archive moments become visual chapters before they are"
+    );
+    expect(html).toContain(
+      'aria-label="Open the illustrative Personal Manual poster in a full-screen viewer"'
+    );
+    expect(html.match(/data-wheel-card=/g)).toHaveLength(8);
+    expect(html).not.toContain("Personal Manual · Living Page");
+    expect(html).not.toContain("home-v2-manual-visual-structured");
+    expect(html).not.toContain("personal-manual-infinity-v1.webp");
+    expect(html).not.toContain("How I think and decide");
+    expect(html).not.toContain("How to work and communicate with me");
+    expect(html).not.toContain("What is changing in my current chapter");
+    expect(html).toContain('id="publish-anywhere"');
+    expect(html).toContain("One Page. Every place you show up.");
+    expect(html).toContain(
+      "Turn one reviewed Memova Page into channel-ready versions"
+    );
+    expect(html).toContain(
+      "Publish in one click where direct integrations are available"
+    );
+    expect(html).toContain("learn from real feedback");
+    expect(html).toContain("keep building in public");
+    expect(html).toContain(
+      "Especially useful for founders, creators, and anyone"
+    );
+    expect(html).toContain('data-publish-scroll-scene="true"');
+    expect(html).not.toContain("Choose a Page");
+    expect(html).not.toContain("Review each version");
+    expect(html).not.toContain("Share when ready");
+    expect(html).not.toContain(
+      "Nothing is published without your confirmation."
+    );
+    expect(html).not.toContain("Approved Memova Page");
+    expect(html).not.toContain("5 versions ready to review");
+    expect(html).toContain(
+      'src="/demo/media/publish-phone-fan/x-phone-v2.webp"'
+    );
+    expect(html).toContain(
+      'src="/demo/media/publish-phone-fan/linkedin-phone-v2.webp"'
+    );
+    expect(html).toContain(
+      'src="/demo/media/publish-phone-fan/snapchat-phone-v2.webp"'
+    );
+    expect(html).toContain(
+      'src="/demo/media/publish-phone-fan/tiktok-phone-loop-v2.mp4"'
+    );
+    expect(html).toContain(
+      'poster="/demo/media/publish-phone-fan/tiktok-phone-poster-v2.webp"'
+    );
+    expect(html).toContain(
+      'src="/demo/media/publish-phone-fan/youtube-phone-loop-v1.mp4"'
+    );
+    expect(html.match(/data-publish-phone=/g)).toHaveLength(5);
+    expect(html.match(/data-publish-video="true"/g)).toHaveLength(2);
+    expect(html.match(/home-v2-publish-phone-label/g)).toHaveLength(5);
+    expect(html).toContain("home-v2-publish-mobile-labels");
+    expect(html).toContain(
+      "Five social output previews expand into view as you scroll."
+    );
+    expect(html).toContain("Landing-site flyover · NASA / GSFC");
+    expect(html).not.toContain("Click or drag to reveal every format");
+    expect(html).not.toContain("Fan out previews");
+    expect(html).not.toContain("Gather previews");
+    expect(html).not.toContain('id="home-v2-publish-preview"');
+    expect(html).not.toContain('id="home-v2-publish-tab-');
+    expect(html).toContain('id="connected-actions"');
+    expect(html).toContain("One connection. Many ways to move.");
+    expect(html).toContain("turn context you have already reviewed");
+    expect(html).toContain("into an email draft");
+    expect(html).toContain("a calendar event");
+    expect(html).toContain("X- and LinkedIn-ready post");
+    expect(html).toContain("you approve the final send");
+    expect(html).toContain("planned destinations");
+    expect(html).toContain("availability varying by service and permission");
+    expect(html.match(/data-action-connector-primary=/g)).toHaveLength(12);
+    expect(html.match(/data-action-card-shell="true"/g)).toHaveLength(60);
+    expect(html).toContain('data-action-connector-primary="gmail"');
+    expect(html).toContain('data-action-connector-primary="outlook"');
+    expect(html).toContain('data-action-connector-primary="google-calendar"');
+    expect(html).toContain('data-action-connector-primary="x"');
+    expect(html).toContain('data-action-connector-primary="linkedin"');
+    expect(html).toContain('data-action-connector-primary="codex"');
+    expect(html).toContain("Your work stays yours.");
+    expect(html).toContain("Your approval");
+    expect(html).toContain("Choose what to show");
+    expect(html).toContain("Building Memova in Public");
+    expect(html).toContain("Week 12");
+    expect(html).toContain("Why we changed our onboarding story.");
+    expect(html).toContain(
+      "The same Memova loop can help you build something—or understand who"
+    );
+    expect(html).toContain("Start your first living Book.");
+    expect(html).toContain('href="/journal"');
+    expect(html).not.toContain(
+      'href="/journal/why-we-changed-our-onboarding-story"'
+    );
+    expect(html).toContain("Open the Memova Journal:");
+    expect(html).not.toContain('id="journal"');
+
+    const sectionOrder = [
+      'id="book"',
+      'id="personal-manual"',
+      'id="publish-anywhere"',
+      'id="connected-actions"',
+      'id="use-cases"',
+      'id="trust"',
+      'id="waitlist"',
+    ].map(section => html.indexOf(section));
+    expect(sectionOrder.every(position => position >= 0)).toBe(true);
+    expect(sectionOrder).toEqual(
+      [...sectionOrder].sort((left, right) => left - right)
+    );
+
+    const heroSource = fs.readFileSync(
+      path.resolve(process.cwd(), "client/src/pages/HomeFrameworkPreview.tsx"),
+      "utf8"
+    );
+    const heroStyles = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "client/src/styles/home-framework-preview.css"
+      ),
+      "utf8"
+    );
+    expect(heroStyles).toContain("privacy-control-backdrop-v1.webp");
+    const publishSource = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "client/src/components/home/PublishPhoneFan.tsx"
+      ),
+      "utf8"
+    );
+    const actionEcosystemSource = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "client/src/components/home/ActionEcosystemBand.tsx"
+      ),
+      "utf8"
+    );
+    const heroMotionSource = heroSource.slice(
+      heroSource.indexOf("function HeroSection"),
+      heroSource.indexOf("function CaseStoryImage")
+    );
+
+    expect(heroSource).toContain("Apollo 11: After the Giant Leap");
+    expect(heroSource).not.toContain("The Architecture of Sleep");
+    expect(heroSource).not.toContain("276 anonymized dream entries");
+    expect(heroSource).not.toContain("DREAM_ATLAS_PATH");
+    expect(heroSource).not.toContain("dream-atlas-cover-v1.webp");
+    expect(publishSource).toContain("x-phone-v2.webp");
+    expect(publishSource).toContain("linkedin-phone-v2.webp");
+    expect(publishSource).toContain("snapchat-phone-v2.webp");
+    expect(publishSource).toContain("tiktok-phone-loop-v2.mp4");
+    expect(publishSource).toContain("tiktok-phone-poster-v2.webp");
+    expect(publishSource).toContain("youtube-phone-loop-v1.mp4");
+    expect(actionEcosystemSource).toContain(
+      "const ACTION_CONNECTOR_COPIES = 5"
+    );
+    expect(actionEcosystemSource).toContain(
+      "const ACTION_CONNECTOR_SPEED = 30"
+    );
+    expect(actionEcosystemSource).toContain(
+      "Math.cos((distance * Math.PI) / 2)"
+    );
+    expect(actionEcosystemSource).toContain("IntersectionObserver");
+    expect(actionEcosystemSource).toContain("ResizeObserver");
+    expect(actionEcosystemSource).toContain(
+      'viewport.addEventListener("pointerdown", handlePointerDown'
+    );
+    expect(actionEcosystemSource).toContain(
+      '"(prefers-reduced-motion: reduce)"'
+    );
+    expect(publishSource).toContain("IntersectionObserver");
+    expect(publishSource).toContain("prefers-reduced-motion: reduce");
+    expect(publishSource).toContain(
+      'window.addEventListener("scroll", queueScrollUpdate, { passive: true })'
+    );
+    expect(publishSource).toContain("getPublishFanScrollProgress");
+    expect(publishSource).toContain(
+      'closest<HTMLElement>("[data-publish-scroll-scene]")'
+    );
+    expect(heroStyles).toContain(".home-v2-publish-scroll-sticky");
+    expect(heroStyles).toContain("position: sticky");
+    expect(heroStyles).toContain("min-height: 168svh");
+    expect(heroStyles).toContain(".home-v2-publish-copy");
+    expect(heroStyles).toContain(
+      "height: min(clamp(380px, 34vw, 470px), calc(100% - 58px))"
+    );
+    expect(heroStyles).toContain(".home-v2-publish-phone-label");
+    expect(publishSource).toContain("maximumHorizontalRange");
+    expect(publishSource).toContain("horizontalSafeArea");
+    expect(publishSource).not.toContain("-height * 0.045");
+    expect(publishSource).not.toContain("ReactPointerEvent");
+    expect(publishSource).not.toContain("onPointerDown");
+    expect(publishSource).not.toContain("handleStageClick");
+    expect(publishSource).not.toContain("onWheel");
+    expect(publishSource).not.toContain("touchmove");
+    expect(publishSource).not.toContain("preventDefault");
+    expect(heroSource).not.toContain("dream-atlas-spread-v1.webp");
+    expect(heroSource).not.toContain("dream-atlas-patterns-v1.webp");
+    expect(heroSource).toContain("home-v2-case-book-shelf");
+    expect(heroSource).toContain("apolloLogoLaunchPath");
+    expect(heroSource).toContain("APOLLO_LAUNCH_DURATION_MS");
+    expect(heroSource).toContain("home-v2-case-story-track");
+    expect(heroSource).toContain("home-v2-case-story-rocket");
+    expect(heroSource).toContain("home-v2-case-story-fire");
+    expect(heroSource).not.toContain("function CaseBookTransition");
+    expect(heroSource).toContain("navigate(story.href");
+    expect(heroSource).toContain("productJournalEntryState");
+    expect(heroSource).toContain("getWorkflowStoryHref(story)");
+    expect(heroSource).toContain("prefersReducedMotion");
+    expect(heroSource).toContain("fallbackTimer");
+    expect(heroSource).toContain(
+      'window.addEventListener("pageshow", resetStoryTransition)'
+    );
+    expect(heroSource).toContain(
+      'window.removeEventListener("pageshow", resetStoryTransition)'
+    );
+    expect(heroSource).toContain("transitionLockRef.current = null");
+    expect(heroSource).toContain("setTransitionStoryId(null)");
+    expect(heroSource).not.toContain("function WorkflowStoryPanel");
+    expect(heroSource).not.toContain("CaseBookMotion");
+    expect(heroSource).not.toContain("finishBookMotion");
+    expect(heroSource).toContain("Bring the mission record together.");
+    expect(heroSource).toContain("Explore the 6-chapter story");
+    expect(heroSource).toContain('href: "/product-journal"');
+    expect(heroSource).toContain("/demo/media/kb-apollo-case-entry-ui.png");
+    expect(heroMotionSource).toContain(
+      'window.addEventListener("scroll", scheduleRender, { passive: true })'
+    );
+    expect(heroMotionSource).not.toContain('addEventListener("wheel"');
+    expect(heroMotionSource).not.toContain('addEventListener("touchmove"');
+    expect(heroMotionSource).not.toContain("preventDefault()");
+    expect(heroMotionSource).not.toContain("window.scrollTo");
+    expect(heroMotionSource).toContain(
+      "const pageProgress = smoothHeroProgress((progress - 0.48) / 0.1)"
+    );
+    expect(heroMotionSource).toContain("pageRevealNodes.forEach");
+    expect(heroMotionSource).toContain("node.dataset.revealStart");
+    expect(heroSource).toContain("createHeroPathSampler");
+    expect(heroSource).toContain("desktopHeroPath");
+    expect(heroSource).toContain("mobileHeroPath");
+    expect(heroMotionSource).toContain("const chainOffset =");
+    expect(heroMotionSource).toContain("progress * 1.12 + chainOffset");
+    expect(heroStyles).toContain(".home-v3-hero-sticky");
+    expect(heroStyles).toContain(".home-v3-source-meeting,");
+    expect(heroStyles).toContain(".home-v3-source-customer");
+    expect(heroStyles).toContain("--source-tint: #eafaff");
+    expect(heroStyles).toContain("--source-tint: #f5f0ff");
+    expect(heroStyles).toContain("--source-tint: #fff1ed");
+    expect(heroStyles).toContain("--source-tint: #edf9f2");
+    expect(heroStyles).toContain("--source-tint: #fff8e7");
+    expect(heroStyles).toContain("--source-tint: #edf9f7");
+    expect(heroStyles).toContain("inset 0 2px 0 var(--source-accent)");
+    expect(heroStyles).toContain(".home-v3-book-left-page");
+    expect(heroStyles).toContain(".home-v3-book-right-webpage");
+    expect(heroStyles).toContain(".home-v2-case-book-shelf");
+    expect(heroStyles).toContain(".home-v2-case-book-visual");
+    expect(heroStyles).toContain(".home-v2-case-book-transition");
+    expect(heroStyles).toContain("home-v2-case-route-open");
+    expect(heroStyles).toContain("home-v2-case-route-cover");
+    expect(heroStyles).toContain("460ms");
+    expect(heroStyles).toContain("prefers-reduced-motion: reduce");
+    expect(heroSource).toContain("home-v3-book-left-inner");
+    expect(heroSource).toContain("home-v3-book-right-inner");
+    expect(heroStyles).toContain("--book-page-top: 13.4%");
+    expect(heroStyles).toContain("--book-left-page-start: 18.3%");
+    expect(heroStyles).toContain("--book-right-page-size: 38.5%");
+    expect(heroStyles).not.toContain("--book-right-page-size: 46%");
+    expect(heroStyles).toContain("clip-path: polygon(20.5% 0");
+    expect(heroStyles).toContain("clip-path: polygon(22% 0");
+    expect(heroStyles).toContain("rotateY(2.2deg)");
+    expect(heroStyles).toContain("rotateZ(1.3deg)");
+    expect(heroStyles).toContain("rotateZ(-0.55deg)");
+    expect(heroStyles).toContain("transform-origin: 100% 54%");
+    expect(heroStyles).toContain(".home-v3-page-reveal");
+    expect(
+      heroStyles.match(/\.home-v3-webpage-footer \.home-v3-copy-mobile/g)
+    ).toHaveLength(2);
+    expect(heroStyles).toContain(
+      ".home-v3-webpage-footer .home-v3-copy-desktop"
+    );
+    expect(heroStyles).toContain("position: sticky;");
+    expect(heroStyles).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(heroStyles).toContain(".home-v2-manual-poster-frame");
+    expect(heroStyles).toContain(".home-v2-manual-poster-link");
+    expect(heroStyles).toContain(".home-v2-manual-visual-poster");
+    expect(heroStyles).toContain(".home-v2-manual-poster-lightbox");
+    expect(heroStyles).toContain(".home-v2-manual-poster-lightbox-close");
+    expect(heroSource).toContain('event.key !== "Escape"');
+    expect(heroSource).toContain("data-manual-poster-lightbox");
+    expect(html.match(/data-hero-source="true"/g)).toHaveLength(10);
+    expect(html.match(/data-page-reveal="true"/g)).toHaveLength(12);
+    expect(html).not.toContain("everything you do.");
+
+    const loopStages = [
+      "SOURCE · AUG 04",
+      "THINKING · AUG 05",
+      "DECISION · AUG 06",
+      "MEMOVA PAGE · AUG 10",
+    ];
+    loopStages.forEach(stage => expect(html).toContain(stage));
+    const loopPositions = loopStages.map(stage => html.indexOf(stage));
+    expect(loopPositions).toEqual([...loopPositions].sort((a, b) => a - b));
+
+    expect(html).not.toContain("Your ideas, auto-published");
+    expect(html).not.toContain("For founders building in public");
+    expect(html).not.toContain("¥30");
+  });
+
+  it("maps the publish preview fan directly to page scroll progress", () => {
+    expect(getPublishFanScrollProgress(240, 1360, 800)).toBe(0);
+    expect(getPublishFanScrollProgress(0, 1360, 800)).toBe(0);
+    expect(getPublishFanScrollProgress(-280, 1360, 800)).toBeCloseTo(0.5);
+    expect(getPublishFanScrollProgress(-560, 1360, 800)).toBe(1);
+    expect(getPublishFanScrollProgress(-900, 1360, 800)).toBe(1);
+  });
+
+  it("lets the standalone Dream Atlas return safely to its Memova entry page", () => {
+    const dreamAtlasHtml = fs.readFileSync(
+      path.resolve(
+        process.cwd(),
+        "client/public/demo/The_Architecture_of_Sleep/index.html"
+      ),
+      "utf8"
+    );
+
+    expect(dreamAtlasHtml).toContain('class="atlas-close" href="/"');
+    expect(dreamAtlasHtml).toContain('data-action="close-atlas"');
+    expect(dreamAtlasHtml).toContain(
+      'aria-label="Close The Architecture of Sleep and return to the Memova homepage"'
+    );
+    expect(dreamAtlasHtml).toContain("min-height: 44px");
+    expect(dreamAtlasHtml).toContain("function getSafeReturnTarget()");
+    expect(dreamAtlasHtml).toContain(
+      "if (target.origin !== window.location.origin) return null"
+    );
+    expect(dreamAtlasHtml).toContain("window.history.back()");
+    expect(dreamAtlasHtml).toContain("window.location.replace(");
+    expect(dreamAtlasHtml).toContain(
+      'else if (state.view === "reader") navigate("index")'
+    );
   });
 
   it("adds the App Store-inspired architecture bridges without changing the six chapters", () => {
-    const html = render(
-      <AuthProvider>
-        <Home />
-      </AuthProvider>
-    );
+    const html = render(<ProductJournal />);
     const bridgeStyles = fs.readFileSync(
       path.resolve(
         process.cwd(),
@@ -128,11 +624,7 @@ describe("US iOS acquisition pages", () => {
   });
 
   it("restores the Product Journey book spine on desktop without changing the mobile story", () => {
-    const html = render(
-      <AuthProvider>
-        <Home />
-      </AuthProvider>
-    );
+    const html = render(<ProductJournal />);
     const storySource = fs.readFileSync(
       path.resolve(
         process.cwd(),
@@ -184,7 +676,10 @@ describe("US iOS acquisition pages", () => {
     );
 
     const spineStart = storySource.indexOf("function DesktopBookSpine");
-    const spineEnd = storySource.indexOf("function FounderGuideRail", spineStart);
+    const spineEnd = storySource.indexOf(
+      "function FounderGuideRail",
+      spineStart
+    );
     const spineSource = storySource.slice(spineStart, spineEnd);
     expect(spineStart).toBeGreaterThan(-1);
     expect(spineSource.indexOf("if (!desktop) return undefined")).toBeLessThan(
@@ -240,14 +735,15 @@ describe("US iOS acquisition pages", () => {
   });
 
   it("keeps the legacy hero and its conversion contract available for later reuse", () => {
-    const html = render(<HeroSection onSeeWorkflow={() => undefined} />);
+    const html = render(<HeroSection />);
 
     expect(html).toContain("Your everyday context");
     expect(html).toContain("ready for agents");
     expect(html).toContain("Join iOS Early Access");
     expect(html).toContain('data-analytics-event="ios_early_access_click"');
-    expect(html).toContain("See the workflow");
-    expect(html).not.toContain("Open product tour");
+    expect(html).toContain("Open Product Journal");
+    expect(html).toContain('href="/product-journal"');
+    expect(html).not.toContain("See the workflow");
     expect(html).not.toContain('href="/demo/index.html"');
     expect(html).not.toContain('data-analytics-event="investor_demo_click"');
     expect(html).toContain("You choose what to capture");
@@ -260,12 +756,8 @@ describe("US iOS acquisition pages", () => {
     expect(html).not.toContain("Your personal");
   });
 
-  it("keeps homepage recordings readable, clickable, and compatible with natural page scroll", () => {
-    const html = render(
-      <AuthProvider>
-        <Home />
-      </AuthProvider>
-    );
+  it("keeps Product Journal recordings readable, clickable, and compatible with natural page scroll", () => {
+    const html = render(<ProductJournal />);
     const storySource = fs.readFileSync(
       path.resolve(
         process.cwd(),
@@ -488,11 +980,7 @@ describe("US iOS acquisition pages", () => {
   });
 
   it("maps one six-chapter Founder Guide rail to the six product-story chapters", () => {
-    const html = render(
-      <AuthProvider>
-        <Home />
-      </AuthProvider>
-    );
+    const html = render(<ProductJournal />);
     const storySource = fs.readFileSync(
       path.resolve(
         process.cwd(),
@@ -683,11 +1171,7 @@ describe("US iOS acquisition pages", () => {
   });
 
   it("keeps every Chapter 04 social logo in continuous, reduced-motion-safe movement", () => {
-    const html = render(
-      <AuthProvider>
-        <Home />
-      </AuthProvider>
-    );
+    const html = render(<ProductJournal />);
     const baseStyles = fs.readFileSync(
       path.resolve(
         process.cwd(),
@@ -867,8 +1351,8 @@ describe("US iOS acquisition pages", () => {
     }
   );
 
-  it("defines three crawlable use-case stories with the complete transformation", () => {
-    expect(useCaseDetails).toHaveLength(3);
+  it("defines detailed use-case stories with the complete transformation", () => {
+    expect(useCaseDetails).toHaveLength(4);
 
     for (const detail of useCaseDetails) {
       const html = render(<UseCaseDetailPage slug={detail.slug} />);
@@ -879,5 +1363,9 @@ describe("US iOS acquisition pages", () => {
       expect(html).toContain("Review and approve");
       expect(html).toContain("Join iOS Early Access");
     }
+
+    const dreamHtml = render(<UseCaseDetailPage slug="dream-journal" />);
+    expect(dreamHtml).toContain("Illustrative personal story");
+    expect(dreamHtml).toContain("dream-journal-story-card-v1.webp");
   });
 });

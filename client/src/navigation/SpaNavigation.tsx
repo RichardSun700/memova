@@ -1,11 +1,15 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
+import { productJournalEntryState } from "./productJournalNavigation";
 
 const SPA_PATHS = new Set([
   "/",
+  "/framework-preview",
   "/ios",
   "/agent-memory",
   "/how-it-works",
+  "/journal",
+  "/product-journal",
   "/user-cases",
   "/mcp",
   "/privacy",
@@ -26,7 +30,11 @@ function normalizePathname(pathname: string) {
 
 export function isSpaPath(pathname: string) {
   const normalized = normalizePathname(pathname);
-  return SPA_PATHS.has(normalized) || normalized.startsWith("/use-cases/");
+  return (
+    SPA_PATHS.has(normalized) ||
+    normalized.startsWith("/journal/") ||
+    normalized.startsWith("/use-cases/")
+  );
 }
 
 function scrollAfterNavigation(url: URL) {
@@ -88,7 +96,12 @@ export default function SpaNavigation() {
 
       event.preventDefault();
       const destinationPath = normalizePathname(url.pathname);
-      navigate(`${destinationPath}${url.search}${url.hash}`);
+      navigate(`${destinationPath}${url.search}${url.hash}`, {
+        state:
+          destinationPath === "/product-journal"
+            ? productJournalEntryState
+            : null,
+      });
       scrollAfterNavigation(url);
     };
 

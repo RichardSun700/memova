@@ -1,0 +1,505 @@
+.memova-journal-page {
+  min-height: 100vh;
+  color: var(--home-ink);
+  background: #ffffff;
+}
+
+.memova-journal-header {
+  position: relative;
+  z-index: 20;
+  border-bottom: 1px solid #dce5f5;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.memova-journal-header-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: min(100% - 40px, 1240px);
+  min-height: 78px;
+  margin: 0 auto;
+}
+
+.memova-journal-brand {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 8px;
+}
+
+.memova-journal-brand img {
+  width: 86px;
+  height: 55px;
+  object-fit: contain;
+}
+
+.memova-journal-brand:focus-visible,
+.memova-journal-header a:focus-visible,
+.memova-journal-filters button:focus-visible,
+.memova-journal-entry a:focus-visible,
+.memova-journal-back-row a:focus-visible {
+  outline: 2px solid var(--home-blue);
+  outline-offset: 4px;
+}
+
+.memova-journal-nav {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+}
+
+.memova-journal-nav a {
+  position: relative;
+  padding: 28px 0 24px;
+  color: #3d4b64;
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.memova-journal-nav a:hover,
+.memova-journal-nav a[aria-current="page"] {
+  color: var(--home-blue);
+}
+
+.memova-journal-nav a[aria-current="page"]::after {
+  position: absolute;
+  right: 0;
+  bottom: 17px;
+  left: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--home-blue);
+  content: "";
+}
+
+.memova-journal-cta {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 13px;
+  color: #ffffff;
+  background: #14284b;
+  box-shadow: 0 10px 24px rgba(20, 40, 75, 0.13);
+  font-size: 0.8rem;
+  font-weight: 750;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.memova-journal-cta:hover {
+  transform: translateY(-2px);
+  background: #203c6a;
+}
+
+.memova-journal-mobile-home {
+  display: none;
+}
+
+.memova-journal-main {
+  min-height: 770px;
+}
+
+.memova-journal-index {
+  width: min(100% - 48px, 780px);
+  margin: 0 auto;
+  padding: clamp(92px, 10vw, 150px) 0 82px;
+}
+
+.memova-journal-index h1 {
+  margin: 0;
+  color: #14284b;
+  font-family: "DM Serif Display", Georgia, serif;
+  font-size: clamp(4.25rem, 7.2vw, 6.5rem);
+  font-weight: 400;
+  letter-spacing: -0.05em;
+  line-height: 0.94;
+}
+
+.memova-journal-filters {
+  display: flex;
+  gap: 9px;
+  max-width: 100%;
+  margin-top: 38px;
+  padding: 2px 2px 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.memova-journal-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.memova-journal-filters button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 15px;
+  border: 1px solid #d7e1f4;
+  border-radius: 999px;
+  color: #465672;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.memova-journal-filters button svg {
+  width: 15px;
+  height: 15px;
+  color: #8195c2;
+}
+
+.memova-journal-filters button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(40, 100, 245, 0.35);
+  color: var(--home-blue);
+}
+
+.memova-journal-filters button.is-active {
+  border-color: var(--home-blue);
+  color: #ffffff;
+  background: var(--home-blue);
+  box-shadow: 0 8px 20px rgba(40, 100, 245, 0.19);
+}
+
+.memova-journal-filters button.is-active svg {
+  color: currentColor;
+}
+
+.memova-journal-timeline {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  margin-top: 50px;
+}
+
+.memova-journal-timeline::before {
+  position: absolute;
+  top: -51px;
+  bottom: 39px;
+  left: 27px;
+  width: 1px;
+  background: #dbe5f6;
+  content: "";
+}
+
+.memova-journal-entry a {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 24px;
+  gap: 20px;
+  align-items: start;
+  margin: 0 -16px;
+  padding: 24px 16px 30px;
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.memova-journal-entry a:hover {
+  transform: translateY(-2px);
+  background: #f7f9ff;
+}
+
+.memova-journal-entry-marker {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border: 1px solid rgba(40, 100, 245, 0.38);
+  border-radius: 50%;
+  color: var(--home-blue);
+  background: #ffffff;
+  transition: background 180ms ease;
+}
+
+.memova-journal-entry a:hover .memova-journal-entry-marker {
+  background: #eef3ff;
+}
+
+.memova-journal-entry-marker svg {
+  width: 23px;
+  height: 23px;
+  stroke-width: 1.7;
+}
+
+.memova-journal-entry-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.memova-journal-entry-type {
+  margin-bottom: 10px;
+  color: var(--home-blue);
+  font-size: 0.66rem;
+  font-weight: 780;
+  letter-spacing: 0.15em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.memova-journal-entry-copy > strong {
+  color: #14284b;
+  font-family: "DM Serif Display", Georgia, serif;
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+}
+
+.memova-journal-entry-summary {
+  max-width: 620px;
+  margin-top: 15px;
+  color: #5b6c88;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.memova-journal-author-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 22px;
+  color: #667590;
+  font-size: 0.78rem;
+  font-weight: 590;
+  line-height: 1.5;
+}
+
+.memova-journal-author-avatar {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  margin-right: 2px;
+  border-radius: 50%;
+  background-color: #e8eefb;
+  background-image: url("/journal/author-avatars-v1.jpg");
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  box-shadow: 0 0 0 1px rgba(40, 100, 245, 0.16);
+  flex: 0 0 auto;
+}
+
+.memova-journal-author-avatar.is-left {
+  background-position: left center;
+}
+
+.memova-journal-author-avatar.is-right {
+  background-position: right center;
+}
+
+.memova-journal-entry-arrow {
+  align-self: center;
+  width: 21px;
+  height: 21px;
+  color: var(--home-blue);
+  transition: transform 180ms ease;
+}
+
+.memova-journal-entry a:hover .memova-journal-entry-arrow {
+  transform: translateX(5px);
+}
+
+.memova-journal-future,
+.memova-journal-empty {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.memova-journal-future-marker {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 36px;
+  height: 36px;
+  margin-left: 10px;
+  border: 1px dashed #9cb2df;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.memova-journal-future-marker::after {
+  position: absolute;
+  inset: 11px;
+  border: 1px dashed #6f89bf;
+  border-radius: inherit;
+  content: "";
+}
+
+.memova-journal-future > div,
+.memova-journal-empty > div {
+  display: grid;
+  gap: 5px;
+  padding: 21px 24px;
+  border: 1px dashed #b9cae8;
+  border-radius: 12px;
+  color: #647493;
+  background: rgba(248, 250, 255, 0.54);
+}
+
+.memova-journal-future strong,
+.memova-journal-empty strong {
+  color: #506282;
+  font-size: 0.94rem;
+  font-weight: 680;
+}
+
+.memova-journal-future span,
+.memova-journal-empty span {
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.memova-journal-back-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 76px;
+  padding-top: 28px;
+  border-top: 1px solid #e0e7f4;
+}
+
+.memova-journal-back-row a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--home-blue);
+  font-size: 0.84rem;
+  font-weight: 680;
+  text-decoration: none;
+}
+
+.memova-journal-back-row svg,
+.memova-journal-mobile-home svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 760px) {
+  .memova-journal-header-inner {
+    grid-template-columns: 1fr auto;
+    width: min(100% - 32px, 720px);
+    min-height: 70px;
+  }
+
+  .memova-journal-brand img {
+    width: 76px;
+    height: 48px;
+  }
+
+  .memova-journal-nav,
+  .memova-journal-cta {
+    display: none;
+  }
+
+  .memova-journal-mobile-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 44px;
+    color: #43526b;
+    font-size: 0.8rem;
+    font-weight: 680;
+    text-decoration: none;
+  }
+
+  .memova-journal-main {
+    min-height: 690px;
+  }
+
+  .memova-journal-index {
+    width: min(100% - 40px, 700px);
+    padding: 88px 0 64px;
+  }
+
+  .memova-journal-index h1 {
+    font-size: clamp(4rem, 19vw, 5.3rem);
+  }
+
+  .memova-journal-filters {
+    margin-right: -20px;
+    padding-right: 20px;
+  }
+
+  .memova-journal-timeline {
+    margin-top: 35px;
+  }
+
+  .memova-journal-timeline::before,
+  .memova-journal-entry-marker,
+  .memova-journal-future-marker {
+    display: none;
+  }
+
+  .memova-journal-entry a {
+    grid-template-columns: minmax(0, 1fr) 20px;
+    gap: 14px;
+    margin: 0 -10px;
+    padding: 22px 10px 30px;
+  }
+
+  .memova-journal-entry-copy > strong {
+    font-size: clamp(2rem, 10.8vw, 2.75rem);
+  }
+
+  .memova-journal-entry-summary {
+    font-size: 0.94rem;
+    line-height: 1.65;
+  }
+
+  .memova-journal-entry-arrow {
+    align-self: start;
+    margin-top: 29px;
+  }
+
+  .memova-journal-author-row {
+    gap: 6px;
+    font-size: 0.73rem;
+  }
+
+  .memova-journal-future,
+  .memova-journal-empty {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0;
+  }
+
+  .memova-journal-future > div,
+  .memova-journal-empty > div {
+    padding: 18px;
+  }
+
+  .memova-journal-back-row {
+    margin-top: 54px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memova-journal-page *,
+  .memova-journal-page *::before,
+  .memova-journal-page *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
