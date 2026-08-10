@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A bilingual essay about abundance, attention, and human taste in the age of AI.">
+  <meta property="og:title" content="The Battle for Attention in the Age of AI">
+  <meta property="og:description" content="When creation becomes unlimited, what deserves our attention?">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://memova.ai/demo/battle_for_attention/">
+  <meta property="og:image" content="https://memova.ai/demo/battle_for_attention/assets/social-cover.png">
+  <meta property="og:image:width" content="1731">
+  <meta property="og:image:height" content="909">
+  <title>The Battle for Attention in the Age of AI</title>
+  <script type="module" src="/analytics/ga4-consent.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,800&amp;family=Noto+Sans+SC:wght@400;500;700&amp;family=Noto+Serif+SC:wght@700;900&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{--blue:#2b7fd8;--blue-deep:#174e91;--yellow:#f4d758;--red:#e84a5f;--cream:#fefcf6;--cream-deep:#f3eddf;--ink:#1a1a2e;--soft:#555565;--night:#151821;--paper:#f7f1e5;--pad:clamp(1.4rem,5vw,5.5rem);--ease:cubic-bezier(.16,1,.3,1)}
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--cream)}
+    body{margin:0;background:var(--cream);color:var(--ink);font-family:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+    button,a{font:inherit}a{color:inherit}::selection{background:var(--yellow);color:var(--ink)}
+    .lang-zh{display:none}.language-zh .lang-en{display:none}.language-zh .lang-zh{display:revert}
+    .cover{position:relative;min-height:100svh;display:grid;place-items:center;background:var(--night);overflow:hidden}
+    .cover-art{display:block;height:100svh;width:auto;max-width:100%;object-fit:contain}
+    .cover-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(21,24,33,.42),transparent 23%,transparent 70%,rgba(21,24,33,.72));pointer-events:none}
+    .topbar{position:absolute;inset:0 0 auto;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:clamp(1rem,3vw,2.25rem) var(--pad);color:var(--paper)}
+    .edition{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-shadow:0 1px 12px rgba(0,0,0,.45)}
+    .language-toggle{display:inline-flex;min-height:44px;align-items:center;gap:.65rem;padding:.52rem .85rem;border:1px solid rgba(254,252,246,.65);border-radius:999px;background:rgba(21,24,33,.68);color:var(--paper);cursor:pointer;transition:transform .25s var(--ease),background .25s var(--ease),color .25s var(--ease)}
+    .language-toggle .icon{display:grid;place-items:center;width:1.55rem;height:1.55rem;border-radius:50%;background:var(--yellow);color:var(--ink);font-size:.75rem;font-weight:800}
+    .language-toggle:hover{transform:translateY(-2px);background:var(--yellow);color:var(--ink)}
+    .language-toggle:focus-visible,.scroll-cue:focus-visible{outline:3px solid var(--yellow);outline-offset:4px}.back-link:focus-visible{outline:3px solid var(--blue-deep);outline-offset:4px}
+    .scroll-cue{position:absolute;z-index:2;left:var(--pad);bottom:clamp(1.25rem,4vw,3rem);display:flex;align-items:center;gap:1rem;color:var(--paper);font-size:.78rem;font-weight:700;letter-spacing:.08em;text-decoration:none}
+    .scroll-line{width:clamp(3rem,9vw,8rem);height:1px;background:var(--yellow);transform-origin:left;transition:transform .35s var(--ease)}.scroll-cue:hover .scroll-line{transform:scaleX(.66)}
+    .opening{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(18rem,.75fr);gap:clamp(3rem,8vw,9rem);max-width:1440px;margin:auto;padding:clamp(7rem,15vh,12rem) var(--pad);align-items:start}
+    .display{margin:0;font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(3rem,6.7vw,6rem);line-height:.98;letter-spacing:-.035em;text-wrap:balance}.language-zh .display{font-family:"Noto Serif SC",serif;line-height:1.12;letter-spacing:-.025em}
+    .opening-copy{max-width:37rem;padding-top:clamp(1rem,6vw,7rem)}.opening-copy p{margin:0 0 1.4rem;color:var(--soft);font-size:clamp(1rem,1.4vw,1.18rem);line-height:1.9}
+    .opening-copy .turn{margin-top:clamp(3rem,7vw,6rem);color:var(--blue-deep);font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(1.7rem,3vw,2.5rem);font-weight:650;line-height:1.25}
+    .abundance{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(19rem,.72fr);gap:clamp(4rem,9vw,10rem);align-items:end;padding:clamp(6rem,13vh,11rem) var(--pad);background:var(--cream-deep);overflow:hidden}
+    .abundance::after{content:"∞";position:absolute;top:-3vw;right:-1vw;color:rgba(43,127,216,.09);font-family:"Fraunces",serif;font-size:clamp(13rem,35vw,34rem);line-height:.75;pointer-events:none}
+    .abundance-list{position:relative;z-index:1;border-top:3px solid var(--ink)}.abundance-row{padding:clamp(1.6rem,3vw,2.8rem) 0;border-bottom:1px solid rgba(26,26,46,.18)}
+    .abundance-row p{margin:0;font-size:clamp(1.15rem,2vw,1.85rem);line-height:1.35}.abundance-row strong{color:var(--blue-deep);font-family:"Fraunces","Noto Serif SC",serif;font-size:1.35em}
+    .abundance-statement{position:relative;z-index:1;max-width:33rem}.abundance-statement h2{margin:0 0 1.5rem;font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(2.1rem,4.2vw,4.25rem);line-height:1.05;letter-spacing:-.03em}.abundance-statement p{margin:0;color:var(--soft);font-size:1rem;line-height:1.9}
+    .question{position:relative;min-height:78svh;display:grid;place-items:center;padding:clamp(6rem,14vh,11rem) var(--pad);background:var(--night);color:var(--paper);overflow:hidden}.question-orbit{position:absolute;width:min(68vw,58rem);aspect-ratio:1;border:40px solid var(--yellow);border-radius:50%;opacity:.12}.question-orbit::after{content:"";position:absolute;inset:16%;border:1px solid rgba(43,127,216,.65);border-radius:inherit}
+    .question-copy{position:relative;width:100%;max-width:69rem}.question-copy>p{max-width:39rem;margin:0 0 clamp(1.5rem,4vw,3rem);color:rgba(247,241,229,.76);font-size:clamp(.95rem,1.5vw,1.2rem);line-height:1.8}.question-copy h2{max-width:12ch;margin:0;font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(4rem,9vw,6rem);line-height:.9;letter-spacing:-.04em;text-wrap:balance}.language-zh .question-copy h2{font-family:"Noto Serif SC",serif;line-height:1.05}
+    .choice{display:grid;grid-template-columns:minmax(0,1fr) minmax(16rem,.42fr);gap:clamp(3rem,7vw,8rem);align-items:end;max-width:1440px;margin:auto;padding:clamp(7rem,15vh,13rem) var(--pad) clamp(4rem,9vh,8rem)}
+    .choice-answer{display:inline;margin:.45em 0 0;background:linear-gradient(180deg,transparent 54%,rgba(244,215,88,.75) 54%);box-decoration-break:clone;color:var(--blue-deep);font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(2.4rem,5.3vw,5rem);font-weight:800;line-height:1.12}.choice-note{margin:0 0 .6rem;padding-top:1.5rem;border-top:3px solid var(--red);color:var(--soft);font-size:clamp(1rem,1.5vw,1.2rem);line-height:1.8}
+    .tensions{max-width:1440px;margin:auto;padding:0 var(--pad) clamp(7rem,15vh,13rem)}.tension{display:grid;grid-template-columns:minmax(0,1fr) clamp(3.5rem,7vw,7rem) minmax(0,1fr);gap:clamp(1rem,3vw,3.5rem);align-items:center;padding:clamp(2.2rem,5vw,4.5rem) 0;border-bottom:1px solid rgba(26,26,46,.18)}.tension:first-child{border-top:1px solid rgba(26,26,46,.18)}.tension p{margin:0;font-size:clamp(1.15rem,2.2vw,2rem);line-height:1.35;text-wrap:balance}.machine{color:var(--soft)}.human{color:var(--blue-deep);font-weight:700}.pivot{position:relative;height:1px;background:var(--yellow)}.pivot::after{content:"";position:absolute;right:0;top:50%;width:.65rem;height:.65rem;border-top:2px solid var(--yellow);border-right:2px solid var(--yellow);transform:translateY(-50%) rotate(45deg)}
+    .taste{display:grid;grid-template-columns:minmax(0,.78fr) minmax(20rem,1fr);gap:clamp(4rem,10vw,12rem);align-items:start;padding:clamp(7rem,15vh,13rem) var(--pad);background:var(--blue-deep);color:var(--cream)}.taste-lead{position:sticky;top:6rem}.taste-lead>p{max-width:35rem;margin:0 0 3rem;color:rgba(254,252,246,.94);font-size:clamp(1rem,1.5vw,1.2rem);line-height:1.9}.taste-lead h2{margin:0;font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(4rem,8vw,6rem);line-height:.9;letter-spacing:-.04em}.taste-list{margin:0;padding:0;list-style:none}.taste-list li{padding:clamp(2rem,5vw,4.4rem) 0;border-top:1px solid rgba(254,252,246,.28)}.taste-list li:last-child{border-bottom:1px solid rgba(254,252,246,.28)}.taste-list p{margin:0;font-family:"Fraunces","Noto Serif SC",serif;font-size:clamp(1.75rem,3.9vw,3.8rem);line-height:1.08;letter-spacing:-.025em}
+    .ending{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(6rem,12vh,9rem) var(--pad) clamp(2rem,5vw,4rem);background:var(--cream);overflow:hidden}.ending-glow{position:absolute;left:8%;bottom:-35%;width:min(80vw,70rem);aspect-ratio:1.5;background:radial-gradient(ellipse,rgba(244,215,88,.65),rgba(232,74,95,.18) 30%,rgba(43,127,216,.1) 53%,transparent 70%)}.ending-copy{position:relative;max-width:69rem;margin:auto 0}.ending-copy>p{max-width:48rem;margin:0 0 2.4rem;color:var(--soft);font-size:clamp(1rem,1.7vw,1.35rem);line-height:1.8}.ending h2{color:var(--blue-deep)}.back-link{position:relative;align-self:flex-end;display:inline-flex;align-items:center;gap:.7rem;color:var(--ink);font-size:.82rem;font-weight:700;text-decoration-color:var(--yellow);text-decoration-thickness:3px;text-underline-offset:5px}.back-link::after{content:"";width:.55rem;height:.55rem;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(-45deg)}
+    .focal-reveal{opacity:1;transform:none;transition:opacity .8s var(--ease),transform .8s var(--ease),filter .8s var(--ease)}.js .focal-reveal:not(.visible){opacity:0;transform:translateY(2rem);filter:blur(6px)}
+    @media(max-width:900px){.opening,.abundance,.choice,.taste{grid-template-columns:1fr}.opening-copy{padding-top:0}.abundance-statement{max-width:42rem}.choice-note{max-width:35rem}.tension{grid-template-columns:1fr}.pivot{width:4rem;transform:rotate(90deg);transform-origin:left center}.taste-lead{position:static}}
+    @media(max-width:600px){.cover{min-height:auto}.cover-art{width:100%;height:auto}.topbar{padding-top:.8rem}.edition{font-size:.62rem;letter-spacing:.08em}.language-toggle{min-height:40px;padding:.4rem .65rem}.scroll-cue{bottom:1rem}.display{font-size:clamp(2.7rem,14vw,4.3rem)}.language-zh .display{font-size:clamp(2.4rem,12vw,3.8rem)}.question{min-height:68svh}.question-orbit{width:120vw}.question-copy h2{font-size:clamp(3.4rem,18vw,5.2rem)}.language-zh .question-copy h2{font-size:clamp(3.1rem,16vw,4.8rem)}.tension{padding:2.2rem 0}.taste{gap:4.5rem}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}.js .focal-reveal:not(.visible){opacity:1;transform:none;filter:none}}
+  </style>
+</head>
+<body class="language-en">
+  <!--
+  THESIS: Attention is a narrowing passage through infinite possibility; refuse the generic centered blog hero.
+  OWN-WORLD: Esther blue, yellow, and red move across warm paper and one ink-dark chamber; image-led editorial fields replace card chrome.
+  STORY: Scarcity gives way to abundance, abundance creates the question of attention, and human taste becomes the answer.
+  FIRST VIEWPORT: The supplied artwork is shown uncropped; only an edition label, language switch, and reading cue share the frame.
+  FORM: A cinematic editorial aperture, grounded structure 7, seed 6faddbed.
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+  -->
+  <main>
+    <section class="cover" id="top" aria-label="Article cover">
+      <img class="cover-art" src="assets/hero.png" width="1080" height="1350" alt="A lone person walking through a canyon of illuminated skyscrapers under the title The Battle for Attention in the Age of AI">
+      <div class="cover-shade" aria-hidden="true"></div>
+      <div class="topbar">
+        <span class="edition lang-en">English edition</span><span class="edition lang-zh">中文版</span>
+        <button class="language-toggle" id="languageToggle" type="button" aria-label="Read this article in Chinese"><span class="icon" aria-hidden="true">文</span><span class="lang-en">中文</span><span class="lang-zh">EN</span></button>
+      </div>
+      <a class="scroll-cue" href="#article-start"><span class="lang-en">Begin reading</span><span class="lang-zh">开始阅读</span><span class="scroll-line" aria-hidden="true"></span></a>
+    </section>
+
+    <section class="opening" id="article-start">
+      <h1 class="display" data-reveal><span class="lang-en">For most of human history, information was power.</span><span class="lang-zh">在人类历史的大部分时间里，信息就是力量。</span></h1>
+      <div class="opening-copy" data-reveal>
+        <div class="lang-en"><p>The people who knew more had the advantage.</p><p>Knowledge was limited, access was difficult, and discovering new information created an edge.</p><p class="turn">But AI is changing that.</p></div>
+        <div class="lang-zh"><p>知道更多的人拥有优势。</p><p>知识有限，获取困难，而发现新的信息意味着竞争优势。</p><p class="turn">但 AI 正在改变这一切。</p></div>
+      </div>
+    </section>
+
+    <section class="abundance">
+      <div class="abundance-list">
+        <div class="abundance-row"><p class="lang-en"><strong>Information</strong> is no longer scarce.</p><p class="lang-zh"><strong>信息</strong>不再稀缺。</p></div>
+        <div class="abundance-row"><p class="lang-en"><strong>Answers</strong> are no longer difficult to find.</p><p class="lang-zh"><strong>答案</strong>不再难以寻找。</p></div>
+        <div class="abundance-row"><p class="lang-en"><strong>Ideas</strong> can be generated in seconds.</p><p class="lang-zh"><strong>想法</strong>可以在几秒钟内被生成。</p></div>
+      </div>
+      <div class="abundance-statement" data-reveal>
+        <div class="lang-en"><h2>We are entering a world of abundance.</h2><p>A world where anyone can create a story, an image, a product, or an idea with the help of AI.</p></div>
+        <div class="lang-zh"><h2>我们正在进入一个“过剩”的时代。</h2><p>一个任何人都可以借助 AI 创造故事、图片、产品和想法的时代。</p></div>
+      </div>
+    </section>
+
+    <section class="question">
+      <div class="question-orbit" aria-hidden="true"></div>
+      <div class="question-copy focal-reveal" data-reveal>
+        <div class="lang-en"><p>But when creation becomes unlimited, a new problem emerges:</p><h2>What deserves our attention?</h2></div>
+        <div class="lang-zh"><p>但当创造变得无限时，一个新的问题出现了：</p><h2>什么值得被关注？</h2></div>
+      </div>
+    </section>
+
+    <section class="choice">
+      <div data-reveal>
+        <h2 class="display lang-en">The challenge of the future is no longer producing more.</h2><h2 class="display lang-zh">未来的挑战不再是创造更多。</h2>
+        <p class="choice-answer lang-en">It is choosing better.</p>
+      </div>
+      <p class="choice-note lang-en" data-reveal>Because not everything that can be created should exist.</p><p class="choice-note lang-zh" data-reveal>因为并不是所有能够被创造出来的东西，都值得存在。</p>
+    </section>
+
+    <section class="tensions" id="tensionsSection" aria-label="AI and human judgment">
+      <article class="tension"><p class="machine lang-en">AI can generate thousands of possibilities.</p><p class="machine lang-zh">AI 可以生成成千上万种可能。</p><span class="pivot" aria-hidden="true"></span><p class="human lang-en">But humans decide which ones are worth pursuing.</p><p class="human lang-zh">但人类决定哪些值得被追寻。</p></article>
+      <article class="tension"><p class="machine lang-en">AI can create endless content.</p><p class="machine lang-zh">AI 可以创造无限的内容。</p><span class="pivot" aria-hidden="true"></span><p class="human lang-en">But humans decide what is meaningful.</p><p class="human lang-zh">但人类决定什么拥有意义。</p></article>
+      <article class="tension"><p class="machine lang-en">A machine can tell us what is popular.</p><p class="machine lang-zh">机器可以告诉我们什么正在流行。</p><span class="pivot" aria-hidden="true"></span><p class="human lang-en">But only humans can decide what is important.</p><p class="human lang-zh">但只有人类能决定什么真正重要。</p></article>
+    </section>
+
+    <section class="taste">
+      <div class="taste-lead" data-reveal>
+        <p class="lang-en">The most valuable human skill in the AI era may not be intelligence.</p><p class="lang-zh">在 AI 时代，人类最珍贵的能力也许不再是聪明。</p>
+        <h2 class="lang-en">It may be taste.</h2><h2 class="lang-zh">而是品味。</h2>
+      </div>
+      <ol class="taste-list">
+        <li><p class="lang-en">The ability to recognize beauty.</p><p class="lang-zh">发现美的能力。</p></li>
+        <li><p class="lang-en">The ability to find meaning.</p><p class="lang-zh">寻找意义的能力。</p></li>
+        <li><p class="lang-en">The ability to choose what is worth remembering.</p><p class="lang-zh">选择什么值得被记住的能力。</p></li>
+      </ol>
+    </section>
+
+    <section class="ending">
+      <div class="ending-glow" aria-hidden="true"></div>
+      <div class="ending-copy" data-reveal>
+        <div class="lang-en"><p>The future will not belong to those who create the most.</p><h2 class="display">It will belong to those who know what truly matters.</h2></div>
+        <div class="lang-zh"><p>未来不会属于创造最多的人。</p><h2 class="display">而会属于那些知道什么真正重要的人。</h2></div>
+      </div>
+      <a class="back-link" href="#top"><span class="lang-en">Back to the beginning</span><span class="lang-zh">回到开头</span></a>
+    </section>
+  </main>
+  <script>
+    document.documentElement.classList.replace('no-js','js');
+    const body=document.body,toggle=document.getElementById('languageToggle'),cover=document.getElementById('top'),tensions=document.getElementById('tensionsSection');
+    toggle.addEventListener('click',()=>{
+      const toChinese=body.classList.contains('language-en');
+      body.classList.toggle('language-en',!toChinese);body.classList.toggle('language-zh',toChinese);
+      document.documentElement.lang=toChinese?'zh-CN':'en';
+      document.title=toChinese?'AI时代的注意力之战':'The Battle for Attention in the Age of AI';
+      toggle.setAttribute('aria-label',toChinese?'Read this article in English':'Read this article in Chinese');
+      cover.setAttribute('aria-label',toChinese?'文章封面':'Article cover');
+      tensions.setAttribute('aria-label',toChinese?'AI 与人类判断':'AI and human judgment');
+    });
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target)}}),{threshold:.12});
+    document.querySelectorAll('[data-reveal]').forEach(el=>observer.observe(el));
+  </script>
+</body>
+</html>
