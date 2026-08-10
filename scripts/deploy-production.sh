@@ -32,6 +32,11 @@ corepack pnpm run check:seo
 
 required_build_paths=(
   "dist/public/demo/index.html"
+  "dist/public/demo/year_about_people/index.html"
+  "dist/public/demo/Avery_Manual/index.html"
+  "dist/public/demo/battle_for_attention/index.html"
+  "dist/public/demo/Manifesto_Book/index.html"
+  "dist/public/demo/The_Architecture_of_Sleep/index.html"
   "dist/public/avery-portfolio-book/index.html"
   "dist/public/manifesto-the-future-of-being-remembered/index.html"
   "dist/public/thebookofmemova/index.html"
@@ -42,6 +47,10 @@ required_build_paths=(
 for required_path in "${required_build_paths[@]}"; do
   [[ -f "$required_path" ]] || fail "required build output is missing: $required_path"
 done
+
+if ! diff -qr client/public/demo dist/public/demo >/dev/null; then
+  fail "the built /demo tree does not exactly match client/public/demo"
+fi
 
 wrangler_version="4.110.0"
 expected_account_id="b02aa028ef87c390b275f53c3c83407f"
