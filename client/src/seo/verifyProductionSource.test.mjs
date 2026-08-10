@@ -8,16 +8,7 @@ import {
   findProductionSourceViolations,
 } from "../../../scripts/verify-production-source.mjs";
 
-const allRequiredPaths = new Set([
-  "client/public/demo/index.html",
-  "client/public/avery-portfolio-book/index.html",
-  "client/public/manifesto-the-future-of-being-remembered/index.html",
-  "client/public/odmpartnership/index.html",
-  "client/public/team/weilijiang/index.html",
-  "client/public/thebookofmemova/index.html",
-  "client/public/_headers",
-  "client/public/_redirects",
-]);
+const allRequiredPaths = new Set(REQUIRED_TRACKED_PATHS);
 
 describe("findProductionSourceViolations", () => {
   it("requires the Book of Memova homepage in every production source", () => {
@@ -30,6 +21,11 @@ describe("findProductionSourceViolations", () => {
     expect(REQUIRED_TRACKED_PATHS).toEqual(
       expect.arrayContaining([
         "client/public/demo/index.html",
+        "client/public/demo/year_about_people/index.html",
+        "client/public/demo/Avery_Manual/index.html",
+        "client/public/demo/battle_for_attention/index.html",
+        "client/public/demo/Manifesto_Book/index.html",
+        "client/public/demo/The_Architecture_of_Sleep/index.html",
         "client/public/avery-portfolio-book/index.html",
         "client/public/manifesto-the-future-of-being-remembered/index.html",
       ]),

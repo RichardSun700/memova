@@ -1549,6 +1549,69 @@
       .motif-ledger { grid-template-columns: 1fr 1fr; }
     }
 
+    .atlas-close {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: max(14px, env(safe-area-inset-right));
+      z-index: 100;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid rgba(91,66,116,.2);
+      border-radius: 999px;
+      padding: 9px 15px;
+      color: #433552;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 12px 32px rgba(57,35,80,.16);
+      backdrop-filter: blur(14px);
+      font: 700 13px/1 var(--sans);
+      text-decoration: none;
+      transition: border-color .18s ease, background .18s ease, transform .18s ease;
+    }
+    .atlas-close:hover {
+      border-color: rgba(91,66,116,.38);
+      background: #fff;
+      transform: translateY(-1px);
+    }
+    .atlas-close:focus-visible {
+      outline: 2px solid var(--blue-bright);
+      outline-offset: 3px;
+    }
+    .atlas-close-mark {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1;
+    }
+    .folio-header { padding-right: clamp(150px, 13vw, 190px); }
+
+    @media (max-width: 820px) {
+      .atlas-close {
+        top: max(5px, env(safe-area-inset-top));
+        right: max(8px, env(safe-area-inset-right));
+        width: 44px;
+        min-width: 44px;
+        padding: 0;
+      }
+      .atlas-close-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+      .mobile-bar { padding-right: 68px; }
+      .mobile-bar strong {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         scroll-behavior: auto !important;
@@ -1560,7 +1623,7 @@
 
     @media print {
       body { color: black; background: white; }
-      .spine, .mobile-bar, .folio-header, .reader-top-actions,
+      .spine, .mobile-bar, .folio-header, .reader-top-actions, .atlas-close,
       .progress-line, .page-edges, .sidebar-scrim, .actions, .filters { display: none !important; }
       .desk-shell { margin: 0; }
       .paper-stage, .reader-stage { padding: 0; }
@@ -1571,6 +1634,10 @@
   </style>
 </head>
 <body>
+  <a class="atlas-close" href="/" data-action="close-atlas" aria-label="Close The Architecture of Sleep and return to the Memova homepage">
+    <span class="atlas-close-mark" aria-hidden="true">×</span>
+    <span class="atlas-close-label">Close</span>
+  </a>
   <aside class="spine" id="spine" aria-label="Book chapters">
     <button class="spine-brand" data-view="cover">
       <span class="spine-mark" aria-hidden="true"></span>
@@ -2214,6 +2281,48 @@
       if (state.view === "reader") renderReader();
       renderSidebar();
     }
+
+    function getSafeReturnTarget() {
+      const rawTarget = new URLSearchParams(window.location.search).get("returnTo");
+      if (!rawTarget) return null;
+
+      try {
+        const target = new URL(rawTarget, window.location.origin);
+        if (target.origin !== window.location.origin) return null;
+        return target;
+      } catch {
+        return null;
+      }
+    }
+
+    const closeAtlasLink = document.querySelector('[data-action="close-atlas"]');
+    closeAtlasLink.addEventListener("click", event => {
+      const returnTarget = getSafeReturnTarget();
+      if (!returnTarget) return;
+
+      event.preventDefault();
+      let referrer = null;
+      try {
+        referrer = document.referrer ? new URL(document.referrer) : null;
+      } catch {
+        referrer = null;
+      }
+
+      const canReturnThroughHistory =
+        window.history.length > 1 &&
+        referrer?.origin === window.location.origin &&
+        referrer.pathname === returnTarget.pathname &&
+        referrer.search === returnTarget.search;
+
+      if (canReturnThroughHistory) {
+        window.history.back();
+        return;
+      }
+
+      window.location.replace(
+        `${returnTarget.pathname}${returnTarget.search}${returnTarget.hash}`
+      );
+    });
 
     document.addEventListener("click", event => {
       const button = event.target.closest("button");

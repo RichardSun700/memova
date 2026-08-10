@@ -28,16 +28,12 @@ function listHtmlFiles(directory: string): string[] {
 
 describe("SEO build generator", () => {
   it("injects route metadata, structured data, and visible matching copy", () => {
-    const page = sitePages.find(
-      candidate => candidate.path === "/agent-memory"
-    )!;
+    const page = sitePages.find(candidate => candidate.path === "/mcp")!;
     const html = renderPageHtml(template, page);
 
     expect(html).toContain(`<title>${page.title}</title>`);
     expect(html).toContain(`name="description" content="${page.description}`);
-    expect(html).toContain(
-      `rel="canonical" href="https://memova.ai/agent-memory"`
-    );
+    expect(html).toContain(`rel="canonical" href="https://memova.ai/mcp"`);
     expect(html).toContain(`property="og:title" content="${page.title}`);
     expect(html).toContain(`type="application/ld+json"`);
     expect(html).toContain(`data-seo-snapshot="true"`);
@@ -61,15 +57,32 @@ describe("SEO build generator", () => {
     const html = renderPageHtml(template, page);
 
     expect(html).toContain('class="memova-seo-shell"');
-    expect(html).toContain(
-      "Your everyday context,<span>ready for agents.</span>"
-    );
-    expect(html).toContain("Agent memory for everyday context");
-    expect(html).toContain("Alignment Loop");
-    expect(html).toContain("Join iOS Early Access");
+    expect(html).toContain("Your context,<span>finally understood.</span>");
+    expect(html).toContain("Personal superalignment");
+    expect(html).toContain("Living Book");
+    expect(html).toContain("Join Early Access");
+    expect(html).toContain('href="/product-journal"');
+    expect(html).toContain("Open Product Journal");
+    expect(html).not.toContain('href="#product-tour"');
     expect(html).toContain(page.title);
     expect(html).toContain(page.summary);
     expect(html.match(/id="memova-seo-shell-styles"/g)).toHaveLength(1);
+  });
+
+  it("renders a crawlable static shell for the standalone Product Journal", () => {
+    const page = sitePages.find(
+      candidate => candidate.path === "/product-journal"
+    )!;
+    const html = renderPageHtml(template, page);
+
+    expect(html).toContain('name="robots" content="index, follow');
+    expect(html).toContain(
+      'rel="canonical" href="https://memova.ai/product-journal"'
+    );
+    expect(html).toContain("memova-seo-shell--page");
+    expect(html).toContain(page.hero!.title);
+    expect(html).toContain(page.summary);
+    expect(html).not.toContain("Page Not Found");
   });
 
   it("replaces an existing managed shell style instead of duplicating it", () => {
@@ -85,9 +98,7 @@ describe("SEO build generator", () => {
   });
 
   it("renders unknown routes as a noindex not-found document", () => {
-    const page = sitePages.find(
-      candidate => candidate.path === "/agent-memory"
-    )!;
+    const page = sitePages.find(candidate => candidate.path === "/mcp")!;
     const html = renderPageHtml(template, {
       ...page,
       path: "/404",
@@ -97,15 +108,24 @@ describe("SEO build generator", () => {
     expect(html).toContain('name="robots" content="noindex, nofollow"');
     expect(html).toContain('rel="canonical" href="https://memova.ai/404"');
     expect(html).toContain("Page Not Found");
-    expect(html).not.toContain("Your everyday context,<span>");
+    expect(html).not.toContain("Your context,<span>finally understood.</span>");
   });
 
   it("generates valid sitemap entries only for indexable pages", () => {
     const xml = renderSitemap(sitePages);
 
     expect(xml).toMatch(/^<\?xml version="1.0" encoding="UTF-8"\?>/);
-    expect(xml).toContain("<loc>https://memova.ai/agent-memory</loc>");
+    expect(xml).toContain("<loc>https://memova.ai/mcp</loc>");
+    expect(xml).toContain("<loc>https://memova.ai/journal</loc>");
+    expect(xml).toContain("<loc>https://memova.ai/product-journal</loc>");
+    expect(xml).not.toContain("/agent-memory</loc>");
+    expect(xml).not.toContain("/ios</loc>");
+    expect(xml).not.toContain("/how-it-works</loc>");
+    expect(xml).not.toContain("/user-cases</loc>");
+    expect(xml).not.toContain("/use-cases/");
     expect(xml).not.toContain("/login</loc>");
+    expect(xml).not.toContain("/motion-lab</loc>");
+    expect(xml).not.toContain("/framework-preview</loc>");
   });
 
   it("allows search crawlers, opts out of training, and protects private routes", () => {
@@ -195,7 +215,7 @@ describe("SEO build generator", () => {
         expect(html, page.path).toContain("memova-seo-app__card");
         expect(html, page.path).toContain(page.hero.title);
         expect(html, page.path).not.toContain(
-          "Your everyday context,<span>ready for agents."
+          "Your context,<span>finally understood."
         );
       }
     } finally {

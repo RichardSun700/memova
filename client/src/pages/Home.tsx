@@ -1,8 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 import Navbar from "@/components/Navbar";
 import CompactUseCasesPreview from "@/components/book-preview/CompactUseCasesPreview";
-import ContinuousDemoStory from "@/components/demo-story/ContinuousDemoStory";
 import CTASection from "@/components/sections/CTASection";
 import HeroSection from "@/components/sections/HeroSection";
 import PrivacySection from "@/components/sections/PrivacySection";
@@ -19,8 +18,6 @@ function getWaitlistScrollTarget() {
 }
 
 export default function Home() {
-  const productTourRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const pendingTimeouts = new Set<number>();
     let pendingFrame: number | null = null;
@@ -108,10 +105,7 @@ export default function Home() {
     window.addEventListener("touchstart", stopWaitlistSettlingForUserIntent, {
       passive: true,
     });
-    window.addEventListener(
-      "pointerdown",
-      stopWaitlistSettlingForUserIntent
-    );
+    window.addEventListener("pointerdown", stopWaitlistSettlingForUserIntent);
     window.addEventListener("keydown", stopWaitlistSettlingForKeyboard);
 
     return () => {
@@ -131,21 +125,11 @@ export default function Home() {
     };
   }, []);
 
-  const scrollToProductTour = () => {
-    productTourRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
-
   return (
     <div className="memova-home-theme min-h-screen overflow-x-clip bg-[var(--memova-canvas)]">
       <Navbar />
       <main>
-        <HeroSection onSeeWorkflow={scrollToProductTour} />
-        <div ref={productTourRef}>
-          <ContinuousDemoStory />
-        </div>
+        <HeroSection />
         <CompactUseCasesPreview />
         <PrivacySection />
         <CTASection />

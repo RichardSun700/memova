@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mic,
@@ -18,12 +18,27 @@ import {
   Eye,
 } from "lucide-react";
 import { shouldSkipInitialMarketingMotion } from "@/seo/seoHandoff";
+import { productJournalEntryState } from "@/navigation/productJournalNavigation";
+import { navigate } from "wouter/use-browser-location";
 
-interface HeroSectionProps {
-  onSeeWorkflow: () => void;
+function openProductJournal(event: MouseEvent<HTMLAnchorElement>) {
+  if (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+  navigate("/product-journal", { state: productJournalEntryState });
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 }
 
-export default function HeroSection({ onSeeWorkflow }: HeroSectionProps) {
+export default function HeroSection() {
   const skipInitialMotion = shouldSkipInitialMarketingMotion();
   const [hoveredSide, setHoveredSide] = useState<"before" | "after" | null>(
     null
@@ -124,17 +139,17 @@ export default function HeroSection({ onSeeWorkflow }: HeroSectionProps) {
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none" />
                 Join iOS Early Access
               </motion.a>
-              <motion.button
-                type="button"
-                onClick={onSeeWorkflow}
+              <motion.a
+                href="/product-journal"
+                onClick={openProductJournal}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 className="memova-secondary-action px-7 py-3 bg-white text-[var(--memova-navy)] font-bold text-[13px] rounded-full
                            border border-[#DDE6FF] shadow-sm transition-all duration-200
                            hover:border-indigo-400 hover:shadow-indigo-500/5 hover:text-indigo-600"
               >
-                See the workflow
-              </motion.button>
+                Open Product Journal
+              </motion.a>
             </motion.div>
 
             {/* Trust badges */}

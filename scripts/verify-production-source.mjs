@@ -4,6 +4,11 @@ import path from "node:path";
 
 export const REQUIRED_TRACKED_PATHS = [
   "client/public/demo/index.html",
+  "client/public/demo/year_about_people/index.html",
+  "client/public/demo/Avery_Manual/index.html",
+  "client/public/demo/battle_for_attention/index.html",
+  "client/public/demo/Manifesto_Book/index.html",
+  "client/public/demo/The_Architecture_of_Sleep/index.html",
   "client/public/avery-portfolio-book/index.html",
   "client/public/manifesto-the-future-of-being-remembered/index.html",
   "client/public/odmpartnership/index.html",
