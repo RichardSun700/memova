@@ -15,6 +15,12 @@ export default function SiteFooter() {
           </div>
           <div className="flex items-center gap-6">
             <a
+              href="/support"
+              className="text-[11px] font-medium text-[#2E5B82]/40 transition-colors hover:text-[#2E5B82]"
+            >
+              Support
+            </a>
+            <a
               href="mailto:hello@memova.ai"
               className="text-[11px] font-medium text-[var(--memova-muted)] transition-colors hover:text-[var(--memova-electric)]"
             >

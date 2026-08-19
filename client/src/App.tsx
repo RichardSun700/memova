@@ -9,6 +9,7 @@ import Mcp from "@/pages/Mcp";
 import McpConsent from "@/pages/McpConsent";
 import NotFound from "@/pages/NotFound";
 import Profile from "@/pages/Profile";
+import Support from "@/pages/Support";
 import { lazy, Suspense } from "react";
 import { Redirect, Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -93,6 +94,7 @@ function Router() {
         <Route key={path} path={path} component={PrivacyPolicyPage} />
       ))}
       <Route path={"/terms"} component={TermsOfServicePage} />
+      <Route path={"/support"} component={Support} />
       <Route
         path={"/settings/connected-clients"}
         component={ConnectedClients}
