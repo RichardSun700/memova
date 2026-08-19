@@ -116,6 +116,7 @@ describe("SEO build generator", () => {
 
     expect(xml).toMatch(/^<\?xml version="1.0" encoding="UTF-8"\?>/);
     expect(xml).toContain("<loc>https://memova.ai/mcp</loc>");
+    expect(xml).toContain("<loc>https://memova.ai/support</loc>");
     expect(xml).toContain("<loc>https://memova.ai/journal</loc>");
     expect(xml).toContain("<loc>https://memova.ai/product-journal</loc>");
     expect(xml).not.toContain("/agent-memory</loc>");

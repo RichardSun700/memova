@@ -89,6 +89,17 @@ describe("sitePages", () => {
     });
   });
 
+  it("publishes the public support route as a crawlable static page", () => {
+    expect(getSitePage("/support")).toMatchObject({
+      path: "/support",
+      index: true,
+      schemaType: "WebPage",
+      hero: {
+        title: "How can we help?",
+      },
+    });
+  });
+
   it("publishes the team journal separately from the Apollo product demo", () => {
     expect(getSitePage("/journal")).toMatchObject({
       path: "/journal",
