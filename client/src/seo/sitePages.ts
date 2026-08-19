@@ -115,6 +115,24 @@ const publicPages: SitePage[] = [
     },
   },
   {
+    path: "/support",
+    title: "Memova Support — Plugin, MCP, Account and Privacy Help",
+    description:
+      "Contact Memova for help with the Plugin, MCP connections, accounts, knowledge bases, privacy requests, and security questions.",
+    index: true,
+    changeFrequency: "monthly",
+    priority: 0.4,
+    summary:
+      "Memova Support provides a public contact point for Plugin, MCP, account, knowledge-base, privacy, and security questions, including guidance for safe diagnostics and account data requests.",
+    schemaType: "WebPage",
+    hero: {
+      eyebrow: "Memova Support",
+      title: "How can we help?",
+      intro:
+        "Get help with your Memova account, Plugin, MCP connection, knowledge base, privacy request, or security question.",
+    },
+  },
+  {
     path: "/privacy",
     title: "Privacy Policy — Memova",
     description:
