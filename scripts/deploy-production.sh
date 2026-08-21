@@ -23,6 +23,11 @@ if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]]; then
   fail "HEAD must exactly match the latest origin/main before deployment"
 fi
 
+source_commit=$(git rev-parse HEAD)
+source_short_commit=$(git rev-parse --short HEAD)
+source_branch=$(git branch --show-current)
+built_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
 corepack pnpm install --frozen-lockfile
 corepack pnpm run check:production-source
 corepack pnpm run check
@@ -30,7 +35,25 @@ corepack pnpm run build
 corepack pnpm test
 corepack pnpm run check:seo
 
+cat > dist/public/__deployment.json <<JSON
+{
+  "site": "memova.ai",
+  "project": "memova",
+  "source": "github",
+  "repository": "RichardSun700/memova-website",
+  "branch": "${source_branch}",
+  "commit": "${source_commit}",
+  "shortCommit": "${source_short_commit}",
+  "builtAt": "${built_at}",
+  "deployCommand": "pnpm run deploy:production"
+}
+JSON
+
+cp dist/public/__deployment.json "dist/public/__deployment-${source_commit}.json"
+
 required_build_paths=(
+  "dist/public/__deployment.json"
+  "dist/public/__deployment-${source_commit}.json"
   "dist/public/demo/index.html"
   "dist/public/demo/year_about_people/index.html"
   "dist/public/demo/Avery_Manual/index.html"
@@ -63,3 +86,16 @@ fi
 npx --yes "wrangler@${wrangler_version}" pages deploy dist/public \
   --project-name=memova \
   --branch=main
+
+production_metadata_url="https://www.memova.ai/__deployment-${source_commit}.json"
+for attempt in {1..12}; do
+  production_metadata=$(curl -fsSL "$production_metadata_url" || true)
+  if [[ "$production_metadata" == *"\"commit\": \"${source_commit}\""* ]]; then
+    printf 'Production deployment verified: %s\n' "$production_metadata_url"
+    exit 0
+  fi
+  printf 'Waiting for production metadata to propagate (%s/12)...\n' "$attempt"
+  sleep 5
+done
+
+fail "production did not expose deployment metadata for GitHub commit ${source_commit}"
