@@ -1,0 +1,24 @@
+category,key,value,confidence
+archetype,work_archetype,The Conductor,
+dimension,dimension_1,68,0.82
+dimension,dimension_2,67,0.88
+dimension,dimension_3,61,0.78
+dimension,dimension_4,75,0.90
+overall,archetype_confidence,76,
+facet,Gregariousness,62,0.55
+facet,Friendliness,58,0.55
+facet,Excitement-seeking,60,0.45
+facet,Ideas,76,0.85
+facet,Order,78,0.90
+facet,Deliberation,73,0.80
+facet,Self-discipline,70,0.65
+facet,Adventurousness,64,0.60
+facet,Ambiguity acceptance,46,0.75
+facet,Imagination,80,0.80
+facet,Divergent thinking,76,0.75
+facet,Convergent refinement,82,0.90
+facet,Assertiveness,82,0.90
+facet,Positive Emotionality,62,0.50
+facet,Aesthetics,88,0.90
+facet,Feelings,65,0.65
+facet,Modesty,50,0.35

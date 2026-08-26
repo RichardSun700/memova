@@ -1,6 +1,6 @@
 # Privacy Policy
 
-*Last updated: July, 2026*
+*Last updated: August 25, 2026*
 
 
 
@@ -32,6 +32,10 @@ Depending on how you use the app, this may include:
 
 - Information you save, organize, search, or ask the app to use as context
 
+- Information you authorize Memova or a connected agent to retrieve from selected services, workspaces, repositories, or accounts
+
+- Personal Manual, HTML Page, Living Book, email, calendar, and other outputs created from the context you choose
+
 ### Account and Transaction Information
 
 If you create an account or purchase a subscription, we may collect:
@@ -43,6 +47,8 @@ If you create an account or purchase a subscription, we may collect:
 - Payment information processed by our payment providers
 
 - Customer support communications
+
+- Email addresses and communication preferences you provide when you join an early-access list, request updates, or contact us through the website
 
 ### Technical and Usage Information
 
@@ -100,6 +106,10 @@ Memova uses AI\-powered features to help you:
 
 We use your content for AI features only to provide the outputs you request\.
 
+Where an AI or infrastructure provider processes content on our behalf, it may process only the information needed to provide the feature you requested and is not permitted to use your private content for advertising or to train generalized AI models\.
+
+Memova may help identify relationships between sources, draft a Personal Manual or HTML Page, and prepare a proposed action\. These outputs are generated from the context you choose and remain subject to your review\. Memova does not treat an AI output as your authorization to publish content, send an email, or create or change a calendar event\.
+
 AI\-generated outputs may be incomplete, inaccurate, or inappropriate for your situation\. You are responsible for reviewing outputs before relying on them, especially for medical, legal, financial, employment, education, or other high\-impact matters\.
 
 
@@ -119,6 +129,8 @@ This includes using your information to:
 - Store, organize, search, and retrieve your content for your use
 
 - Use your saved context to answer your questions or generate content at your request
+
+- Connect information across sources you choose and generate Personal Manuals, HTML Pages, Living Books, and proposed actions
 
 - Sync or back up your content if you enable those features
 
@@ -149,6 +161,10 @@ We may share information in the following limited circumstances:
 ### Service Providers
 
 We may work with trusted providers for hosting, cloud infrastructure, transcription, AI processing, payments, customer support, security, and similar services\. These providers may process information only as needed to provide services to us and are not permitted to use your content for their own advertising, model training, or unrelated purposes\.
+
+### Sharing You Direct
+
+Memova is private by default\. If you choose to publish a Page, share a Personal Manual or Living Book, export content, or send content through a connected service, we process and disclose the selected content as necessary to carry out your instruction\. Public links and social posts may be viewed, copied, or reshared by others, so you should review the content and permissions before sharing\.
 
 
 
@@ -194,6 +210,12 @@ Depending on your app version and settings, you may be able to:
 
 - Disable sync, backup, or cloud features where available
 
+- Review and approve a proposed email, calendar event, Page, or other action before it is executed or shared
+
+- Disconnect an integration and revoke its authorization through Memova or the connected provider
+
+- Change or withdraw website analytics choices through the Privacy choices control, where available
+
 - Export your content where supported
 
 - Delete your account
@@ -227,6 +249,8 @@ Please be careful when recording conversations or uploading files that include s
 We retain personal information only for as long as reasonably necessary to provide Memova, maintain your account, comply with legal obligations, resolve disputes, enforce agreements, and protect the security of our services\.
 
 When you delete content or your account, we will delete or de\-identify associated information within a reasonable period, unless we are required or permitted to retain it for legal, security, backup, fraud prevention, or legitimate business reasons\.
+
+Early-access contact information is retained while you remain subscribed or while reasonably necessary to administer the early-access program\. You may unsubscribe from marketing updates at any time, and we may retain limited suppression information to honor that choice\.
 
 
 
@@ -276,7 +300,41 @@ We may update this Privacy Policy from time to time\. If we make material change
 
 
 
-## 18\. Contact Us
+## 18\. Early Access, Public Pages, and Connected Services
+
+- **Early access\.** If you submit an email address to join early access or receive product updates, we use it to administer the program and send the communications you requested\. You may unsubscribe using the link in a message or by contacting hello@memova\.ai\.
+
+- **Public Pages and sharing\.** Content remains private unless you choose to share or publish it\. Before publishing, review the Page, Personal Manual, Living Book, recipients, link permissions, and any information about other people\. If you make content public or share it with a third party, that party may retain or redistribute it outside Memova\.
+
+- **Connected services and agents\.** Memova accesses a connected account, workspace, or agent only after you initiate a connection and grant the requested permission\. The information available to Memova depends on the service and scope you approve\. You can revoke access through the connected provider or Memova settings, where available\.
+
+- **Proposed actions\.** When Memova prepares an HTML Page, email, calendar event, or other action, the proposal is not executed merely because it was generated\. A user review and confirmation step is required before an external action is completed, unless you separately enable and are clearly informed of an automation setting\.
+
+
+
+## 19\. Regional Privacy Rights
+
+### United States
+
+Depending on where you live and whether an applicable state privacy law covers Memova, you may have the right to confirm whether we process your personal information; access, correct, or delete it; receive a portable copy; and opt out of certain sales, sharing, targeted advertising, or profiling\. You may also have the right to limit certain uses or disclosures of sensitive personal information and to appeal a decision on your request\.
+
+Memova does not sell personal information or share it for cross\-context behavioral advertising\. We do not use private content for targeted advertising\. The categories of information we may collect, the sources from which we collect it, the purposes for which we use it, and the types of service providers to which it may be disclosed are described in Sections 1, 5, and 7\. Our retention criteria are described in Section 12\.
+
+We may need to verify your identity before completing a request\. Where permitted, you may use an authorized agent\. We will not discriminate against you for exercising an applicable privacy right\. If applicable law gives you a right to appeal our decision, reply to our response or contact hello@memova\.ai and state that you are submitting an appeal\.
+
+### Canada
+
+If Canadian federal or provincial privacy law applies, you may request access to or correction of your personal information, withdraw consent subject to legal or contractual restrictions and reasonable notice, and raise a concern about our privacy practices\. We collect, use, and disclose personal information only for purposes that a reasonable person would consider appropriate in the circumstances and as otherwise permitted by applicable law\. Information may be processed by service providers outside Canada and may be subject to the laws of the country where it is processed\.
+
+### Other Regions
+
+If the laws where you live provide additional mandatory rights, those rights remain available to you\. This may include rights to object to or restrict processing, withdraw consent, or complain to a local data protection authority\. The availability of a right depends on the law that applies to Memova and your use of the Service\.
+
+To exercise a regional privacy right, contact hello@memova\.ai and identify your country and state or province\. We will respond within the period required by applicable law\.
+
+
+
+## 20\. Contact Us
 
 If you have questions, requests, or concerns about this Privacy Policy or our privacy practices, please contact us at:
 

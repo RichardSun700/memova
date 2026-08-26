@@ -1,0 +1,360 @@
+/* Chapter 06: United States human-spaceflight progress as a Living Book timeline. */
+.five-waitlist {
+  justify-content: flex-start;
+  min-height: max(100svh, 900px);
+  padding-top: clamp(82px, 9vh, 108px);
+  padding-bottom: 72px;
+}
+
+.five-waitlist-copy {
+  width: min(900px, 88vw);
+  margin-top: 0;
+}
+
+.five-waitlist-copy h2 {
+  font-size: clamp(54px, 5.5vw, 84px);
+}
+
+.five-waitlist-copy > p {
+  width: min(710px, 86vw);
+  margin: 16px auto 18px;
+  line-height: 1.5;
+}
+
+.five-form-note a,
+.five-history-disclosure a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, .4);
+  text-underline-offset: 3px;
+}
+
+.five-history-arc {
+  position: relative;
+  z-index: 4;
+  width: min(1280px, 96vw);
+  margin-top: clamp(20px, 2.6vh, 30px);
+  padding: 18px 22px 16px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 50% 72%, rgba(107, 134, 232, .22), transparent 54%),
+    linear-gradient(180deg, rgba(8, 17, 38, .35), rgba(10, 20, 44, .66));
+  box-shadow: none;
+  text-align: left;
+  isolation: isolate;
+}
+
+.five-history-arc::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent, rgba(214, 224, 240, .035) 50%, transparent),
+    repeating-linear-gradient(90deg, transparent 0, transparent calc(12.5% - 1px), rgba(214, 224, 240, .06) 12.5%);
+  pointer-events: none;
+}
+
+.five-history-intro {
+  position: absolute;
+  z-index: 8;
+  top: 17px;
+  left: 22px;
+  right: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  color: #fff;
+}
+
+.five-history-intro small {
+  color: #aebffc;
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: .16em;
+  white-space: nowrap;
+}
+
+.five-history-intro strong {
+  color: rgba(246, 249, 255, .76);
+  font-family: "Lora", Georgia, serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .01em;
+  text-align: right;
+}
+
+.five-rocket-lineage {
+  position: relative;
+  height: clamp(390px, 46vh, 460px);
+  padding-top: 27px;
+}
+
+.five-rocket-visual {
+  position: absolute;
+  z-index: 2;
+  top: 31px;
+  bottom: 61px;
+  left: 50%;
+  width: min(980px, 98%);
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  align-items: stretch;
+  min-height: 0;
+  overflow: visible;
+  transform: translateX(-50%);
+}
+
+.five-rocket-vehicle {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  margin: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: visible;
+  opacity: 0;
+  transform: translateY(18px) scale(.985);
+  transform-origin: center bottom;
+  filter: saturate(.9) contrast(1.03) drop-shadow(0 8px 8px rgba(0, 0, 0, .34)) drop-shadow(0 0 8px rgba(126, 174, 255, .22));
+  will-change: opacity, transform, filter;
+}
+
+.five-rocket-vehicle img {
+  width: auto;
+  height: var(--vehicle-height);
+  max-width: 150%;
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+  user-select: none;
+}
+
+.five-history-arc.is-visible .five-rocket-vehicle {
+  animation: fiveRocketRise 760ms cubic-bezier(.18, .74, .22, 1) forwards;
+  animation-delay: calc(var(--rocket-index) * 145ms + 100ms);
+}
+
+.five-history-axis {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  width: min(980px, 98%);
+  bottom: 58px;
+  height: 1px;
+  background: rgba(196, 211, 242, .36);
+  box-shadow: 0 0 12px rgba(107, 134, 232, .28);
+  transform: translateX(-50%);
+}
+
+.five-history-axis::before,
+.five-history-axis::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border: 1px solid rgba(231, 239, 255, .78);
+  border-radius: 50%;
+  background: #6b86e8;
+  box-shadow: 0 0 10px #6b86e8;
+  transform: translateY(-50%);
+}
+
+.five-history-axis::before { left: 0; }
+.five-history-axis::after { right: 0; }
+
+.five-history-axis i {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 7px #fff, 0 0 16px #7798ff;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+
+.five-history-arc.is-visible .five-history-axis i {
+  animation: fiveHistorySignal 5.6s 1.1s ease-in-out infinite;
+}
+
+.five-history-milestones {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  width: min(980px, 98%);
+  bottom: 0;
+  height: 58px;
+  margin: 0;
+  padding: 10px 0 0;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  list-style: none;
+  transform: translateX(-50%);
+}
+
+.five-history-milestones li {
+  position: relative;
+  min-width: 0;
+  padding: 0 7px;
+  opacity: 0;
+  transform: translateY(8px);
+  text-align: center;
+}
+
+.five-history-milestones li::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border: 1px solid rgba(239, 244, 255, .72);
+  border-radius: 50%;
+  background: #4565b4;
+  box-shadow: 0 0 8px rgba(119, 152, 255, .72);
+  transform: translateX(-50%);
+}
+
+.five-history-arc.is-visible .five-history-milestones li {
+  animation: fiveMilestoneReveal 520ms ease forwards;
+  animation-delay: calc(var(--rocket-index) * 145ms + 360ms);
+}
+
+.five-history-milestones small,
+.five-history-milestones strong,
+.five-history-milestones span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.five-history-milestones small {
+  color: #9fb4f7;
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: .11em;
+}
+
+.five-history-milestones strong {
+  margin-top: 2px;
+  color: #fff;
+  font-family: "Lora", Georgia, serif;
+  font-size: clamp(10px, .9vw, 13px);
+  font-weight: 500;
+}
+
+.five-history-milestones span {
+  margin-top: 2px;
+  color: rgba(225, 233, 247, .48);
+  font-size: 7px;
+}
+
+.five-history-disclosure {
+  position: relative;
+  z-index: 5;
+  width: min(900px, 86vw);
+  margin: 10px auto 0;
+  color: rgba(224, 231, 245, .55);
+  font-size: 8px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.five-final-paper { display: none; }
+
+@keyframes fiveRocketRise {
+  0% { opacity: 0; transform: translateY(18px) scale(.985); filter: saturate(.65) drop-shadow(0 0 0 rgba(126, 174, 255, 0)); }
+  62% { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: saturate(.93) drop-shadow(0 0 10px rgba(126, 174, 255, .38)); }
+}
+
+@keyframes fiveMilestoneReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fiveHistorySignal {
+  0% { left: 0; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+@media (max-height: 820px) and (min-width: 821px) {
+  .five-waitlist { min-height: 820px; padding-top: 72px; }
+  .five-waitlist-copy h2 { font-size: clamp(50px, 4.8vw, 68px); }
+  .five-waitlist-copy > p { margin: 12px auto 14px; font-size: 14px; }
+  .five-release-meta { margin-top: 13px; }
+  .five-history-arc { margin-top: 17px; }
+  .five-rocket-lineage { height: 350px; }
+  .five-history-disclosure { margin-top: 8px; }
+}
+
+@media (max-width: 820px) {
+  .five-waitlist { min-height: 100svh; padding: 90px 18px 112px; }
+  .five-waitlist-copy { width: 100%; }
+  .five-waitlist-copy h2 { font-size: clamp(48px, 13vw, 66px); }
+  .five-waitlist-copy > p { width: 100%; margin: 16px auto 20px; font-size: 14px; }
+
+  .five-history-arc {
+    width: 100%;
+    margin-top: 28px;
+    padding: 16px 0 14px;
+    border-radius: 0;
+  }
+
+  .five-history-intro {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    padding: 0 16px 8px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .five-history-intro strong { max-width: 290px; font-size: 11px; text-align: left; }
+
+  .five-rocket-lineage {
+    height: 380px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-top: 0;
+    scrollbar-width: none;
+  }
+
+  .five-rocket-lineage::-webkit-scrollbar { display: none; }
+  .five-rocket-visual, .five-history-axis, .five-history-milestones { width: 820px; }
+  .five-rocket-visual { top: 0; bottom: 61px; left: 0; transform: none; }
+  .five-history-axis { left: 0; right: auto; bottom: 58px; transform: none; }
+  .five-history-milestones { left: 0; right: auto; transform: none; }
+  .five-history-milestones strong { font-size: 11px; }
+  .five-history-milestones span { display: none; }
+  .five-history-disclosure { width: 100%; margin-top: 10px; font-size: 8px; }
+  .five-waitlist > footer { bottom: 17px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .five-rocket-vehicle, .five-history-milestones li {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+
+  .five-history-axis i {
+    left: 50%;
+    opacity: .75;
+    animation: none !important;
+  }
+}

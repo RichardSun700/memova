@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" fill="none">
+  <defs>
+    <linearGradient id="edge-fade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="white" stop-opacity="0"/>
+      <stop offset=".09" stop-color="white" stop-opacity="1"/>
+      <stop offset=".91" stop-color="white" stop-opacity="1"/>
+      <stop offset="1" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="brand-flow" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D6E0F0" stop-opacity=".12"/>
+      <stop offset=".24" stop-color="#6B86E8" stop-opacity=".62"/>
+      <stop offset=".53" stop-color="#455E93" stop-opacity=".9"/>
+      <stop offset=".76" stop-color="#6B86E8" stop-opacity=".68"/>
+      <stop offset="1" stop-color="#D6E0F0" stop-opacity=".1"/>
+    </linearGradient>
+    <mask id="fade-ends">
+      <rect width="1200" height="320" fill="url(#edge-fade)"/>
+    </mask>
+    <filter id="soft-glow" x="-20%" y="-35%" width="140%" height="170%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <g mask="url(#fade-ends)" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#D6E0F0" stroke-width="1.15" opacity=".48">
+      <path d="M-80 60C150 28 262 250 505 214C714 183 844 40 1280 92"/>
+      <path d="M-80 72C150 42 266 260 506 224C716 191 849 54 1280 103"/>
+      <path d="M-80 84C152 56 272 270 510 233C719 201 856 68 1280 115"/>
+      <path d="M-80 96C157 68 278 278 516 241C724 210 862 82 1280 128"/>
+      <path d="M-80 109C164 82 287 284 524 248C731 217 868 96 1280 141"/>
+      <path d="M-80 122C172 96 297 289 534 254C739 224 874 110 1280 154"/>
+      <path d="M-80 137C181 110 308 293 545 260C748 231 881 124 1280 168"/>
+      <path d="M-80 151C190 125 320 297 557 265C758 238 888 139 1280 182"/>
+      <path d="M-80 166C201 141 334 299 570 270C769 245 896 154 1280 197"/>
+      <path d="M-80 181C214 157 348 301 584 274C780 252 904 170 1280 211"/>
+      <path d="M-80 196C228 174 363 301 598 278C792 259 912 186 1280 226"/>
+      <path d="M-80 212C243 190 379 300 612 281C804 266 920 202 1280 241"/>
+      <path d="M-80 228C259 208 396 297 627 283C816 271 928 219 1280 256"/>
+      <path d="M-80 244C276 226 414 293 642 284C828 278 936 236 1280 270"/>
+    </g>
+
+    <g stroke="#6B86E8" stroke-width="1.45" opacity=".58">
+      <path d="M-90 48C133 51 287 233 501 207C716 181 867 42 1290 75"/>
+      <path d="M-90 82C145 83 303 245 516 219C730 193 876 69 1290 99"/>
+      <path d="M-90 116C160 116 320 255 532 231C744 207 886 96 1290 126"/>
+      <path d="M-90 150C177 151 338 263 550 242C760 221 896 124 1290 154"/>
+      <path d="M-90 184C196 185 357 269 568 253C777 237 906 153 1290 183"/>
+      <path d="M-90 218C217 219 378 273 588 264C795 253 916 183 1290 213"/>
+      <path d="M-90 252C239 252 400 276 608 274C814 269 927 214 1290 244"/>
+    </g>
+
+    <path d="M-110 101C132 84 276 269 512 228C729 190 856 71 1310 118" stroke="url(#brand-flow)" stroke-width="3.8" filter="url(#soft-glow)"/>
+    <path d="M-110 188C162 174 329 296 568 259C779 226 897 143 1310 187" stroke="#455E93" stroke-width="2.6" opacity=".92"/>
+    <path d="M-110 134C148 121 300 281 540 242C750 209 877 108 1310 151" stroke="#6B86E8" stroke-width="2.2" opacity=".92"/>
+    <path d="M-110 159C156 146 316 288 554 251C766 219 888 127 1310 170" stroke="#FFFFFF" stroke-width="1.25" opacity=".78"/>
+  </g>
+</svg>

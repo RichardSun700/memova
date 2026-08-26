@@ -171,7 +171,7 @@ describe("SEO build generator", () => {
       );
       expect(privacyHtml).toContain("Gmail permissions.");
       expect(privacyHtml).toContain("Google Calendar permissions.");
-      expect(privacyHtml).toContain("18. Contact Us");
+      expect(privacyHtml).toContain("20. Contact Us");
       expect(privacyHtml).toContain('data-seo-snapshot="true"');
       expect(privacyHtml).toContain('data-seo-shell-version="2"');
       expect(privacyHtml).toContain('id="memova-seo-shell-styles"');

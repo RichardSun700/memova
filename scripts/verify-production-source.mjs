@@ -3,6 +3,11 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 export const REQUIRED_TRACKED_PATHS = [
+  "client/homepage/index.html",
+  "client/public/product-demo/index.html",
+  "client/public/personal-manual/neil-armstrong/index.html",
+  "client/public/personal-manual/generated-conductor/index.html",
+  "client/public/sources/index.html",
   "client/public/demo/index.html",
   "client/public/demo/year_about_people/index.html",
   "client/public/demo/Avery_Manual/index.html",
@@ -19,6 +24,7 @@ export const REQUIRED_TRACKED_PATHS = [
 ];
 
 const PRODUCTION_SOURCE_SCOPES = [
+  "client/homepage",
   "client/public",
   "client/src/seo",
   "scripts",

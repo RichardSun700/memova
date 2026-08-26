@@ -1,6 +1,6 @@
 # Terms of Service
 
-*Last updated: May 31, 2026*
+*Last updated: August 25, 2026*
 
 
 
@@ -256,13 +256,32 @@ Your continued use of the Service after updated Terms become effective means you
 
 
 
-## 19\. Contact Us
+## 19\. Regional Consumer Terms
+
+Nothing in these Terms limits rights or remedies that cannot be waived under applicable consumer protection, privacy, or data protection law\.
+
+If you are a consumer in the United States, applicable federal and state consumer laws may provide additional rights\. If you are a consumer in Canada, applicable federal or provincial consumer and privacy laws may provide additional rights\. If these Terms conflict with a mandatory protection that applies to you, the mandatory protection controls to the extent of the conflict\.
+
+Cancellation, renewal, refund, warranty, and liability terms remain subject to any non\-waivable requirements that apply where you live\.
+
+
+
+## 20\. Governing Law and Disputes
+
+Except where mandatory consumer law requires otherwise, these Terms and any dispute arising out of or relating to them or the Service are governed by applicable United States federal law and the laws of the U\.S\. state in which MEMOVA LLC maintains its principal place of business, without regard to conflict\-of\-laws rules\.
+
+Before filing a formal claim, you and Memova agree to make a reasonable good\-faith effort to resolve the dispute informally\. A notice to Memova should be sent to hello@memova\.ai and should describe the issue and the requested resolution\. If the dispute is not resolved within 30 days after a complete notice is received, either party may pursue available remedies in a court of competent jurisdiction, subject to any mandatory law that applies\.
+
+Nothing in this section prevents either party from seeking urgent injunctive relief or filing a claim in small claims court where eligible\. Nothing in these Terms deprives a consumer of the protection of mandatory laws or courts available in the consumer’s place of residence\.
+
+
+
+## 21\. Contact Us
 
 If you have questions about these Terms, please contact us at:
 
 MEMOVA LLC  
 
 hello@memova\.ai
-
 
 

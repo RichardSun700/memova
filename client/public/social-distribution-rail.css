@@ -1,0 +1,655 @@
+.memova-social-rail {
+  --social-card-size: 154px;
+  --social-card-padding: 22px;
+  position: relative;
+  z-index: 3;
+  overflow: hidden;
+  padding: clamp(92px, 10vw, 138px) 0 clamp(82px, 9vw, 124px);
+  color: #24365d;
+  background: radial-gradient(circle at 50% 72%, rgba(214, 224, 240, 0.46), transparent 31%), #f8f7f3;
+  border-top: 1px solid rgba(69, 94, 147, 0.14);
+  border-bottom: 1px solid rgba(69, 94, 147, 0.14);
+  scroll-margin-top: 76px;
+}
+
+.memova-social-rail__inner {
+  width: min(1420px, calc(100vw - clamp(72px, 9vw, 164px)));
+  margin: 0 auto;
+}
+
+.memova-social-rail__copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(420px, 0.78fr);
+  column-gap: clamp(56px, 8vw, 140px);
+  align-items: stretch;
+}
+
+.memova-social-rail__left {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.memova-social-rail__heading > p {
+  margin: 0;
+  color: #455e93;
+  font: 700 clamp(11px, 0.72vw, 14px) / 1.25 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.18em;
+}
+
+.memova-social-rail__heading h2 {
+  max-width: 820px;
+  margin: 22px 0 0;
+  color: #142647;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(52px, 5.7vw, 98px);
+  font-weight: 500;
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+}
+
+.memova-social-rail__heading h2 em { color: #6b86e8; font-weight: inherit; }
+
+.memova-social-rail__explanation-copy {
+  width: min(100%, 540px);
+  margin-top: clamp(54px, 6vw, 92px);
+}
+
+.memova-social-rail__explanation-copy > p {
+  margin: 0 0 18px;
+  color: rgba(36, 54, 93, 0.76);
+  font: 500 clamp(17px, 1.25vw, 23px) / 1.48 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.memova-social-rail__explanation-copy > strong {
+  display: block;
+  color: #24365d;
+  font: 700 clamp(13px, 0.92vw, 17px) / 1.4 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.memova-share-prototype {
+  --share-accent: #142647;
+  --share-accent-soft: rgba(20, 38, 71, 0.08);
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: 560px;
+  margin: 0;
+  padding: 15px;
+  overflow: hidden;
+  border: 1px solid rgba(69, 94, 147, 0.18);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 30px 70px rgba(62, 79, 111, 0.15), 0 0 0 7px rgba(238, 242, 250, 0.7);
+  color: #142647;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  backdrop-filter: blur(20px);
+}
+
+.memova-share-prototype[data-platform="linkedin"] {
+  --share-accent: #0a66c2;
+  --share-accent-soft: rgba(10, 102, 194, 0.1);
+}
+
+.memova-share-prototype[data-platform="tiktok"] {
+  --share-accent: #111;
+  --share-accent-soft: rgba(37, 244, 238, 0.1);
+}
+
+.memova-share-prototype::before {
+  position: absolute;
+  z-index: -1;
+  top: -90px;
+  right: -70px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--share-accent-soft), transparent 67%);
+  content: "";
+  pointer-events: none;
+}
+
+.memova-share-prototype__topbar,
+.memova-share-prototype__account,
+.memova-share-prototype__platforms,
+.memova-share-prototype__format,
+.memova-share-prototype__preview header,
+.memova-share-prototype__actions {
+  display: flex;
+  align-items: center;
+}
+
+.memova-share-prototype__topbar {
+  justify-content: space-between;
+  padding: 2px 4px 12px;
+  border-bottom: 1px solid rgba(69, 94, 147, 0.11);
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.memova-share-prototype__topbar b {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #e9f7eb;
+  color: #2e813f;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.memova-share-prototype__topbar b.is-published { background: #dff4e5; color: #126a2d; }
+
+.memova-share-prototype__account {
+  gap: 10px;
+  padding: 12px 4px 10px;
+}
+
+.memova-share-prototype__account > img {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  box-shadow: 0 7px 18px rgba(69, 94, 147, 0.2);
+}
+
+.memova-share-prototype__account > span,
+.memova-share-prototype__preview header > span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.memova-share-prototype__account strong { font-size: 12px; }
+.memova-share-prototype__account small { color: rgba(36, 54, 93, 0.58); font-size: 9px; }
+
+.memova-share-prototype__platforms {
+  gap: 4px;
+  padding: 4px;
+  border-radius: 16px;
+  background: #eef2fa;
+}
+
+.memova-share-prototype__platforms button {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(36, 54, 93, 0.65);
+  font: 650 11px / 1 Inter, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.memova-share-prototype__platforms button:hover { transform: translateY(-1px); color: #142647; }
+.memova-share-prototype__platforms button[aria-selected="true"] {
+  background: #fff;
+  color: #142647;
+  box-shadow: 0 7px 18px rgba(69, 94, 147, 0.12);
+}
+
+.memova-share-prototype__platforms img {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+}
+
+.memova-share-prototype__format {
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(69, 94, 147, 0.12);
+  border-radius: 15px;
+  background: rgba(238, 242, 250, 0.56);
+}
+
+.memova-share-prototype__format > span {
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.memova-share-prototype__format select {
+  min-width: 130px;
+  padding: 6px 28px 6px 10px;
+  border: 0;
+  border-radius: 10px;
+  outline: 0;
+  background-color: #fff;
+  color: #24365d;
+  font: 650 11px / 1.2 Inter, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.memova-share-prototype__preview {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid rgba(69, 94, 147, 0.13);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 12px 34px rgba(69, 94, 147, 0.07);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.memova-share-prototype__preview:hover { border-color: rgba(107, 134, 232, 0.42); transform: translateY(-1px); }
+
+.memova-share-prototype__preview header { gap: 9px; }
+.memova-share-prototype__preview header > img {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  padding: 6px;
+  border-radius: 50%;
+  background: #eef2fa;
+  object-fit: contain;
+}
+
+.memova-share-prototype__preview header > .memova-share-prototype__native-logo {
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  object-fit: contain;
+}
+
+.memova-share-prototype__preview header strong { font-size: 11px; }
+.memova-share-prototype__preview header small { color: rgba(36, 54, 93, 0.56); font-size: 9px; }
+.memova-share-prototype__preview header em {
+  margin-left: 7px;
+  color: var(--share-accent);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 750;
+}
+
+.memova-share-prototype__preview > p {
+  min-height: 3.6em;
+  margin: 10px 0;
+  color: rgba(20, 38, 71, 0.84);
+  font-size: 11px;
+  font-weight: 520;
+  line-height: 1.45;
+}
+
+.memova-share-prototype__preview > p.is-editing {
+  padding: 8px;
+  border-radius: 10px;
+  outline: 2px solid rgba(107, 134, 232, 0.3);
+  background: #f7f9fd;
+}
+
+.memova-share-prototype__preview figure {
+  display: grid;
+  grid-template-columns: minmax(118px, 0.9fr) minmax(0, 1.1fr);
+  min-height: 92px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(69, 94, 147, 0.12);
+  border-radius: 13px;
+  background: #f5f7fb;
+}
+
+.memova-share-prototype__preview figure[hidden] { display: none !important; }
+
+.memova-share-prototype__engagement {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(69, 94, 147, 0.12);
+}
+
+.memova-share-prototype__engagement > small {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(36, 54, 93, 0.56);
+  font-size: 8px;
+  text-align: right;
+}
+
+.memova-share-prototype__engagement > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  color: rgba(36, 54, 93, 0.66);
+  font-size: 9px;
+  font-weight: 650;
+  text-align: center;
+}
+
+/* X link preview: a compact post with a native Summary Card treatment. */
+.memova-share-prototype__preview[data-platform="x"] {
+  border-color: #cfd9e2;
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.memova-share-prototype__preview[data-platform="x"] header > img {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 1px #cfd9e2;
+}
+
+.memova-share-prototype__preview[data-platform="x"] header > .memova-share-prototype__native-logo {
+  width: 17px;
+  height: 17px;
+  margin-left: auto;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.memova-share-prototype__preview[data-platform="x"] header strong { color: #0f1419; }
+.memova-share-prototype__preview[data-platform="x"] header em { display: none; }
+.memova-share-prototype__preview[data-platform="x"] header small,
+.memova-share-prototype__preview[data-platform="x"] > p,
+.memova-share-prototype__preview[data-platform="x"] .memova-share-prototype__engagement { color: #536471; }
+
+.memova-share-prototype__preview[data-platform="x"] figure {
+  display: block;
+  border-color: #cfd9e2;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.memova-share-prototype__preview[data-platform="x"] figure > img {
+  display: block;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1.91 / 1;
+  object-fit: cover;
+}
+
+.memova-share-prototype__preview[data-platform="x"] figcaption {
+  padding: 8px 10px 9px;
+  border-top: 1px solid #cfd9e2;
+}
+
+.memova-share-prototype__preview[data-platform="x"] figcaption small,
+.memova-share-prototype__preview[data-platform="x"] figcaption span { color: #536471; }
+.memova-share-prototype__preview[data-platform="x"] figcaption strong { color: #0f1419; }
+
+/* LinkedIn link preview: full-width 1.91:1 media followed by the article metadata panel. */
+.memova-share-prototype__preview[data-platform="linkedin"] {
+  padding: 12px 0 0;
+  overflow: hidden;
+  border-color: #d9dde3;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.memova-share-prototype__preview[data-platform="linkedin"] header,
+.memova-share-prototype__preview[data-platform="linkedin"] > p {
+  margin-right: 12px;
+  margin-left: 12px;
+}
+
+.memova-share-prototype__preview[data-platform="linkedin"] header > img {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 0 0 0 1px #d9dde3;
+}
+
+.memova-share-prototype__preview[data-platform="linkedin"] header > .memova-share-prototype__native-logo {
+  width: 19px;
+  height: 19px;
+  margin-left: auto;
+  border-radius: 2px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.memova-share-prototype__preview[data-platform="linkedin"] header strong { color: #191919; font-size: 12px; }
+.memova-share-prototype__preview[data-platform="linkedin"] header small { color: #666; font-size: 8px; }
+.memova-share-prototype__preview[data-platform="linkedin"] header em { display: none; }
+.memova-share-prototype__preview[data-platform="linkedin"] > p { color: #191919; }
+
+.memova-share-prototype__preview[data-platform="linkedin"] figure {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  border: 0;
+  border-radius: 0;
+  background: #edf3f8;
+}
+
+.memova-share-prototype__preview[data-platform="linkedin"] figure > img {
+  display: block;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1.91 / 1;
+  object-fit: cover;
+}
+
+.memova-share-prototype__preview[data-platform="linkedin"] figcaption {
+  padding: 10px 12px;
+  border-top: 1px solid #e1e5e9;
+}
+
+.memova-share-prototype__preview[data-platform="linkedin"] figcaption small { order: 3; color: #666; }
+.memova-share-prototype__preview[data-platform="linkedin"] figcaption strong { order: 1; color: #191919; font-size: 11px; }
+.memova-share-prototype__preview[data-platform="linkedin"] figcaption span { order: 2; margin: 3px 0 4px; color: #666; }
+
+.memova-share-prototype__preview[data-platform="linkedin"] .memova-share-prototype__engagement {
+  margin: 0 12px;
+  padding: 8px 0 9px;
+}
+
+.memova-share-prototype__preview[data-platform="linkedin"] .memova-share-prototype__engagement > div {
+  color: #404040;
+  font-weight: 650;
+}
+
+.memova-share-prototype__preview figure > img {
+  width: 100%;
+  height: 100%;
+  min-height: 92px;
+  object-fit: cover;
+}
+
+.memova-share-prototype__preview figcaption {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 12px;
+}
+
+.memova-share-prototype__preview figcaption small { color: rgba(36, 54, 93, 0.5); font-size: 8px; }
+.memova-share-prototype__preview figcaption strong { margin-top: 4px; font-size: 11px; line-height: 1.24; }
+.memova-share-prototype__preview figcaption span { margin-top: 5px; color: rgba(36, 54, 93, 0.58); font-size: 8px; line-height: 1.35; }
+
+.memova-share-prototype__preview[data-format="image"] > p { display: none; }
+.memova-share-prototype__preview[data-format="image"] figure {
+  display: block;
+  grid-template-columns: 1fr;
+  margin-top: 10px;
+  border: 0;
+  border-radius: 13px;
+  background: #09142a;
+}
+.memova-share-prototype__preview[data-format="image"] figure > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+.memova-share-prototype__preview[data-format="image"] figcaption { display: none; }
+.memova-share-prototype__preview[data-format="image"][data-platform="x"] figure > img,
+.memova-share-prototype__preview[data-format="image"][data-platform="linkedin"] figure > img { aspect-ratio: 1 / 1; }
+.memova-share-prototype__preview[data-format="image"][data-platform="linkedin"] figure { margin-right: 0; margin-left: 0; border-radius: 0; }
+
+.memova-share-prototype__actions {
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.memova-share-prototype__actions button {
+  min-height: 39px;
+  border: 0;
+  border-radius: 14px;
+  font: 750 11px / 1 Inter, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.memova-share-prototype__actions button:first-child {
+  flex: 0 0 34%;
+  background: #eef2fa;
+  color: #455e93;
+}
+
+.memova-share-prototype__actions button:last-child {
+  flex: 1 1 auto;
+  background: var(--share-accent);
+  color: #fff;
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--share-accent) 24%, transparent);
+}
+
+.memova-share-prototype__actions button:disabled { cursor: default; opacity: 0.82; }
+
+.memova-social-rail__viewport {
+  width: 100%;
+  margin-top: clamp(54px, 6vw, 82px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  padding-block: 16px;
+  cursor: grab;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.memova-social-rail__viewport:active { cursor: grabbing; }
+.memova-social-rail__viewport::-webkit-scrollbar { display: none; }
+
+.memova-social-rail__track {
+  position: relative;
+  display: flex;
+  width: max-content;
+  align-items: center;
+}
+
+.memova-social-rail__card-shell {
+  display: flex;
+  width: calc(var(--social-card-size) + var(--social-card-padding) * 2);
+  height: calc(var(--social-card-size) + 32px);
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--social-card-padding);
+}
+
+.memova-social-rail__card {
+  display: flex;
+  width: var(--social-card-size);
+  height: var(--social-card-size);
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(20, 40, 75, 0.1);
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(62, 79, 111, 0.06);
+  scale: 0.59;
+  translate: 0 0;
+  transform-origin: center;
+  will-change: scale, translate;
+}
+
+.memova-social-rail__card img {
+  display: block;
+  width: 55%;
+  height: 55%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.memova-social-rail__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.memova-social-rail__status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 12px;
+  color: rgba(36, 54, 93, 0.58);
+  font: 700 10px / 1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.memova-social-rail__status i {
+  position: relative;
+  width: clamp(60px, 8vw, 132px);
+  height: 1px;
+  background: rgba(69, 94, 147, 0.22);
+}
+
+.memova-social-rail__status i::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #6b86e8;
+  box-shadow: 0 0 14px rgba(107, 134, 232, 0.7);
+}
+
+@media (max-width: 760px) {
+  .memova-social-rail {
+    --social-card-size: 112px;
+    --social-card-padding: 12px;
+    padding: 88px 0 72px;
+  }
+  .memova-social-rail__inner { width: calc(100vw - 40px); }
+  .memova-social-rail__copy {
+    grid-template-columns: 1fr;
+    row-gap: 12px;
+  }
+  .memova-social-rail__heading h2 {
+    max-width: 560px;
+    font-size: clamp(46px, 13vw, 68px);
+    line-height: 0.95;
+  }
+  .memova-social-rail__left { min-height: 0; }
+  .memova-social-rail__explanation-copy { width: 100%; margin-top: 32px; }
+  .memova-social-rail__explanation-copy > p { margin-bottom: 12px; font-size: 16px; line-height: 1.45; }
+  .memova-social-rail__explanation-copy > strong { font-size: 12px; }
+  .memova-share-prototype { margin-top: 22px; padding: 12px; border-radius: 24px; }
+  .memova-share-prototype__platforms button { gap: 5px; padding-inline: 5px; }
+  .memova-share-prototype__platforms button span { font-size: 10px; }
+  .memova-share-prototype__preview figure { grid-template-columns: 112px minmax(0, 1fr); }
+  .memova-social-rail__viewport { margin-top: 42px; padding-block: 10px; }
+  .memova-social-rail__card-shell { height: calc(var(--social-card-size) + 24px); }
+  .memova-social-rail__status { gap: 10px; font-size: 8px; letter-spacing: 0.09em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memova-social-rail__card { scale: 1; translate: 0 0; will-change: auto; }
+  .memova-share-prototype *, .memova-share-prototype *::before, .memova-share-prototype *::after { scroll-behavior: auto !important; transition: none !important; }
+}
