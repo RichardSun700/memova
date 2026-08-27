@@ -18,6 +18,8 @@ const source = fs.readFileSync(sourcePath, "utf8");
 for (const requiredMarker of [
   'data-production-homepage="apollo-living-book-v1"',
   'rel="canonical" href="https://memova.ai/"',
+  'sizes="96x96" href="/favicon-96x96.png"',
+  'rel="manifest" href="/site.webmanifest"',
   'type="application/ld+json"',
   '/analytics/ga4-consent.js',
 ]) {

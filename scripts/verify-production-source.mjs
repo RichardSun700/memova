@@ -4,6 +4,12 @@ import path from "node:path";
 
 export const REQUIRED_TRACKED_PATHS = [
   "client/homepage/index.html",
+  "client/public/favicon.ico",
+  "client/public/favicon-96x96.png",
+  "client/public/favicon-192x192.png",
+  "client/public/favicon.png",
+  "client/public/apple-touch-icon.png",
+  "client/public/site.webmanifest",
   "client/public/product-demo/index.html",
   "client/public/personal-manual/neil-armstrong/index.html",
   "client/public/personal-manual/generated-conductor/index.html",
