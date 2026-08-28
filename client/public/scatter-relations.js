@@ -123,7 +123,7 @@
         </div>
         <figure>
           <iframe
-            src="./personal-manual/neil-armstrong/index.html"
+            src="./personal-manual/neil-armstrong/index.html?embed=1&v=neil-v7-modified-flat1"
             title="Neil Armstrong historical Personal Work Manual"
             loading="eager"
             sandbox="allow-scripts allow-same-origin allow-modals allow-downloads"
@@ -429,7 +429,8 @@
     const installAll = () => document.querySelectorAll(STAGE_SELECTOR).forEach(install);
     installAll();
     const observer = new MutationObserver(installAll);
-    observer.observe(document.body, { childList: true, subtree: true });
+    const observationRoot = document.body || document.documentElement;
+    if (observationRoot) observer.observe(observationRoot, { childList: true, subtree: true });
   };
 
   if (document.readyState === "loading") {

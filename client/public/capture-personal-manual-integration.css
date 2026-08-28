@@ -181,6 +181,7 @@
 }
 
 #capture.integrated-agent-manual .agent-manual-browser__bar > a,
+#capture.integrated-agent-manual .agent-result-download,
 #capture.integrated-agent-manual .agent-manual-browser__footer > a {
   color: var(--agent-deep);
   font-size: 10px;
@@ -189,7 +190,8 @@
   white-space: nowrap;
 }
 
-#capture.integrated-agent-manual .agent-manual-browser__bar > a {
+#capture.integrated-agent-manual .agent-manual-browser__bar > a,
+#capture.integrated-agent-manual .agent-result-download {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -197,14 +199,23 @@
   border: 1px solid rgba(69, 94, 147, .24);
   border-radius: 999px;
   background: #fff;
+  cursor: pointer;
   transition: color 180ms ease, border-color 180ms ease, transform 180ms ease;
 }
 
 #capture.integrated-agent-manual .agent-manual-browser__bar > a:hover,
-#capture.integrated-agent-manual .agent-manual-browser__bar > a:focus-visible {
+#capture.integrated-agent-manual .agent-manual-browser__bar > a:focus-visible,
+#capture.integrated-agent-manual .agent-result-download:hover,
+#capture.integrated-agent-manual .agent-result-download:focus-visible {
   color: #24365d;
   border-color: rgba(36, 54, 93, .54);
   transform: translateY(-1px);
+}
+
+#capture.integrated-agent-manual .agent-result-download:disabled {
+  cursor: wait;
+  opacity: .5;
+  transform: none;
 }
 
 #capture.integrated-agent-manual .agent-manual-browser__bar i {
@@ -828,6 +839,464 @@
   padding: 27px 28px 23px;
 }
 
+#capture.integrated-agent-manual .agent-client-summary {
+  width: min(100%, 390px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px 10px;
+  margin-top: 3px;
+  color: #7b8598;
+  font-size: 11px;
+}
+
+#capture.integrated-agent-manual .agent-client-summary small {
+  flex: 0 0 100%;
+  color: var(--agent-blue);
+  font-size: 7px;
+  font-weight: 840;
+  letter-spacing: .13em;
+}
+
+#capture.integrated-agent-manual .agent-client-summary strong {
+  color: var(--agent-deep);
+  font-size: 12px;
+}
+
+#capture.integrated-agent-manual .agent-flow-window__body--client-choice {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: stretch;
+  padding: 10px 18px;
+}
+
+#capture.integrated-agent-manual[data-manual-state="audience"] .agent-flow-window {
+  top: 1%;
+  height: 98%;
+  grid-template-rows: 52px minmax(0, 1fr) 48px;
+}
+
+#capture.integrated-agent-manual .agent-flow-window__body--client-choice .agent-flow-heading {
+  display: grid;
+  grid-template-columns: minmax(230px, .9fr) minmax(0, 1.1fr);
+  grid-template-areas:
+    "eyebrow eyebrow"
+    "title description";
+  align-items: end;
+  column-gap: 24px;
+  row-gap: 3px;
+}
+
+#capture.integrated-agent-manual .agent-flow-window__body--client-choice .agent-flow-heading > span {
+  grid-area: eyebrow;
+}
+
+#capture.integrated-agent-manual .agent-flow-window__body--client-choice .agent-flow-heading h3 {
+  grid-area: title;
+  margin: 0;
+  font-size: clamp(24px, 2vw, 29px);
+}
+
+#capture.integrated-agent-manual .agent-flow-window__body--client-choice .agent-flow-heading p {
+  grid-area: description;
+  align-self: end;
+  padding-bottom: 2px;
+}
+
+#capture.integrated-agent-manual .agent-client-options {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 16px;
+}
+
+#capture.integrated-agent-manual .agent-client-flip {
+  min-width: 0;
+  min-height: 315px;
+  height: 100%;
+  perspective: 1200px;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__inner {
+  position: relative;
+  width: 100%;
+  min-height: 315px;
+  height: 100%;
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  transition: transform 620ms cubic-bezier(.16, 1, .3, 1);
+  will-change: transform;
+}
+
+#capture.integrated-agent-manual .agent-client-flip.is-flipped .agent-client-flip__inner {
+  transform: rotateY(180deg);
+}
+
+#capture.integrated-agent-manual .agent-client-option {
+  position: relative;
+  min-width: 0;
+  min-height: 315px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 21px 19px 18px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 20px;
+  color: #fff;
+  background: var(--agent-deep);
+  box-shadow: 0 18px 36px rgba(36, 54, 93, .14);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 315px;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__front {
+  height: 100%;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__back {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 17px;
+  overflow: hidden;
+  border: 1px solid rgba(36, 54, 93, .16);
+  border-radius: 20px;
+  color: var(--agent-ink);
+  background: #eef3ff;
+  box-shadow: 0 18px 36px rgba(36, 54, 93, .14);
+  transform: rotateY(180deg);
+}
+
+#capture.integrated-agent-manual .agent-client-flip__back--mcp {
+  border-color: rgba(134, 155, 50, .26);
+  background: #f2f6d3;
+  box-shadow: 0 18px 36px rgba(134, 155, 50, .13);
+}
+
+#capture.integrated-agent-manual .agent-client-flip__back > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__back > header > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__back > header small {
+  color: var(--agent-blue);
+  font-size: 7.5px;
+  font-weight: 840;
+  letter-spacing: .12em;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__back--mcp > header small {
+  color: #697830;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__back > header strong {
+  color: var(--agent-deep);
+  font-size: 15px;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__back > header button {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(36, 54, 93, .18);
+  border-radius: 50%;
+  color: var(--agent-deep);
+  background: rgba(255, 255, 255, .72);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__prompts {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1.25fr) minmax(0, .75fr);
+  gap: 7px;
+  animation: agent-client-back-content-in 240ms 40ms both ease-out;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__prompts--codex {
+  grid-template-rows: minmax(0, 1.55fr) auto minmax(0, .65fr);
+  gap: 5px;
+}
+
+#capture.integrated-agent-manual .agent-codex-restart-note {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 7px;
+  padding: 5px 7px;
+  border: 1px solid rgba(236, 143, 54, .32);
+  border-radius: 8px;
+  color: #654b25;
+  background: rgba(255, 238, 193, .82);
+}
+
+#capture.integrated-agent-manual .agent-codex-restart-note b {
+  color: #a05c11;
+  font-size: 6.8px;
+  letter-spacing: .1em;
+  white-space: nowrap;
+}
+
+#capture.integrated-agent-manual .agent-codex-restart-note span {
+  font-size: 7.5px;
+  line-height: 1.32;
+  white-space: normal;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__loading {
+  min-height: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 16px;
+  color: #68758d;
+  text-align: center;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__loading > i {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(69, 94, 147, .14);
+  border-top-color: var(--agent-blue);
+  border-radius: 50%;
+  animation: agent-return-link-spin .8s linear infinite;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__loading strong {
+  color: var(--agent-deep);
+  font-size: 12px;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__loading span {
+  font-size: 8px;
+}
+
+@keyframes agent-return-link-spin {
+  to { transform: rotate(360deg); }
+}
+
+#capture.integrated-agent-manual .agent-compact-instruction {
+  position: relative;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 7px 9px;
+  padding: 10px 11px 9px;
+  overflow: hidden;
+  border: 1px solid rgba(36, 54, 93, .12);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .76);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+#capture.integrated-agent-manual .agent-compact-instruction.is-copied {
+  border-color: rgba(75, 139, 110, .55);
+  box-shadow: 0 0 0 3px rgba(75, 139, 110, .08);
+}
+
+#capture.integrated-agent-manual .agent-compact-instruction > div {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+#capture.integrated-agent-manual .agent-compact-instruction small {
+  color: #7d8799;
+  font-size: 6.5px;
+  font-weight: 840;
+  letter-spacing: .11em;
+}
+
+#capture.integrated-agent-manual .agent-compact-instruction strong {
+  color: var(--agent-deep);
+  font-size: 10.5px;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+#capture.integrated-agent-manual .agent-compact-instruction p {
+  grid-column: 1 / -1;
+  min-height: 0;
+  margin: 0;
+  overflow: auto;
+  color: #526078;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8.8px;
+  line-height: 1.42;
+}
+
+#capture.integrated-agent-manual .agent-compact-instruction > button {
+  min-width: 48px;
+  min-height: 26px;
+  padding: 0 8px;
+  border: 1px solid rgba(36, 54, 93, .18);
+  border-radius: 7px;
+  color: var(--agent-deep);
+  background: rgba(255, 255, 255, .86);
+  cursor: pointer;
+  font-size: 7.5px;
+  font-weight: 820;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__continue {
+  min-height: 36px;
+  border: 1px solid #314975;
+  border-radius: 9px;
+  color: #fff;
+  background: var(--agent-deep);
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 800;
+  animation: agent-client-back-content-in 240ms 80ms both ease-out;
+}
+
+@keyframes agent-client-back-content-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#capture.integrated-agent-manual .agent-client-flip__continue:disabled {
+  color: #8d96a8;
+  border-color: #d2d8e4;
+  background: rgba(231, 235, 241, .92);
+  cursor: not-allowed;
+}
+
+#capture.integrated-agent-manual .agent-client-flip__continue i {
+  margin-left: 6px;
+  font-style: normal;
+}
+
+#capture.integrated-agent-manual .agent-client-option--mcp {
+  color: var(--agent-ink);
+  background: linear-gradient(145deg, #edf3bd 0%, #dce987 100%);
+  box-shadow: 0 18px 36px rgba(134, 155, 50, .13);
+}
+
+#capture.integrated-agent-manual .agent-client-option:hover,
+#capture.integrated-agent-manual .agent-client-option:focus-visible {
+  box-shadow: 0 24px 46px rgba(36, 54, 93, .22);
+  filter: saturate(1.05);
+  outline: 3px solid rgba(107, 134, 232, .28);
+  outline-offset: 3px;
+  transform: translateY(-5px);
+}
+
+#capture.integrated-agent-manual .agent-client-option__index {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 22px;
+  border-radius: 50%;
+  color: var(--agent-deep);
+  background: rgba(255, 255, 255, .94);
+  font-size: 8px;
+  font-weight: 850;
+}
+
+#capture.integrated-agent-manual .agent-client-option--mcp .agent-client-option__index {
+  color: #fff;
+  background: var(--agent-deep);
+}
+
+#capture.integrated-agent-manual .agent-client-option small {
+  font-size: 7.5px;
+  font-weight: 820;
+  letter-spacing: .11em;
+  opacity: .68;
+}
+
+#capture.integrated-agent-manual .agent-client-option > strong {
+  max-width: 16ch;
+  margin-top: 8px;
+  font-size: 24px;
+  line-height: 1.02;
+}
+
+#capture.integrated-agent-manual .agent-client-option p {
+  margin: 13px 0 16px;
+  color: inherit;
+  font-size: 11px;
+  line-height: 1.48;
+  opacity: .78;
+}
+
+#capture.integrated-agent-manual .agent-client-option__path {
+  margin-top: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px;
+  line-height: 1.5;
+  opacity: .72;
+}
+
+#capture.integrated-agent-manual .agent-client-option__compatibility {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: -7px 0 11px;
+  padding: 6px 8px;
+  border: 1px solid rgba(36, 54, 93, .12);
+  border-radius: 8px;
+  color: var(--agent-deep);
+  background: rgba(255, 255, 255, .48);
+  font-size: 8px;
+  line-height: 1.2;
+}
+
+#capture.integrated-agent-manual .agent-client-option__compatibility b {
+  font-size: 6.5px;
+  letter-spacing: .1em;
+  white-space: nowrap;
+}
+
+#capture.integrated-agent-manual .agent-client-option > i {
+  margin-top: 10px;
+  font-size: 8.5px;
+  font-style: normal;
+  font-weight: 820;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+#capture.integrated-agent-manual .agent-choice-back {
+  min-height: 34px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  color: var(--agent-deep) !important;
+  background: transparent !important;
+  font-size: 8px !important;
+}
+
 #capture.integrated-agent-manual .agent-flow-heading > span,
 #capture.integrated-agent-manual .agent-progress-copy > span {
   color: var(--agent-blue);
@@ -1262,6 +1731,7 @@
 @media (max-width: 1120px) {
   #capture.integrated-agent-manual .agent-flow-window { width: 98%; right: 0; }
   #capture.integrated-agent-manual .agent-flow-window__body--handoff { grid-template-columns: minmax(160px, .58fr) minmax(0, 1.42fr); gap: 18px; padding-inline: 22px; }
+  #capture.integrated-agent-manual .agent-flow-window__body--client-choice { grid-template-columns: minmax(0, 1fr); gap: 8px; padding-inline: 18px; }
   #capture.integrated-agent-manual .agent-flow-heading h3,
   #capture.integrated-agent-manual .agent-progress-copy h3 { font-size: 27px; }
 }
@@ -1272,6 +1742,7 @@
 }
 
 @media (max-width: 560px) {
+  #capture.integrated-agent-manual[data-manual-state="audience"] .agent-product-proof { height: 820px; }
   #capture.integrated-agent-manual[data-manual-state="handoff"] .agent-product-proof { height: 690px; }
   #capture.integrated-agent-manual[data-manual-state="progress"] .agent-product-proof { height: 620px; }
   #capture.integrated-agent-manual[data-manual-state="result"] .agent-product-proof,
@@ -1305,8 +1776,66 @@
     padding: 16px 14px 13px;
   }
 
+  #capture.integrated-agent-manual .agent-flow-window__body--client-choice {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 13px;
+    padding: 16px 14px 13px;
+    overflow: auto;
+  }
+
+  #capture.integrated-agent-manual .agent-client-options {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  #capture.integrated-agent-manual .agent-client-flip,
+  #capture.integrated-agent-manual .agent-client-flip__inner,
+  #capture.integrated-agent-manual .agent-client-flip__face {
+    min-height: 270px;
+  }
+
+  #capture.integrated-agent-manual .agent-client-option {
+    min-height: 270px;
+    padding: 15px;
+    border-radius: 14px;
+  }
+
+  #capture.integrated-agent-manual .agent-client-flip__back {
+    gap: 6px;
+    padding: 9px;
+    border-radius: 14px;
+  }
+
+  #capture.integrated-agent-manual .agent-client-flip__back > header strong { font-size: 13px; }
+  #capture.integrated-agent-manual .agent-client-flip__back > header button { width: 27px; height: 27px; font-size: 11px; }
+  #capture.integrated-agent-manual .agent-client-flip__prompts { gap: 5px; }
+  #capture.integrated-agent-manual .agent-codex-restart-note { gap: 5px; padding: 4px 6px; }
+  #capture.integrated-agent-manual .agent-codex-restart-note b { font-size: 6px; }
+  #capture.integrated-agent-manual .agent-codex-restart-note span { font-size: 7px; }
+  #capture.integrated-agent-manual .agent-compact-instruction { gap: 5px 7px; padding: 7px 8px; border-radius: 8px; }
+  #capture.integrated-agent-manual .agent-compact-instruction strong { font-size: 9px; }
+  #capture.integrated-agent-manual .agent-compact-instruction p { font-size: 7.8px; line-height: 1.34; }
+  #capture.integrated-agent-manual .agent-compact-instruction > button { min-width: 42px; min-height: 22px; font-size: 6.5px; }
+  #capture.integrated-agent-manual .agent-client-flip__continue { min-height: 30px; font-size: 7.5px; }
+
+  #capture.integrated-agent-manual .agent-client-option__index {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 14px;
+  }
+
+  #capture.integrated-agent-manual .agent-client-option > strong { font-size: 18px; }
+  #capture.integrated-agent-manual .agent-client-option p { margin: 9px 0 11px; font-size: 8px; }
+  #capture.integrated-agent-manual .agent-client-option__compatibility { margin: -3px 0 8px; padding: 5px 7px; font-size: 6px; }
+  #capture.integrated-agent-manual .agent-client-option__path,
+  #capture.integrated-agent-manual .agent-client-option > i { font-size: 6px; }
+
   #capture.integrated-agent-manual .agent-flow-heading h3 { margin: 5px 0 7px; font-size: 22px; }
   #capture.integrated-agent-manual .agent-flow-heading p { font-size: 8px; line-height: 1.42; }
+  #capture.integrated-agent-manual .agent-flow-window__body--client-choice .agent-flow-heading {
+    display: block;
+  }
   #capture.integrated-agent-manual .agent-instruction-stack { gap: 9px; }
   #capture.integrated-agent-manual .agent-instruction-card { border-radius: 12px; }
   #capture.integrated-agent-manual .agent-instruction-card header { grid-template-columns: 24px minmax(0, 1fr) auto; gap: 7px; padding: 8px 9px; }
@@ -1347,4 +1876,18 @@
   #capture.integrated-agent-manual .agent-generated-browser__viewport iframe { width: 150%; height: 150%; transform: scale(.667); }
   #capture.integrated-agent-manual .agent-generated-browser__footer { align-items: flex-start; }
   #capture.integrated-agent-manual .agent-result-proof { font-size: 6px; }
+}
+
+/* Keep this user-triggered state change legible even when ambient motion is reduced. */
+@media (prefers-reduced-motion: reduce) {
+  #capture.integrated-agent-manual .agent-client-flip__inner {
+    transition-duration: 460ms !important;
+    transition-timing-function: cubic-bezier(.2, .72, .18, 1) !important;
+  }
+
+  #capture.integrated-agent-manual .agent-client-flip__prompts,
+  #capture.integrated-agent-manual .agent-client-flip__continue {
+    animation-duration: 160ms !important;
+    animation-delay: 0ms !important;
+  }
 }

@@ -145,6 +145,9 @@ function installClickTracking() {
 
 function install() {
   if (!root) return;
+  const isEmbeddedPreview = root.self !== root.top
+    && new URLSearchParams(root.location.search).get("embed") === "1";
+  if (isEmbeddedPreview) return;
   root.dataLayer = root.dataLayer || [];
   root.gtag = gtag;
 

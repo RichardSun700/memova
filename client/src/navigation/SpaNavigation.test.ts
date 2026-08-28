@@ -6,7 +6,6 @@ import { isSpaPath } from "./SpaNavigation";
 describe("SPA navigation route selection", () => {
   it("keeps React routes inside the client application", () => {
     for (const path of [
-      "/",
       "/framework-preview",
       "/agent-memory",
       "/journal",
@@ -24,6 +23,7 @@ describe("SPA navigation route selection", () => {
 
   it("leaves standalone documents and demo pages to the browser", () => {
     for (const path of [
+      "/",
       "/research-lab/nvidia-2026-gtc/",
       "/motion-lab",
       "/motion-lab/",
@@ -42,14 +42,15 @@ describe("SPA navigation route selection", () => {
     );
 
     expect(appSource).toContain(
-      'path={"/"} component={HomeFrameworkPreviewRoute}'
+      'path={"/"} component={ProductionHomepageRoute}'
     );
     expect(appSource).toContain('path={"/framework-preview"}');
     expect(appSource).toContain('path={"/journal"}');
     expect(appSource).toContain('path={"/journal/:slug"}');
-    expect(appSource).toContain('<Redirect to="/#book" replace />');
-    expect(appSource).toContain('<Redirect to="/#product" replace />');
-    expect(appSource).toContain('<Redirect to="/#use-cases" replace />');
+    expect(appSource).toContain('<Redirect to="/#act" replace />');
+    expect(appSource).toContain('<Redirect to="/#capture" replace />');
+    expect(appSource).not.toContain('<Redirect to="/#product" replace />');
+    expect(appSource).not.toContain('<Redirect to="/#use-cases" replace />');
     expect(appSource).toContain('path={"/mcp"} component={Mcp}');
     expect(appSource).not.toContain('import Home from "./pages/Home"');
     expect(appSource).not.toContain("component={AgentMemory}");

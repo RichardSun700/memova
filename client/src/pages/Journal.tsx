@@ -44,12 +44,12 @@ export default function Journal() {
           </a>
 
           <nav className="memova-journal-nav" aria-label="Primary navigation">
-            <a href="/#product">Product</a>
-            <a href="/#use-cases">Use Cases</a>
+            <a href="/#capture">Product</a>
+            <a href="/#act">How it works</a>
+            <a href="/product-demo/">Product demo</a>
             <a href="/journal" aria-current="page">
               Journal
             </a>
-            <a href="/#trust">Trust</a>
           </nav>
 
           <a className="memova-journal-cta" href="/#waitlist">

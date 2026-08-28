@@ -25,6 +25,12 @@ describe("Memova Journal", () => {
     );
     expect(html).toContain("More notes are being prepared.");
     expect(html).not.toContain("data-product-journal");
+    expect(html).toContain('href="/#capture"');
+    expect(html).toContain('href="/#act"');
+    expect(html).toContain('href="/product-demo/"');
+    expect(html).not.toContain('href="/#product"');
+    expect(html).not.toContain('href="/#use-cases"');
+    expect(html).not.toContain('href="/#trust"');
     expect(html).toContain('href="/#top"');
   });
 

@@ -10,7 +10,7 @@ import McpConsent from "@/pages/McpConsent";
 import NotFound from "@/pages/NotFound";
 import Profile from "@/pages/Profile";
 import Support from "@/pages/Support";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Redirect, Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -56,10 +56,19 @@ function HomeFrameworkPreviewRoute() {
   );
 }
 
+function ProductionHomepageRoute() {
+  useEffect(() => {
+    if (!import.meta.env.DEV) window.location.replace("/#top");
+  }, []);
+
+  if (import.meta.env.DEV) return <HomeFrameworkPreviewRoute />;
+  return <div className="min-h-dvh bg-[#fbfcff]" />;
+}
+
 function Router() {
   return (
     <Switch>
-      <Route path={"/"} component={HomeFrameworkPreviewRoute} />
+      <Route path={"/"} component={ProductionHomepageRoute} />
       <Route
         path={"/framework-preview"}
         component={HomeFrameworkPreviewRoute}
@@ -68,10 +77,10 @@ function Router() {
         <Redirect to="/#waitlist" replace />
       </Route>
       <Route path={"/agent-memory"}>
-        <Redirect to="/#book" replace />
+        <Redirect to="/#capture" replace />
       </Route>
       <Route path={"/how-it-works"}>
-        <Redirect to="/#product" replace />
+        <Redirect to="/#act" replace />
       </Route>
       <Route path={"/journal/:slug"}>
         {params => <JournalArticleRoute slug={params.slug} />}
@@ -79,10 +88,10 @@ function Router() {
       <Route path={"/journal"} component={JournalRoute} />
       <Route path={"/product-journal"} component={ProductJournalRoute} />
       <Route path={"/use-cases/:slug"}>
-        <Redirect to="/#use-cases" replace />
+        <Redirect to="/#capture" replace />
       </Route>
       <Route path={"/user-cases"}>
-        <Redirect to="/#use-cases" replace />
+        <Redirect to="/#capture" replace />
       </Route>
       <Route path={"/bay-area-agent-demo-2"}>
         <Redirect to="/" replace />

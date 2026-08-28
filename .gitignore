@@ -117,3 +117,6 @@ client/public/__manus__/version.json
 # Local design and browser QA artifacts
 qa/
 design-qa.md
+artifacts/
+design-qa-assets/
+.wrangler/

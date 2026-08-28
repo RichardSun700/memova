@@ -3,7 +3,6 @@ import { useLocation } from "wouter";
 import { productJournalEntryState } from "./productJournalNavigation";
 
 const SPA_PATHS = new Set([
-  "/",
   "/framework-preview",
   "/ios",
   "/agent-memory",

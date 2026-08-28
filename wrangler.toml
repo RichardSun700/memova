@@ -1,0 +1,13 @@
+name = "memova"
+pages_build_output_dir = "dist/public"
+compatibility_date = "2026-05-13"
+
+[[d1_databases]]
+binding = "PM_DB"
+database_name = "memova_personal_manual_anonymous"
+database_id = "383b92cb-2f0e-451d-936c-ac70d3a21836"
+
+[[env.production.d1_databases]]
+binding = "PM_DB"
+database_name = "memova_personal_manual_anonymous"
+database_id = "383b92cb-2f0e-451d-936c-ac70d3a21836"
