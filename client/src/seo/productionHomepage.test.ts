@@ -55,4 +55,15 @@ describe("production homepage", () => {
     expect(homepage).toContain("noValidate: true");
     expect(homepage).not.toContain("setSubmitted(true)");
   });
+
+  it("shows the community invitation immediately before early access", () => {
+    const communityButton = homepage.indexOf('"Join Community"');
+    const earlyAccessButton = homepage.indexOf('"Join early access"', communityButton);
+
+    expect(communityButton).toBeGreaterThan(-1);
+    expect(earlyAccessButton).toBeGreaterThan(communityButton);
+    expect(homepage).toContain("/community/discord-community-qr.png");
+    expect(homepage).toContain("https://discord.gg/wAeCmpy86");
+    expect(homepage).toContain('role: "dialog"');
+  });
 });
