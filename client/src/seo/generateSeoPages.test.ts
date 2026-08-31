@@ -148,6 +148,17 @@ describe("SEO build generator", () => {
     expect(redirects).not.toMatch(/^\/\*\s/m);
   });
 
+  it("prevents the private login shell from being reused as the homepage", () => {
+    const headers = fs.readFileSync(
+      path.resolve(process.cwd(), "client/public/_headers"),
+      "utf8"
+    );
+
+    expect(headers).toContain(
+      "/login\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store, max-age=0"
+    );
+  });
+
   it("generates direct static shells for legal SPA routes", () => {
     const directory = fs.mkdtempSync(
       path.join(process.cwd(), ".tmp-legal-routes-")

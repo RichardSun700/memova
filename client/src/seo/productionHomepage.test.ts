@@ -94,6 +94,10 @@ describe("production homepage", () => {
     expect(homepage).toContain(
       'const HOMEPAGE_AUTH_STORAGE_KEY = "memova.auth.v1";'
     );
+    expect(homepage).toContain(
+      'const HOMEPAGE_LOGIN_HREF = "/login?source=homepage&v=20260831";'
+    );
+    expect(homepage).toContain("window.location.assign(HOMEPAGE_LOGIN_HREF)");
     expect(homepage).toContain("function readHomepageAuthUser()");
     expect(homepage).toContain("async function fetchHomepageAuthUser()");
     expect(homepage).toContain("authUser?.avatar_url_expires_at");
