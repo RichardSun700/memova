@@ -84,14 +84,23 @@ describe("production homepage", () => {
   });
 
   it("shows the signed-in Memova account in the standalone homepage header", () => {
+    const earlyAccessControl = homepage.indexOf(
+      'h("a", { className: "five-button five-button-small"'
+    );
+    const accountControl = homepage.indexOf(
+      'authUser\n                    ? h("div", { className: "five-account-menu"'
+    );
+
     expect(homepage).toContain(
       'const HOMEPAGE_AUTH_STORAGE_KEY = "memova.auth.v1";'
     );
     expect(homepage).toContain("function readHomepageAuthUser()");
     expect(homepage).toContain("async function fetchHomepageAuthUser()");
     expect(homepage).toContain("authUser?.avatar_url_expires_at");
-    expect(homepage).toContain('className: "five-account-link"');
-    expect(homepage).toContain('className: "five-account-logout"');
+    expect(homepage).toContain('className: "five-account-trigger"');
+    expect(homepage).toContain('className: "five-account-popover"');
+    expect(homepage).toContain('"aria-haspopup": "menu"');
+    expect(homepage).toContain('h("span", null, "Profile")');
     expect(homepage).toContain('"Log out"');
     expect(homepage).toContain(
       'return user?.display_name?.trim() || "Memova account";'
@@ -99,6 +108,8 @@ describe("production homepage", () => {
     expect(homepage).not.toContain('h("small", null, authUser.email)');
     expect(homepage).not.toContain("authUser.email || homepageAccountLabel");
     expect(homepage).not.toContain('user?.email?.split("@")[0]');
+    expect(earlyAccessControl).toBeGreaterThan(-1);
+    expect(accountControl).toBeGreaterThan(earlyAccessControl);
   });
 
   it("pairs Neil's sample with the Work Types guide before creation", () => {
@@ -155,7 +166,7 @@ describe("production homepage", () => {
     expect(captureScript).not.toContain("neil-v7-score-2");
     expect(scatterScript).not.toContain("neil-v7-score-2");
     expect(homepage).toContain(
-      "capture-personal-manual-integration.js?v=20260831-account-nickname2"
+      "capture-personal-manual-integration.js?v=20260831-manual-instruction-signin1"
     );
     expect(homepage).toContain(
       "capture-personal-manual-integration.css?v=20260831-account-nickname2"
@@ -292,7 +303,17 @@ describe("production homepage", () => {
     expect(captureScript).toMatch(
       /if \(state === "sample"\)[\s\S]*?data-create-manual/
     );
-    expect(captureScript).toContain('state: "prepare", flow: null, session');
+    expect(captureScript).toContain(
+      'const SETUP_STORAGE_KEY = "memova_personal_manual_setup_v1"'
+    );
+    expect(captureScript).toContain(
+      'renderCapture(section, { state: "audience", flow, session, activeClient: flow.clientType })'
+    );
+    expect(captureScript).toContain("NO SIGN-IN YET");
+    expect(captureScript).toContain("No sign-in yet. Instruction 1 will guide you.");
+    expect(captureScript).toContain("ensureAuthenticatedFlow(manualFlow, session)");
+    expect(captureScript).not.toContain("renderAuthRequired");
+    expect(captureScript).not.toContain("Sign in before you create.");
     expect(captureScript).toContain(
       'section.querySelectorAll("[data-reset-manual]").forEach'
     );

@@ -95,7 +95,7 @@
 
 .home-v2-desktop-nav,
 .home-v2-sign-in,
-.home-v2-account-controls,
+.home-v2-account-menu,
 .home-v2-header-cta-long {
   display: none;
 }
@@ -106,26 +106,36 @@
   gap: 8px;
 }
 
-.home-v2-account-controls {
+.home-v2-account-menu {
+  position: relative;
   align-items: center;
-  gap: 6px;
 }
 
-.home-v2-account {
+.home-v2-account-trigger {
   display: inline-flex;
   min-width: 0;
+  min-height: 41px;
   align-items: center;
   gap: 8px;
-  border: 1px solid var(--v2-border-strong);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.78);
-  padding: 4px 10px 4px 4px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  padding: 4px 7px 4px 4px;
   color: var(--v2-ink);
   font-size: 0.75rem;
   font-weight: 700;
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
 }
 
-.home-v2-account > span:last-child {
+.home-v2-account-trigger:hover,
+.home-v2-account-trigger[aria-expanded="true"] {
+  border-color: rgba(205, 216, 236, 0.72);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 8px 22px rgba(20, 40, 75, 0.06);
+}
+
+.home-v2-account-trigger > span:nth-child(2) {
   max-width: 112px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -153,7 +163,6 @@
   object-fit: cover;
 }
 
-.home-v2-log-out,
 .home-v2-mobile-account button {
   display: inline-flex;
   align-items: center;
@@ -167,9 +176,62 @@
   cursor: pointer;
 }
 
-.home-v2-log-out svg {
-  width: 15px;
-  height: 15px;
+.home-v2-account-chevron {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  color: #68778f;
+  transition: transform 180ms ease;
+}
+
+.home-v2-account-trigger[aria-expanded="true"] .home-v2-account-chevron {
+  transform: rotate(180deg);
+}
+
+.home-v2-account-popover {
+  position: absolute;
+  z-index: 120;
+  top: calc(100% + 9px);
+  right: 0;
+  width: 190px;
+  padding: 6px;
+  border: 1px solid rgba(205, 216, 236, 0.86);
+  border-radius: 13px;
+  background: rgba(255, 254, 250, 0.98);
+  box-shadow: 0 22px 54px rgba(20, 40, 75, 0.16);
+  backdrop-filter: blur(20px);
+}
+
+.home-v2-account-popover a,
+.home-v2-account-popover button {
+  display: flex;
+  width: 100%;
+  min-height: 39px;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  padding: 0 10px;
+  color: #40516c;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+
+.home-v2-account-popover a:hover,
+.home-v2-account-popover button:hover {
+  background: rgba(223, 231, 245, 0.56);
+  color: var(--v2-ink);
+}
+
+.home-v2-account-popover svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  color: #68778f;
 }
 
 .home-v2-button {
@@ -2293,7 +2355,7 @@ a.home-v2-journal-row:hover {
 
   .home-v2-desktop-nav,
   .home-v2-sign-in,
-  .home-v2-account-controls {
+  .home-v2-account-menu {
     display: flex;
   }
 

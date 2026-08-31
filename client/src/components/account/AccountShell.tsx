@@ -1,5 +1,5 @@
-import { LogIn, LogOut, ShieldCheck, UserRound } from "lucide-react";
-import type { ReactNode } from "react";
+import { ChevronDown, LogIn, LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import SiteFooter from "@/components/SiteFooter";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,15 +25,38 @@ export default function AccountShell({
   actions,
   compact = false,
 }: AccountShellProps) {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
   const auth = useAuth();
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
   const accountName = auth.user?.display_name?.trim() || "Memova account";
   const accountInitial = accountName.charAt(0).toUpperCase() || "M";
 
   const handleLogout = async () => {
+    setAccountOpen(false);
     await auth.logout();
-    setLocation("/");
+    window.location.assign("/");
   };
+
+  useEffect(() => {
+    if (!accountOpen) return;
+
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) {
+        setAccountOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setAccountOpen(false);
+    };
+
+    window.addEventListener("pointerdown", closeOnOutsideClick);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("pointerdown", closeOnOutsideClick);
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [accountOpen]);
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F7FAFD] text-[#0F2B3C]">
@@ -72,11 +95,14 @@ export default function AccountShell({
               );
             })}
             {auth.isAuthenticated ? (
-              <>
-                <a
-                  href="/profile"
-                  aria-label={`Open ${accountName}'s profile`}
-                  className="inline-flex h-9 min-w-0 items-center gap-2 rounded-full border border-[#D4E9F7] bg-white py-1 pl-1 pr-3 text-[13px] font-semibold text-[#0F2B3C] shadow-sm hover:bg-[#F7FAFD]"
+              <div ref={accountMenuRef} className="relative">
+                <button
+                  type="button"
+                  aria-label={`Open ${accountName}'s account menu`}
+                  aria-haspopup="menu"
+                  aria-expanded={accountOpen}
+                  onClick={() => setAccountOpen(open => !open)}
+                  className="inline-flex h-10 min-w-0 items-center gap-2 rounded-[11px] border border-transparent bg-transparent py-1 pl-1 pr-2 text-[13px] font-semibold text-[#0F2B3C] transition hover:border-[#D4E9F7]/70 hover:bg-white/80 hover:shadow-sm"
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#0F2B3C] text-[10px] font-bold text-white">
                     {auth.user?.avatar_url ? (
@@ -92,16 +118,40 @@ export default function AccountShell({
                     )}
                   </span>
                   <span className="max-w-32 truncate">{accountName}</span>
-                </a>
-                <button
-                  type="button"
-                  onClick={() => void handleLogout()}
-                  className="inline-flex h-9 items-center gap-2 rounded-md border border-transparent px-3 text-[13px] font-semibold text-[#2E5B82]/70 hover:bg-[#EDF5FC]"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Log out
+                  <ChevronDown
+                    className={cn(
+                      "h-3.5 w-3.5 shrink-0 text-[#2E5B82]/55 transition-transform",
+                      accountOpen && "rotate-180"
+                    )}
+                  />
                 </button>
-              </>
+                {accountOpen && (
+                  <div
+                    role="menu"
+                    aria-label="Account"
+                    className="absolute right-0 top-[calc(100%+0.55rem)] z-50 w-[190px] rounded-[13px] border border-[#D4E9F7] bg-white/95 p-1.5 shadow-[0_22px_54px_rgba(15,43,60,0.16)] backdrop-blur-xl"
+                  >
+                    <a
+                      href="/profile"
+                      role="menuitem"
+                      onClick={() => setAccountOpen(false)}
+                      className="flex min-h-10 items-center gap-2.5 rounded-[9px] px-2.5 text-[13px] font-semibold text-[#2E5B82] hover:bg-[#EDF5FC] hover:text-[#0F2B3C]"
+                    >
+                      <UserRound className="h-4 w-4 text-[#2E5B82]/65" />
+                      Profile
+                    </a>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => void handleLogout()}
+                      className="flex min-h-10 w-full items-center gap-2.5 rounded-[9px] px-2.5 text-left text-[13px] font-semibold text-[#2E5B82] hover:bg-[#EDF5FC] hover:text-[#0F2B3C]"
+                    >
+                      <LogOut className="h-4 w-4 text-[#2E5B82]/65" />
+                      Log out
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <a
                 href="/login"

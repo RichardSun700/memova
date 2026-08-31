@@ -32,6 +32,10 @@ describe("Personal Manual authenticated polling with rollback compatibility", ()
       'stepTwoPrompt: "Use Memova to generate my Personal Manual."'
     );
     expect(captureIntegration).toContain('const AUTH_STORAGE_KEY = "memova.auth.v1"');
+    expect(captureIntegration).toContain('state: "audience", flow, session');
+    expect(captureIntegration).toContain("NO SIGN-IN YET");
+    expect(captureIntegration).toContain("Run Prompt 01 first");
+    expect(captureIntegration).not.toContain("Sign in before you create.");
     expect(captureIntegration).toContain("/v1/personal-manual/current");
     expect(captureIntegration).toContain("/overview/preview");
     expect(captureIntegration).toContain("isNewResult(manualFlow.baseline, current)");

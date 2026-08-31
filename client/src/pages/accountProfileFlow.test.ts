@@ -59,6 +59,9 @@ describe("account profile completion", () => {
     expect(profile).toContain("completeCurrentUserAvatarUpload");
     expect(profile).toContain("deleteCurrentUserAvatar");
     expect(profile).toContain("Profile photo saved.");
+    expect(profile).toContain("Profile photo editing is not available yet.");
+    expect(profile).toContain("auth.workspace?.type === \"personal\"");
+    expect(profile).toContain("`${auth.user.display_name.trim()}'s Workspace`");
     expect(authContext).toContain("sessionWithoutTemporaryAvatarUrl");
     expect(authContext).toContain("avatar_url: null");
   });
@@ -75,5 +78,12 @@ describe("account profile completion", () => {
       expect(navigation).toContain("Log out");
       expect(navigation).not.toContain("auth.user?.email");
     }
+  });
+
+  it("returns account pages to the clean homepage URL after log out", () => {
+    const accountShell = source("components/account/AccountShell.tsx");
+
+    expect(accountShell).toContain('window.location.assign("/")');
+    expect(accountShell).not.toContain('setLocation("/")');
   });
 });

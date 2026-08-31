@@ -1,6 +1,7 @@
 (() => {
   const AUTH_STORAGE_KEY = "memova.auth.v1";
   const FLOW_STORAGE_PREFIX = "memova_personal_manual_flow_v4";
+  const SETUP_STORAGE_KEY = "memova_personal_manual_setup_v1";
   const API_BASE_URL = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname)
     ? "/__memova_api"
     : "https://api.memova.ai";
@@ -72,6 +73,33 @@
     }
   }
 
+  function readSetupFlow() {
+    try {
+      const flow = JSON.parse(window.sessionStorage.getItem(SETUP_STORAGE_KEY)) || null;
+      if (!flow || flow.state !== "audience") return null;
+      return flow;
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function writeSetupFlow(flow) {
+    window.sessionStorage.setItem(SETUP_STORAGE_KEY, JSON.stringify(flow));
+    return flow;
+  }
+
+  function createSetupFlow(seed = null) {
+    return writeSetupFlow({
+      userId: null,
+      userNickname: "",
+      state: "audience",
+      baseline: null,
+      clientType: seed?.clientType || null,
+      copied: seed?.copied || [],
+      createdAt: seed?.createdAt || Date.now()
+    });
+  }
+
   function writeFlow(flow) {
     const storedFlow = { ...flow };
     delete storedFlow.resultHtml;
@@ -79,8 +107,13 @@
     return flow;
   }
 
+  function writeActiveFlow(flow) {
+    return flow?.userId ? writeFlow(flow) : writeSetupFlow(flow);
+  }
+
   function clearFlow(session = readAuthSession()) {
     if (session?.user?.id) window.sessionStorage.removeItem(flowStorageKey(session.user.id));
+    window.sessionStorage.removeItem(SETUP_STORAGE_KEY);
   }
 
   function invalidateAuthSession() {
@@ -150,16 +183,18 @@
     return response.text();
   }
 
-  function createFlow(session, manual) {
-    return writeFlow({
+  function createFlow(session, manual, setupFlow = readSetupFlow()) {
+    const flow = writeFlow({
       userId: session.user.id,
       userNickname: session.user.display_name?.trim() || "Memova account",
       state: "audience",
       baseline: snapshot(manual),
-      clientType: null,
-      copied: [],
-      createdAt: Date.now()
+      clientType: setupFlow?.clientType || null,
+      copied: setupFlow?.copied || [],
+      createdAt: setupFlow?.createdAt || Date.now()
     });
+    window.sessionStorage.removeItem(SETUP_STORAGE_KEY);
+    return flow;
   }
 
   function flowAccountLabel(flow) {
@@ -180,22 +215,18 @@
       return { state: "sample", flow: null, session };
     }
 
-    if (requested === "start") {
-      return session
-        ? { state: "prepare", flow: null, session }
-        : { state: "auth", flow: null, session: null };
-    }
-
     const flow = readFlow(session);
-    if (requested === "audience") {
-      if (!session) return { state: "auth", flow: null, session: null };
-      if (!flow) return { state: "prepare", flow: null, session };
-      return { state: flow.state || "audience", flow, session, activeClient: flow.clientType };
+    const setupFlow = readSetupFlow();
+    if (["start", "audience"].includes(requested)) {
+      const activeFlow = flow || setupFlow || createSetupFlow();
+      return { state: "audience", flow: activeFlow, session, activeClient: activeFlow.clientType };
     }
 
     if (["progress", "timeout", "result"].includes(requested)) {
-      if (!session) return { state: "auth", flow: null, session: null };
-      if (!flow) return { state: "prepare", flow: null, session };
+      if (!session || !flow) {
+        const activeFlow = setupFlow || createSetupFlow();
+        return { state: "audience", flow: activeFlow, session, activeClient: activeFlow.clientType };
+      }
       flow.state = requested;
       writeFlow(flow);
       return { state: requested, flow, session, activeClient: requested === "audience" ? flow.clientType : null };
@@ -203,6 +234,9 @@
 
     if (flow && ["audience", "progress", "timeout", "result"].includes(flow.state)) {
       return { state: flow.state, flow, session, activeClient: flow.state === "audience" ? flow.clientType : null };
+    }
+    if (setupFlow) {
+      return { state: "audience", flow: setupFlow, session, activeClient: setupFlow.clientType };
     }
     return { state: "sample", flow: null, session };
   }
@@ -322,14 +356,14 @@
 
   function renderClientBack(clientType, manualFlow, active = false) {
     const flow = CLIENT_FLOWS[clientType] || CLIENT_FLOWS.codex;
-    const readyFlow = manualFlow?.clientType === clientType && manualFlow?.baseline;
+    const readyFlow = manualFlow?.clientType === clientType;
     const copied = readyFlow ? (manualFlow.copied || []) : [];
     const readyToRun = copied.includes(1) && copied.includes(2);
     const clientLabel = clientType === "mcp" ? "MCP" : "CODEX";
     const backLabel = clientType === "mcp" ? "Return to AI client choice" : "Return to Codex choice";
     return `
       <section class="agent-client-flip__face agent-client-flip__back agent-client-flip__back--${clientType}" id="agent-client-prompts-${clientType}" data-client-card-back aria-hidden="${!active}">
-        <header><div><small>${clientLabel} · TWO PROMPTS</small><strong>${readyFlow ? "Run these in order." : "Preparing your baseline…"}</strong></div><button type="button" data-flip-back="${clientType}" aria-label="${backLabel}">↩</button></header>
+        <header><div><small>${clientLabel} · TWO PROMPTS</small><strong>${readyFlow ? "Run these in order." : "Preparing your instructions…"}</strong></div><button type="button" data-flip-back="${clientType}" aria-label="${backLabel}">↩</button></header>
         ${readyFlow ? `
           <div class="agent-client-flip__prompts ${clientType === "codex" ? "agent-client-flip__prompts--codex" : ""}">
             ${renderCompactInstruction(clientType, 1, flow.stepOneTitle, jobPrompt(clientType, 1), copied.includes(1))}
@@ -345,8 +379,8 @@
         ` : `
           <div class="agent-client-flip__loading" data-job-loading role="status">
             <i aria-hidden="true"></i>
-            <strong>Reading your current Manual version</strong>
-            <span>This prevents an older Manual from being shown as a new result.</span>
+            <strong>Preparing your instructions</strong>
+            <span>Sign-in will happen inside Prompt 01.</span>
           </div>
         `}
       </section>
@@ -385,7 +419,7 @@
           <header class="agent-flow-window__bar">
             <span class="agent-traffic-lights" aria-hidden="true"><i></i><i></i><i></i></span>
             <span><strong>MEMOVA</strong><small>Personal Manual setup</small></span>
-            <span class="agent-anonymous-badge">SIGNED IN</span>
+            <span class="agent-anonymous-badge">${readAuthSession() ? "SIGNED IN" : "NO SIGN-IN YET"}</span>
           </header>
 
           <div class="agent-flow-window__body agent-flow-window__body--client-choice">
@@ -443,41 +477,6 @@
             <span>Raw history stays in your Agent</span>
             <button type="button" data-agent-ran ${ready ? "" : "disabled"}>I’ve run both instructions <i aria-hidden="true">→</i></button>
           </footer>
-        </article>
-      </div>
-    `;
-  }
-
-  function renderAuthRequired(manualFlow = null) {
-    const resumableState = ["audience", "progress", "timeout", "result"].includes(manualFlow?.state)
-      ? manualFlow.state
-      : "start";
-    const next = encodeURIComponent(`/?manual=${resumableState}#capture`);
-    return `
-      <div class="agent-product-proof agent-client-choice-proof" aria-label="Sign in to create a Personal Manual">
-        <div class="agent-backplane agent-backplane--lime" aria-hidden="true"><span>YOUR ACCOUNT</span><b>01</b></div>
-        <div class="agent-backplane agent-backplane--blue" aria-hidden="true"><span>SECURE RESULT</span><b>02</b></div>
-        <article class="agent-flow-window" id="agent-workspace">
-          <header class="agent-flow-window__bar">
-            <span class="agent-traffic-lights" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span><strong>MEMOVA</strong><small>Personal Manual setup</small></span>
-            <span class="agent-anonymous-badge">SIGN-IN REQUIRED</span>
-          </header>
-          <div class="agent-flow-window__body agent-flow-window__body--client-choice">
-            <div class="agent-flow-heading">
-              <span>CONNECT YOUR WEBSITE ACCOUNT</span>
-              <h3>Sign in before you create.</h3>
-              <p>The website uses your Memova account to wait for the new Note version that Codex publishes. Anonymous tasks are no longer created.</p>
-            </div>
-            <div class="agent-instruction-stack">
-              <article class="agent-instruction-card">
-                <header><span>01</span><div><small>WEBSITE</small><strong>Sign in to Memova</strong></div></header>
-                <p>After sign-in, you’ll return here automatically and continue with the Codex instructions.</p>
-                <a class="agent-primary-action" href="/login?next=${next}"><span>Sign in to continue</span><span class="agent-action-arrow" aria-hidden="true">→</span></a>
-              </article>
-            </div>
-          </div>
-          <footer class="agent-flow-window__footer"><span>No anonymous fallback · your result stays bound to your account</span></footer>
         </article>
       </div>
     `;
@@ -629,11 +628,6 @@
       title: "Two prompts.<br>Made for your<br>AI client.",
       body: "Copy the two instructions in order. Memova connects inside your AI client, then uses the context available there to generate your Personal Manual."
     };
-    if (state === "auth") return {
-      bridge: "Website sign-in · Required",
-      title: "Connect the account<br>that will receive<br>your Manual.",
-      body: "Sign in first so the website can wait for the Personal Manual Note published to your own Memova workspace."
-    };
     if (state === "prepare") return {
       bridge: "Secure setup · Baseline",
       title: "Record the version<br>before Codex<br>starts.",
@@ -667,11 +661,8 @@
         <button class="agent-primary-action" type="button" data-create-manual>
           <span>Create my Personal Manual</span><span class="agent-action-arrow" aria-hidden="true">→</span>
         </button>
-        <div class="agent-trust-note"><span class="agent-trust-dot" aria-hidden="true"></span><span>Website sign-in is required before generation.</span></div>
+        <div class="agent-trust-note"><span class="agent-trust-dot" aria-hidden="true"></span><span>No sign-in yet. Instruction 1 will guide you.</span></div>
       `;
-    }
-    if (state === "auth") {
-      return '<div class="agent-trust-note"><span class="agent-trust-dot" aria-hidden="true"></span><span>No anonymous task will be created.</span></div>';
     }
     if (state === "prepare") {
       return '<div class="agent-trust-note"><span class="agent-trust-dot" aria-hidden="true"></span><span>Reading only the current Note and version identifiers.</span></div>';
@@ -738,7 +729,6 @@
       </div>
 
       ${state.state === "sample" ? renderNeilSample() : ""}
-      ${state.state === "auth" ? renderAuthRequired(state.flow) : ""}
       ${state.state === "prepare" ? renderPrepare(state.error) : ""}
       ${state.state === "audience" ? renderClientChoice(state.flow, state.activeClient) : ""}
       ${state.state === "handoff" ? renderAgentHandoff(state.flow) : ""}
@@ -748,7 +738,6 @@
     `;
 
     wireCapture(section, state);
-    if (state.state === "prepare" && !state.error) initializeBaseline(section, state.session);
     if (state.state === "progress") startProgress(section, state.flow, state.session);
     if (state.state === "result" && !state.flow?.resultHtml) loadResult(section, state.flow, state.session);
   }
@@ -796,27 +785,16 @@
     });
   }
 
-  async function initializeBaseline(section, session = readAuthSession()) {
-    if (!session) {
-      renderCapture(section, { state: "auth", flow: null, session: null });
-      return;
-    }
+  async function ensureAuthenticatedFlow(setupFlow, session = readAuthSession()) {
+    if (!session) throw requestError("AUTH_REQUIRED");
+    const existingFlow = readFlow(session);
+    if (existingFlow) return { flow: existingFlow, session };
     const controller = new AbortController();
     progressAbortController = controller;
-    try {
-      const manual = await fetchCurrentPersonalManual(session.access_token, controller.signal);
-      if (controller.signal.aborted) return;
-      const flow = createFlow(session, manual);
-      renderCapture(section, { state: "audience", flow, session });
-    } catch (error) {
-      if (error.name === "AbortError") return;
-      if (error.message === "AUTH_REQUIRED") {
-        invalidateAuthSession();
-        renderCapture(section, { state: "auth", flow: null, session: null });
-        return;
-      }
-      renderCapture(section, { state: "prepare", flow: null, session, error: error.message || "BASELINE_UNAVAILABLE" });
-    }
+    const manual = await fetchCurrentPersonalManual(session.access_token, controller.signal);
+    if (controller.signal.aborted) throw requestError("BASELINE_ABORTED");
+    const flow = createFlow(session, manual, setupFlow);
+    return { flow, session };
   }
 
   function wireCapture(section, state) {
@@ -830,17 +808,15 @@
 
     section.querySelector("[data-create-manual]")?.addEventListener("click", () => {
       const session = readAuthSession();
-      renderCapture(section, session
-        ? { state: "prepare", flow: null, session }
-        : { state: "auth", flow: null, session: null });
+      const flow = readFlow(session) || readSetupFlow() || createSetupFlow();
+      renderCapture(section, { state: "audience", flow, session, activeClient: flow.clientType });
       section.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
     section.querySelector("[data-retry-baseline]")?.addEventListener("click", () => {
       const session = readAuthSession();
-      renderCapture(section, session
-        ? { state: "prepare", flow: null, session }
-        : { state: "auth", flow: null, session: null });
+      const flow = readFlow(session) || readSetupFlow() || createSetupFlow();
+      renderCapture(section, { state: "audience", flow, session, activeClient: flow.clientType });
     });
 
     section.querySelectorAll("[data-client-type]").forEach((button) => {
@@ -856,18 +832,14 @@
           card.querySelector("[data-client-card-back]")?.setAttribute("aria-hidden", String(!active));
         });
         button.disabled = true;
-        const manualFlow = readFlow() || state.flow;
-        if (!manualFlow) {
-          await flipComplete;
-          renderCapture(section, { state: "prepare", flow: null, session: readAuthSession() });
-          return;
-        }
+        const session = readAuthSession();
+        const manualFlow = readFlow(session) || readSetupFlow() || state.flow || createSetupFlow();
         manualFlow.clientType = clientType;
         manualFlow.copied = [];
         manualFlow.state = "audience";
-        writeFlow(manualFlow);
+        writeActiveFlow(manualFlow);
         await flipComplete;
-        renderCapture(section, { state: "audience", flow: manualFlow, session: readAuthSession(), activeClient: clientType });
+        renderCapture(section, { state: "audience", flow: manualFlow, session, activeClient: clientType });
       });
     });
 
@@ -895,11 +867,30 @@
       button.addEventListener("click", async () => {
         const number = Number(button.dataset.copyInstruction);
         const clientType = button.dataset.clientCopy === "mcp" ? "mcp" : button.dataset.clientCopy === "codex" ? "codex" : null;
-        const manualFlow = readFlow() || state.flow;
+        let manualFlow = readFlow() || readSetupFlow() || state.flow;
         if (!manualFlow || (clientType && manualFlow.clientType !== clientType)) return;
+        if (number === 2 && !manualFlow.baseline) {
+          const session = readAuthSession();
+          if (!session) {
+            button.textContent = "Run Prompt 01 first";
+            window.setTimeout(() => { button.textContent = "Copy"; }, 2200);
+            return;
+          }
+          button.disabled = true;
+          button.textContent = "Preparing…";
+          try {
+            ({ flow: manualFlow } = await ensureAuthenticatedFlow(manualFlow, session));
+          } catch (error) {
+            if (error.message === "AUTH_REQUIRED") invalidateAuthSession();
+            button.textContent = "Try again";
+            button.disabled = false;
+            return;
+          }
+        }
         await copyText(jobPrompt(clientType || manualFlow.clientType, number));
         manualFlow.copied = Array.from(new Set([...(manualFlow.copied || []), number]));
-        writeFlow(manualFlow);
+        writeActiveFlow(manualFlow);
+        button.disabled = false;
         button.textContent = "Copied";
         button.closest(".agent-instruction-card, .agent-compact-instruction")?.classList.add("is-copied");
         const card = button.closest("[data-client-card]");
@@ -909,11 +900,19 @@
     });
 
     section.querySelectorAll("[data-agent-ran]").forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", async () => {
         const clientType = button.dataset.clientStart === "mcp" ? "mcp" : button.dataset.clientStart === "codex" ? "codex" : null;
-        const manualFlow = readFlow() || state.flow;
-        const session = readAuthSession();
-        if (!session || !manualFlow || (clientType && manualFlow.clientType !== clientType)) return;
+        let manualFlow = readFlow() || readSetupFlow() || state.flow;
+        let session = readAuthSession();
+        if (!manualFlow || (clientType && manualFlow.clientType !== clientType)) return;
+        if (!session) return;
+        if (!manualFlow.baseline) {
+          try {
+            ({ flow: manualFlow, session } = await ensureAuthenticatedFlow(manualFlow, session));
+          } catch (_error) {
+            return;
+          }
+        }
         manualFlow.state = "progress";
         manualFlow.pollStartedAt = Date.now();
         writeFlow(manualFlow);
@@ -925,7 +924,8 @@
       const session = readAuthSession();
       const manualFlow = readFlow(session) || state.flow;
       if (!session || !manualFlow) {
-        renderCapture(section, { state: "auth", flow: manualFlow || null, session: null });
+        const setupFlow = readSetupFlow() || createSetupFlow(manualFlow);
+        renderCapture(section, { state: "audience", flow: setupFlow, session: null, activeClient: setupFlow.clientType });
         return;
       }
       manualFlow.state = "progress";
@@ -952,7 +952,8 @@
 
   function startProgress(section, manualFlow, session = readAuthSession()) {
     if (!manualFlow || !session || manualFlow.userId !== session.user.id) {
-      renderCapture(section, { state: "auth", flow: manualFlow || null, session: null });
+      const setupFlow = readSetupFlow() || createSetupFlow(manualFlow);
+      renderCapture(section, { state: "audience", flow: setupFlow, session: null, activeClient: setupFlow.clientType });
       return;
     }
     const startedAt = Number(manualFlow.pollStartedAt) || Date.now();
@@ -1024,7 +1025,8 @@
         }
         if (error.message === "AUTH_REQUIRED") {
           invalidateAuthSession();
-          renderCapture(section, { state: "auth", flow: manualFlow, session: null });
+          const setupFlow = createSetupFlow(manualFlow);
+          renderCapture(section, { state: "audience", flow: setupFlow, session: null, activeClient: setupFlow.clientType });
           return;
         }
         transientFailures += 1;
@@ -1061,9 +1063,8 @@
 
   async function loadResult(section, manualFlow, session = readAuthSession()) {
     if (!manualFlow || !session || manualFlow.userId !== session.user.id || !manualFlow.noteId) {
-      renderCapture(section, session
-        ? { state: "prepare", flow: null, session }
-        : { state: "auth", flow: manualFlow || null, session: null });
+      const setupFlow = readSetupFlow() || createSetupFlow(manualFlow);
+      renderCapture(section, { state: "audience", flow: setupFlow, session, activeClient: setupFlow.clientType });
       return;
     }
     const controller = new AbortController();
@@ -1076,7 +1077,8 @@
       if (error.name === "AbortError") return;
       if (error.message === "AUTH_REQUIRED") {
         invalidateAuthSession();
-        renderCapture(section, { state: "auth", flow: manualFlow, session: null });
+        const setupFlow = createSetupFlow(manualFlow);
+        renderCapture(section, { state: "audience", flow: setupFlow, session: null, activeClient: setupFlow.clientType });
         return;
       }
       manualFlow.state = "progress";

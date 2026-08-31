@@ -182,9 +182,11 @@ export default function Profile() {
         return;
       }
       setError(
-        err instanceof Error
-          ? err.message
-          : "Could not remove your profile photo."
+        err instanceof ApiError && err.status === 404
+          ? profilePhotoUnavailableMessage()
+          : err instanceof Error
+            ? err.message
+            : "Could not remove your profile photo."
       );
     } finally {
       setDeletingAvatar(false);
@@ -196,6 +198,10 @@ export default function Profile() {
     auth.user?.display_name?.trim().charAt(0).toUpperCase() || "M";
   const avatarBusy = avatarStage !== "idle" || deletingAvatar;
   const avatarProgressLabel = avatarStageLabel(avatarStage, deletingAvatar);
+  const workspaceDisplayName =
+    auth.workspace?.type === "personal" && auth.user?.display_name?.trim()
+      ? `${auth.user.display_name.trim()}'s Workspace`
+      : auth.workspace?.name || "Personal workspace";
 
   if (!auth.isAuthenticated) return null;
 
@@ -353,7 +359,7 @@ export default function Profile() {
               <CardContent className="space-y-4">
                 <ProfileField
                   label="Default workspace"
-                  value={auth.workspace?.name || "Personal workspace"}
+                  value={workspaceDisplayName}
                 />
               </CardContent>
             </Card>
@@ -416,7 +422,8 @@ function avatarUploadErrorMessage(error: unknown): string {
     if (error.status === 422) {
       return "That image could not be used. Choose a valid JPEG, PNG, or WebP file.";
     }
-    if (error.status === 404 || error.status === 409) {
+    if (error.status === 404) return profilePhotoUnavailableMessage();
+    if (error.status === 409) {
       return "That upload expired. Choose the photo again to retry.";
     }
   }
@@ -426,6 +433,10 @@ function avatarUploadErrorMessage(error: unknown): string {
   return error instanceof Error
     ? error.message
     : "Could not save your profile photo.";
+}
+
+function profilePhotoUnavailableMessage(): string {
+  return "Profile photo editing is not available yet. Your nickname and account are still saved.";
 }
 
 function LoadingPanel({ label }: { label: string }) {

@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   Check,
+  ChevronDown,
   ChevronRight,
   CircleCheck,
   FileText,
@@ -14,6 +15,7 @@ import {
   RefreshCcw,
   ShieldCheck,
   Sparkles,
+  UserRound,
   UsersRound,
   X,
 } from "lucide-react";
@@ -562,17 +564,35 @@ const heroSources: HeroSource[] = [
 function HomeV2Header() {
   const auth = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
   const accountName = auth.user?.display_name?.trim() || "Memova account";
   const accountInitial = accountName.charAt(0).toUpperCase() || "M";
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMobileOpen(false);
+      if (event.key === "Escape") {
+        setMobileOpen(false);
+        setAccountOpen(false);
+      }
     };
 
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, []);
+
+  useEffect(() => {
+    if (!accountOpen) return;
+
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) {
+        setAccountOpen(false);
+      }
+    };
+
+    window.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => window.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [accountOpen]);
 
   const closeMobileMenu = () => setMobileOpen(false);
 
@@ -591,12 +611,19 @@ function HomeV2Header() {
         </nav>
 
         <div className="home-v2-header-actions">
+          <a className="home-v2-button home-v2-header-cta" href="#waitlist">
+            <span className="home-v2-header-cta-long">Join Early Access</span>
+            <span className="home-v2-header-cta-short">Join</span>
+          </a>
           {auth.isAuthenticated ? (
-            <div className="home-v2-account-controls">
-              <a
-                className="home-v2-account"
-                href="/profile"
-                aria-label={`Open ${accountName}'s Memova profile`}
+            <div className="home-v2-account-menu" ref={accountMenuRef}>
+              <button
+                className="home-v2-account-trigger"
+                type="button"
+                aria-label={`Open ${accountName}'s account menu`}
+                aria-haspopup="menu"
+                aria-expanded={accountOpen}
+                onClick={() => setAccountOpen(open => !open)}
               >
                 <span className="home-v2-account-avatar" aria-hidden="true">
                   {auth.user?.avatar_url ? (
@@ -611,25 +638,33 @@ function HomeV2Header() {
                   )}
                 </span>
                 <span>{accountName}</span>
-              </a>
-              <button
-                className="home-v2-log-out"
-                type="button"
-                onClick={() => void auth.logout()}
-              >
-                <LogOut aria-hidden="true" />
-                Log out
+                <ChevronDown className="home-v2-account-chevron" aria-hidden="true" />
               </button>
+              {accountOpen ? (
+                <div className="home-v2-account-popover" role="menu" aria-label="Account">
+                  <a href="/profile" role="menuitem" onClick={() => setAccountOpen(false)}>
+                    <UserRound aria-hidden="true" />
+                    Profile
+                  </a>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setAccountOpen(false);
+                      void auth.logout();
+                    }}
+                  >
+                    <LogOut aria-hidden="true" />
+                    Log out
+                  </button>
+                </div>
+              ) : null}
             </div>
           ) : (
             <a className="home-v2-sign-in" href="/login">
               Sign in
             </a>
           )}
-          <a className="home-v2-button home-v2-header-cta" href="#waitlist">
-            <span className="home-v2-header-cta-long">Join Early Access</span>
-            <span className="home-v2-header-cta-short">Join</span>
-          </a>
           <button
             type="button"
             className="home-v2-menu-button"
