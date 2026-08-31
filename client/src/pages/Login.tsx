@@ -55,10 +55,24 @@ export default function Login() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (auth.isAuthenticated) {
-      setLocation(next);
+    if (!auth.isAuthenticated || !auth.session) return;
+
+    if (!auth.user?.display_name?.trim()) {
+      setPendingSession({
+        ...auth.session,
+        token_type: "bearer",
+      });
+      return;
     }
-  }, [auth.isAuthenticated, next, setLocation]);
+
+    setLocation(next);
+  }, [
+    auth.isAuthenticated,
+    auth.session,
+    auth.user?.display_name,
+    next,
+    setLocation,
+  ]);
 
   const handleStart = async (event: React.FormEvent) => {
     event.preventDefault();

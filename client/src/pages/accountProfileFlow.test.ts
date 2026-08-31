@@ -19,6 +19,8 @@ describe("account profile completion", () => {
     expect(login).toContain(
       "You can change this anytime and add a profile photo later."
     );
+    expect(login).toContain("!auth.user?.display_name?.trim()");
+    expect(login).toContain('token_type: "bearer"');
   });
 
   it("persists the nickname and lets the user edit it later", () => {

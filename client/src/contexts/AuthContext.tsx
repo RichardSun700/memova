@@ -133,9 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [clearSession, session?.access_token]);
 
-  const isAuthenticated = Boolean(
-    session?.access_token && !isExpired(session.expires_at)
-  );
+  const isAuthenticated = isUsableAuthSession(session);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -189,8 +187,8 @@ function readStoredSession(): AuthSession | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as AuthSession;
-    if (!parsed.access_token || isExpired(parsed.expires_at)) {
+    const parsed: unknown = JSON.parse(raw);
+    if (!isUsableAuthSession(parsed)) {
       localStorage.removeItem(STORAGE_KEY);
       return null;
     }
@@ -201,8 +199,18 @@ function readStoredSession(): AuthSession | null {
   }
 }
 
-function isExpired(expiresAt: string): boolean {
-  const expiresMs = Date.parse(expiresAt);
-  if (!Number.isFinite(expiresMs)) return true;
-  return expiresMs <= Date.now();
+export function isUsableAuthSession(
+  value: unknown,
+  now = Date.now()
+): value is AuthSession {
+  if (!value || typeof value !== "object") return false;
+
+  const session = value as Partial<AuthSession>;
+  const expiresMs = Date.parse(session.expires_at || "");
+  return Boolean(
+    session.access_token?.trim() &&
+      session.user?.id?.trim() &&
+      Number.isFinite(expiresMs) &&
+      expiresMs > now
+  );
 }
