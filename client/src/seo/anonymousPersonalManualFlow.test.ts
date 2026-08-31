@@ -19,9 +19,8 @@ const captureIntegration = fs.readFileSync(
   path.join(root, "client/public/capture-personal-manual-integration.js"),
   "utf8"
 );
-
-describe("anonymous Personal Manual return channel", () => {
-  it("copies the four approved English prompts without hidden return instructions", () => {
+describe("Personal Manual authenticated polling with rollback compatibility", () => {
+  it("keeps the visible prompts unchanged and polls the signed-in account", () => {
     expect(captureIntegration).toContain(
       'stepOnePrompt: "Please install or update Memova from gxyfred/memova-codex-plugin to the latest version and complete sign-in. When finished, remind me to restart Codex."'
     );
@@ -32,7 +31,17 @@ describe("anonymous Personal Manual return channel", () => {
     expect(captureIntegration).toContain(
       'stepTwoPrompt: "Use Memova to generate my Personal Manual."'
     );
-    expect(captureIntegration).not.toContain("When the complete HTML is ready");
+    expect(captureIntegration).toContain('const AUTH_STORAGE_KEY = "memova.auth.v1"');
+    expect(captureIntegration).toContain("/v1/personal-manual/current");
+    expect(captureIntegration).toContain("/overview/preview");
+    expect(captureIntegration).toContain("isNewResult(manualFlow.baseline, current)");
+    expect(captureIntegration).not.toContain("return the stable public URL to this one-time website handoff");
+    expect(captureIntegration).not.toContain("personal_manual_handoff_result_v1");
+    expect(captureIntegration).not.toContain("job.submitUrl");
+    expect(captureIntegration).not.toContain('/api/personal-manual/jobs');
+    expect(captureIntegration).toContain(
+      "Continue with the selection fallback when clipboard permissions are unavailable."
+    );
     expect(captureIntegration).not.toContain("complete self-contained HTML file");
     expect(captureIntegration).not.toContain("Content-Type: text/html");
   });
@@ -49,7 +58,7 @@ describe("anonymous Personal Manual return channel", () => {
     expect(worker).not.toContain("submit_token TEXT");
   });
 
-  it("accepts only bounded complete HTML and cannot overwrite a completed result", () => {
+  it("keeps the rollback worker bounded and prevents result overwrite", () => {
     expect(worker).toContain("const MAX_HTML_BYTES = 1_500_000");
     expect(worker).toContain("invalid_html_document");
     expect(worker).toContain("html_too_large");
@@ -58,7 +67,7 @@ describe("anonymous Personal Manual return channel", () => {
     expect(worker).toContain("job_expired");
   });
 
-  it("persists only token hashes and expires anonymous jobs", () => {
+  it("persists only token hashes and expires rollback jobs", () => {
     expect(migration).toContain("read_token_hash TEXT NOT NULL");
     expect(migration).toContain("submit_token_hash TEXT NOT NULL UNIQUE");
     expect(migration).toContain("expires_at TEXT NOT NULL");

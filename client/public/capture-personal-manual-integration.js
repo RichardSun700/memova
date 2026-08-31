@@ -1,6 +1,15 @@
 (() => {
-  const STORAGE_KEY = "memova_personal_manual_job_v3";
-  const JOB_API = "/api/personal-manual/jobs";
+  const AUTH_STORAGE_KEY = "memova.auth.v1";
+  const FLOW_STORAGE_PREFIX = "memova_personal_manual_flow_v4";
+  const API_BASE_URL = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname)
+    ? "/__memova_api"
+    : "https://api.memova.ai";
+  const CURRENT_MANUAL_API = `${API_BASE_URL}/v1/personal-manual/current`;
+  const POLL_FAST_INTERVAL_MS = 2500;
+  const POLL_SLOW_INTERVAL_MS = 5000;
+  const POLL_FAST_WINDOW_MS = 60_000;
+  const POLL_TIMEOUT_MS = 15 * 60_000;
+  const MAX_RETRY_DELAY_MS = 30_000;
   const CLIENT_CARD_FLIP_SETTLE_MS = 660;
 
   const CLIENT_FLOWS = {
@@ -24,7 +33,9 @@
     }
   };
 
-  let progressTimers = [];
+  let progressTimer = null;
+  let progressAbortController = null;
+  let progressVisibilityHandler = null;
 
   function escapeHtml(value) {
     return String(value)
@@ -35,104 +46,159 @@
       .replaceAll("'", "&#039;");
   }
 
-  function readJob() {
+  function readAuthSession() {
     try {
-      const job = JSON.parse(window.sessionStorage.getItem(STORAGE_KEY)) || null;
-      if (!job?.id || !job?.readToken || !job?.submitUrl) return null;
-      if (job.expiresAt && Date.parse(job.expiresAt) < Date.now()) {
-        window.sessionStorage.removeItem(STORAGE_KEY);
-        return null;
-      }
-      return job;
+      const session = JSON.parse(window.localStorage.getItem(AUTH_STORAGE_KEY)) || null;
+      const expiresAt = Date.parse(session?.expires_at || "");
+      if (!session?.access_token || !session?.user?.id || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
+      return session;
     } catch (_error) {
       return null;
     }
   }
 
-  function writeJob(job) {
-    const storedJob = { ...job };
-    delete storedJob.resultHtml;
-    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(storedJob));
-    return job;
+  function flowStorageKey(userId) {
+    return `${FLOW_STORAGE_PREFIX}:${encodeURIComponent(userId)}`;
   }
 
-  async function createRemoteJob(clientType = "codex") {
-    const resolvedClient = CLIENT_FLOWS[clientType] ? clientType : "codex";
-    const response = await fetch(JOB_API, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ client_type: resolvedClient }),
-      cache: "no-store"
-    });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok || !payload.job_id || !payload.read_token || !payload.submit_url) {
-      throw new Error(payload.error || "anonymous_job_unavailable");
+  function readFlow(session = readAuthSession()) {
+    if (!session) return null;
+    try {
+      const flow = JSON.parse(window.sessionStorage.getItem(flowStorageKey(session.user.id))) || null;
+      if (!flow?.baseline || flow.userId !== session.user.id) return null;
+      return flow;
+    } catch (_error) {
+      return null;
     }
-    return writeJob({
-      id: payload.job_id,
-      state: "audience",
-      clientType: resolvedClient,
-      copied: [],
-      createdAt: Date.now(),
-      expiresAt: payload.expires_at,
-      readToken: payload.read_token,
-      submitUrl: payload.submit_url,
-      claimed: false
-    });
   }
 
-  async function fetchRemoteJob(job, includeHtml = false) {
+  function writeFlow(flow) {
+    const storedFlow = { ...flow };
+    delete storedFlow.resultHtml;
+    window.sessionStorage.setItem(flowStorageKey(flow.userId), JSON.stringify(storedFlow));
+    return flow;
+  }
+
+  function clearFlow(session = readAuthSession()) {
+    if (session?.user?.id) window.sessionStorage.removeItem(flowStorageKey(session.user.id));
+  }
+
+  function invalidateAuthSession() {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  }
+
+  function snapshot(manual) {
+    return {
+      noteId: manual?.note_id || null,
+      versionId: manual?.latest_note_version_id || null
+    };
+  }
+
+  function isNewResult(baseline, current) {
+    if (!current?.exists || !current.latest_note_version_id) return false;
+    return current.note_id !== baseline.noteId || current.latest_note_version_id !== baseline.versionId;
+  }
+
+  function requestError(code, response = null) {
+    const error = new Error(code);
+    error.status = response?.status || 0;
+    error.retryAfterMs = retryAfterMs(response?.headers?.get("retry-after"));
+    return error;
+  }
+
+  function retryAfterMs(value) {
+    if (!value) return 0;
+    const seconds = Number(value);
+    if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000);
+    const date = Date.parse(value);
+    return Number.isFinite(date) ? Math.max(0, date - Date.now()) : 0;
+  }
+
+  async function fetchCurrentPersonalManual(accessToken, signal) {
+    const response = await fetch(CURRENT_MANUAL_API, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json"
+      },
+      cache: "no-store",
+      signal
+    });
+    if (response.status === 401) throw requestError("AUTH_REQUIRED", response);
+    if (response.status === 429) throw requestError("RATE_LIMITED", response);
+    if (!response.ok) throw requestError(`CURRENT_MANUAL_${response.status}`, response);
+    const payload = await response.json();
+    if (!payload || typeof payload.exists !== "boolean") throw requestError("CURRENT_MANUAL_INVALID");
+    return payload;
+  }
+
+  async function fetchPersonalManualHtml(noteId, accessToken, signal) {
     const response = await fetch(
-      `${JOB_API}/${encodeURIComponent(job.id)}${includeHtml ? "?include_html=1" : ""}`,
+      `${API_BASE_URL}/v1/notes/${encodeURIComponent(noteId)}/overview/preview`,
       {
-        headers: { authorization: `Bearer ${job.readToken}` },
-        cache: "no-store"
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "text/html"
+        },
+        cache: "no-store",
+        signal
       }
     );
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.error || "anonymous_job_unavailable");
-    return payload;
+    if (response.status === 401) throw requestError("AUTH_REQUIRED", response);
+    if (response.status === 429) throw requestError("RATE_LIMITED", response);
+    if (!response.ok) throw requestError(`MANUAL_PREVIEW_${response.status}`, response);
+    return response.text();
+  }
+
+  function createFlow(session, manual) {
+    return writeFlow({
+      userId: session.user.id,
+      userEmail: session.user.email || "",
+      state: "audience",
+      baseline: snapshot(manual),
+      clientType: null,
+      copied: [],
+      createdAt: Date.now()
+    });
   }
 
   function getViewState() {
     const params = new URLSearchParams(window.location.search);
     const requested = params.get("manual");
+    const session = readAuthSession();
     if (requested === "reset") {
-      window.sessionStorage.removeItem(STORAGE_KEY);
+      clearFlow(session);
       params.delete("manual");
       const cleanQuery = params.toString();
       window.history.replaceState(null, "", `${window.location.pathname}${cleanQuery ? `?${cleanQuery}` : ""}${window.location.hash}`);
-      return { state: "sample", job: null };
+      return { state: "sample", flow: null, session };
     }
 
-    const job = readJob();
+    if (requested === "start") {
+      return session
+        ? { state: "prepare", flow: null, session }
+        : { state: "auth", flow: null, session: null };
+    }
+
+    const flow = readFlow(session);
     if (requested === "audience") {
-      if (!job) return { state: "audience", job: null };
-      if (["progress", "result", "claimed"].includes(job.state)) {
-        const resumedState = job.state === "claimed" ? "result" : job.state;
-        job.state = resumedState;
-        job.claimed = false;
-        return { state: resumedState, job };
-      }
-      return { state: "audience", job, activeClient: job.clientType };
+      if (!session) return { state: "auth", flow: null, session: null };
+      if (!flow) return { state: "prepare", flow: null, session };
+      return { state: flow.state || "audience", flow, session, activeClient: flow.clientType };
     }
 
-    if (["handoff", "progress", "result", "claimed"].includes(requested)) {
-      if (!job) return { state: "audience", job: null };
-      const normalizedState = requested === "handoff" ? "audience" : requested === "claimed" ? "result" : requested;
-      job.state = normalizedState;
-      job.claimed = false;
-      writeJob(job);
-      return { state: normalizedState, job, activeClient: normalizedState === "audience" ? job.clientType : null };
+    if (["progress", "timeout", "result"].includes(requested)) {
+      if (!session) return { state: "auth", flow: null, session: null };
+      if (!flow) return { state: "prepare", flow: null, session };
+      flow.state = requested;
+      writeFlow(flow);
+      return { state: requested, flow, session, activeClient: requested === "audience" ? flow.clientType : null };
     }
 
-    if (job && ["audience", "progress", "result", "claimed"].includes(job.state)) {
-      const normalizedState = job.state === "claimed" ? "result" : job.state;
-      job.state = normalizedState;
-      job.claimed = false;
-      return { state: normalizedState, job, activeClient: normalizedState === "audience" ? job.clientType : null };
+    if (flow && ["audience", "progress", "timeout", "result"].includes(flow.state)) {
+      return { state: flow.state, flow, session, activeClient: flow.state === "audience" ? flow.clientType : null };
     }
-    return { state: "sample", job: null };
+    return { state: "sample", flow: null, session };
   }
 
   function renderNeilSample() {
@@ -248,17 +314,17 @@
     return flow.stepTwoPrompt;
   }
 
-  function renderClientBack(clientType, job, active = false) {
+  function renderClientBack(clientType, manualFlow, active = false) {
     const flow = CLIENT_FLOWS[clientType] || CLIENT_FLOWS.codex;
-    const readyJob = job?.clientType === clientType && job?.submitUrl;
-    const copied = readyJob ? (job.copied || []) : [];
+    const readyFlow = manualFlow?.clientType === clientType && manualFlow?.baseline;
+    const copied = readyFlow ? (manualFlow.copied || []) : [];
     const readyToRun = copied.includes(1) && copied.includes(2);
     const clientLabel = clientType === "mcp" ? "MCP" : "CODEX";
     const backLabel = clientType === "mcp" ? "Return to AI client choice" : "Return to Codex choice";
     return `
       <section class="agent-client-flip__face agent-client-flip__back agent-client-flip__back--${clientType}" id="agent-client-prompts-${clientType}" data-client-card-back aria-hidden="${!active}">
-        <header><div><small>${clientLabel} · TWO PROMPTS</small><strong>${readyJob ? "Run these in order." : "Preparing secure return…"}</strong></div><button type="button" data-flip-back="${clientType}" aria-label="${backLabel}">↩</button></header>
-        ${readyJob ? `
+        <header><div><small>${clientLabel} · TWO PROMPTS</small><strong>${readyFlow ? "Run these in order." : "Preparing your baseline…"}</strong></div><button type="button" data-flip-back="${clientType}" aria-label="${backLabel}">↩</button></header>
+        ${readyFlow ? `
           <div class="agent-client-flip__prompts ${clientType === "codex" ? "agent-client-flip__prompts--codex" : ""}">
             ${renderCompactInstruction(clientType, 1, flow.stepOneTitle, jobPrompt(clientType, 1), copied.includes(1))}
             ${clientType === "codex" ? `
@@ -273,15 +339,15 @@
         ` : `
           <div class="agent-client-flip__loading" data-job-loading role="status">
             <i aria-hidden="true"></i>
-            <strong>Creating an anonymous task</strong>
-            <span>No website sign-in is required.</span>
+            <strong>Reading your current Manual version</strong>
+            <span>This prevents an older Manual from being shown as a new result.</span>
           </div>
         `}
       </section>
     `;
   }
 
-  function renderClientCard(clientType, index, job, activeClient) {
+  function renderClientCard(clientType, index, manualFlow, activeClient) {
     const flow = CLIENT_FLOWS[clientType] || CLIENT_FLOWS.codex;
     const isMcp = clientType === "mcp";
     const active = activeClient === clientType;
@@ -297,13 +363,13 @@
             <span class="agent-client-option__path">${isMcp ? "MCP → sign in → reload if needed → generate" : "Plugin → sign in → restart → @memova"}</span>
             <i aria-hidden="true">Flip for prompts ↻</i>
           </button>
-          ${renderClientBack(clientType, job?.clientType === clientType ? job : null, active)}
+          ${renderClientBack(clientType, manualFlow?.clientType === clientType ? manualFlow : null, active)}
         </div>
       </article>
     `;
   }
 
-  function renderClientChoice(job = null, activeClient = null) {
+  function renderClientChoice(manualFlow = null, activeClient = null) {
     return `
       <div class="agent-product-proof agent-client-choice-proof" aria-label="Choose how to create a Personal Manual">
         <div class="agent-backplane agent-backplane--lime" aria-hidden="true"><span>YOUR SETUP</span><b>01</b></div>
@@ -313,7 +379,7 @@
           <header class="agent-flow-window__bar">
             <span class="agent-traffic-lights" aria-hidden="true"><i></i><i></i><i></i></span>
             <span><strong>MEMOVA</strong><small>Personal Manual setup</small></span>
-            <span class="agent-anonymous-badge">NO SIGN-IN YET</span>
+            <span class="agent-anonymous-badge">SIGNED IN</span>
           </header>
 
           <div class="agent-flow-window__body agent-flow-window__body--client-choice">
@@ -324,8 +390,8 @@
             </div>
 
             <div class="agent-client-options">
-              ${renderClientCard("codex", 1, job, activeClient)}
-              ${renderClientCard("mcp", 2, job, activeClient)}
+              ${renderClientCard("codex", 1, manualFlow, activeClient)}
+              ${renderClientCard("mcp", 2, manualFlow, activeClient)}
             </div>
           </div>
 
@@ -338,20 +404,20 @@
     `;
   }
 
-  function renderAgentHandoff(job) {
-    const copied = job?.copied || [];
+  function renderAgentHandoff(manualFlow) {
+    const copied = manualFlow?.copied || [];
     const ready = copied.includes(1) && copied.includes(2);
-    const flow = CLIENT_FLOWS[job?.clientType] || CLIENT_FLOWS.codex;
-    const clientInstruction = job?.clientType === "mcp" ? "your AI client" : "Codex";
+    const flow = CLIENT_FLOWS[manualFlow?.clientType] || CLIENT_FLOWS.codex;
+    const clientInstruction = manualFlow?.clientType === "mcp" ? "your AI client" : "Codex";
     return `
-      <div class="agent-product-proof agent-handoff-proof" aria-label="Anonymous Personal Manual task handoff to the user's Agent">
-        <div class="agent-backplane agent-backplane--lime" aria-hidden="true"><span>ANONYMOUS TASK</span><b>01</b></div>
+      <div class="agent-product-proof agent-handoff-proof" aria-label="Personal Manual instructions for the user's Agent">
+        <div class="agent-backplane agent-backplane--lime" aria-hidden="true"><span>YOUR ACCOUNT</span><b>01</b></div>
         <div class="agent-backplane agent-backplane--blue" aria-hidden="true"><span>YOUR AGENT</span><b>02</b></div>
 
         <article class="agent-flow-window" id="agent-workspace">
           <header class="agent-flow-window__bar">
             <span class="agent-traffic-lights" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span><strong>MEMOVA</strong><small>${escapeHtml(job.id)} · Website session: anonymous</small></span>
+            <span><strong>MEMOVA</strong><small>${escapeHtml(manualFlow.userEmail)} · Website session active</small></span>
             <span class="agent-anonymous-badge">${flow.badge}</span>
           </header>
 
@@ -362,8 +428,8 @@
               <p>Copy each instruction into ${clientInstruction}, one at a time. Memova will guide the setup and generate your Personal Manual.</p>
             </div>
             <div class="agent-instruction-stack">
-              ${renderInstruction(1, flow.stepOneTitle, flow.stepOnePrompt, copied.includes(1))}
-              ${renderInstruction(2, flow.stepTwoTitle, flow.stepTwoPrompt, copied.includes(2))}
+              ${renderInstruction(1, flow.stepOneTitle, jobPrompt(manualFlow.clientType, 1), copied.includes(1))}
+              ${renderInstruction(2, flow.stepTwoTitle, jobPrompt(manualFlow.clientType, 2), copied.includes(2))}
             </div>
           </div>
 
@@ -376,37 +442,100 @@
     `;
   }
 
-  function renderProgress(job) {
+  function renderAuthRequired(manualFlow = null) {
+    const resumableState = ["audience", "progress", "timeout", "result"].includes(manualFlow?.state)
+      ? manualFlow.state
+      : "start";
+    const next = encodeURIComponent(`/?manual=${resumableState}#capture`);
+    return `
+      <div class="agent-product-proof agent-client-choice-proof" aria-label="Sign in to create a Personal Manual">
+        <div class="agent-backplane agent-backplane--lime" aria-hidden="true"><span>YOUR ACCOUNT</span><b>01</b></div>
+        <div class="agent-backplane agent-backplane--blue" aria-hidden="true"><span>SECURE RESULT</span><b>02</b></div>
+        <article class="agent-flow-window" id="agent-workspace">
+          <header class="agent-flow-window__bar">
+            <span class="agent-traffic-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span><strong>MEMOVA</strong><small>Personal Manual setup</small></span>
+            <span class="agent-anonymous-badge">SIGN-IN REQUIRED</span>
+          </header>
+          <div class="agent-flow-window__body agent-flow-window__body--client-choice">
+            <div class="agent-flow-heading">
+              <span>CONNECT YOUR WEBSITE ACCOUNT</span>
+              <h3>Sign in before you create.</h3>
+              <p>The website uses your Memova account to wait for the new Note version that Codex publishes. Anonymous tasks are no longer created.</p>
+            </div>
+            <div class="agent-instruction-stack">
+              <article class="agent-instruction-card">
+                <header><span>01</span><div><small>WEBSITE</small><strong>Sign in to Memova</strong></div></header>
+                <p>After sign-in, you’ll return here automatically and continue with the Codex instructions.</p>
+                <a class="agent-primary-action" href="/login?next=${next}"><span>Sign in to continue</span><span class="agent-action-arrow" aria-hidden="true">→</span></a>
+              </article>
+            </div>
+          </div>
+          <footer class="agent-flow-window__footer"><span>No anonymous fallback · your result stays bound to your account</span></footer>
+        </article>
+      </div>
+    `;
+  }
+
+  function renderPrepare(error = "") {
+    return `
+      <div class="agent-product-proof agent-progress-proof" aria-label="Preparing Personal Manual version tracking">
+        <div class="agent-backplane agent-backplane--lime" aria-hidden="true"><span>YOUR ACCOUNT</span><b>01</b></div>
+        <div class="agent-backplane agent-backplane--blue" aria-hidden="true"><span>VERSION CHECK</span><b>02</b></div>
+        <article class="agent-flow-window" id="agent-workspace">
+          <header class="agent-flow-window__bar">
+            <span class="agent-traffic-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span><strong>MEMOVA</strong><small>Preparing your Personal Manual flow</small></span>
+            <span class="agent-live-badge"><i></i> SECURE</span>
+          </header>
+          <div class="agent-flow-window__body agent-flow-window__body--progress">
+            <div class="agent-progress-orbit" aria-hidden="true"><i></i><i></i><i></i><img src="./brand/memova-app-icon-liquid-blue.svg" alt=""></div>
+            <div class="agent-progress-copy">
+              <span>BASELINE VERSION</span>
+              <h3>${error ? "Couldn’t read your current version" : "Checking your current Manual…"}</h3>
+              <p>${error ? "Your account is still signed in. Check the connection and try again." : "We save this version before you run Codex so an older Manual is never mistaken for the new result."}</p>
+            </div>
+          </div>
+          <footer class="agent-flow-window__footer agent-flow-window__footer--progress">
+            <span>Authenticated request · no content is copied to the website</span>
+            ${error ? '<button type="button" data-retry-baseline>Try again <i aria-hidden="true">→</i></button>' : "<strong>Reading the latest Note version…</strong>"}
+          </footer>
+        </article>
+      </div>
+    `;
+  }
+
+  function renderProgress(manualFlow, timedOut = false) {
     return `
       <div class="agent-product-proof agent-progress-proof" aria-label="Live Personal Manual generation progress">
         <div class="agent-backplane agent-backplane--lime" aria-hidden="true"><span>APPROVED CONTEXT</span><b>02</b></div>
-        <div class="agent-backplane agent-backplane--blue" aria-hidden="true"><span>HTML RESULT</span><b>04</b></div>
+        <div class="agent-backplane agent-backplane--blue" aria-hidden="true"><span>LIVE RESULT</span><b>04</b></div>
 
         <article class="agent-flow-window" id="agent-workspace">
           <header class="agent-flow-window__bar">
             <span class="agent-traffic-lights" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span><strong>MEMOVA</strong><small>${escapeHtml(job.id)} · Listening for Agent events</small></span>
-            <span class="agent-live-badge"><i></i> LIVE</span>
+            <span><strong>MEMOVA</strong><small>${escapeHtml(manualFlow.userEmail)} · Waiting for a new Note version</small></span>
+            <span class="agent-live-badge"><i></i> ${timedOut ? "PAUSED" : "LIVE"}</span>
           </header>
 
           <div class="agent-flow-window__body agent-flow-window__body--progress">
             <div class="agent-progress-orbit" aria-hidden="true"><i></i><i></i><i></i><img src="./brand/memova-app-icon-liquid-blue.svg" alt=""></div>
             <div class="agent-progress-copy">
-              <span>ANONYMOUS RETURN CHANNEL</span>
-              <h3 data-progress-title>Waiting for your Agent’s HTML…</h3>
-              <p data-progress-detail>This page will show the exact HTML returned to this temporary task. No website sign-in is required.</p>
+              <span>AUTHENTICATED VERSION CHECK</span>
+              <h3 data-progress-title>${timedOut ? "Still waiting for a new version" : "Waiting for your published Manual…"}</h3>
+              <p data-progress-detail>${timedOut ? "The 15-minute automatic check has paused. You can safely check again without creating another task." : "When Codex publishes a new Note version, this page will securely load its HTML from Memova."}</p>
             </div>
             <ol class="agent-live-steps">
-              <li class="is-complete" data-live-step="1"><span>01</span><div><strong>Return channel created</strong><small>Temporary and anonymous</small></div><b>DONE</b></li>
+              <li class="is-complete" data-live-step="1"><span>01</span><div><strong>Baseline saved</strong><small>Current Note version recorded</small></div><b>DONE</b></li>
               <li class="is-complete" data-live-step="2"><span>02</span><div><strong>Instructions copied</strong><small>Run both in your own Agent</small></div><b>DONE</b></li>
-              <li class="is-active" data-live-step="3"><span>03</span><div><strong>Waiting for Agent</strong><small>The page is polling the real task</small></div><b>LIVE</b></li>
-              <li data-live-step="4"><span>04</span><div><strong>HTML received</strong><small>Exact result, ready to preview</small></div><b>WAIT</b></li>
+              <li class="${timedOut ? "" : "is-active"}" data-live-step="3"><span>03</span><div><strong>Waiting for new version</strong><small>${timedOut ? "Automatic checking paused" : "Checking the signed-in account"}</small></div><b>${timedOut ? "WAIT" : "LIVE"}</b></li>
+              <li data-live-step="4"><span>04</span><div><strong>Manual received</strong><small>Published result, ready to preview</small></div><b>WAIT</b></li>
             </ol>
           </div>
 
           <footer class="agent-flow-window__footer agent-flow-window__footer--progress">
-            <span>Website account: not created</span>
-            <strong data-progress-footer>Listening for the secure HTML callback…</strong>
+            <span>The website and Codex must use the same Memova account</span>
+            ${timedOut ? '<button type="button" data-recheck-manual>Check again <i aria-hidden="true">→</i></button>' : '<strong data-progress-footer>Waiting for a new Note version…</strong>'}
           </footer>
         </article>
       </div>
@@ -414,20 +543,39 @@
   }
 
   function secureManualHtml(html) {
-    const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob: https:; media-src data: blob: https:; style-src 'unsafe-inline' https:; font-src data: https:; script-src 'unsafe-inline'; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">`;
+    const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob: https:; media-src data: blob: https:; style-src 'unsafe-inline' https:; font-src data: https:; script-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">`;
     if (/<head(?:\s|>)/i.test(html)) {
       return html.replace(/<head([^>]*)>/i, `<head$1>${csp}`);
     }
-    return html.replace(/<html([^>]*)>/i, `<html$1><head>${csp}</head>`);
+    if (/<html(?:\s|>)/i.test(html)) {
+      return html.replace(/<html([^>]*)>/i, `<html$1><head>${csp}</head>`);
+    }
+    return `<!doctype html><html><head>${csp}</head><body>${html}</body></html>`;
   }
 
-  function renderGeneratedResult(job, claimed) {
-    const hasResult = typeof job?.resultHtml === "string" && job.resultHtml.length > 0;
+  function manualPublicUrl(value) {
+    try {
+      const url = new URL(value);
+      if (
+        !["https://api.memova.ai", "https://apps.memova.ai"].includes(url.origin) ||
+        url.search ||
+        url.hash ||
+        !/^\/n\/[A-Za-z0-9_-]{8,128}$/.test(url.pathname)
+      ) return "";
+      return url.toString();
+    } catch (_error) {
+      return "";
+    }
+  }
+
+  function renderGeneratedResult(manualFlow) {
+    const hasResult = typeof manualFlow?.resultHtml === "string" && manualFlow.resultHtml.length > 0;
+    const publicUrl = manualPublicUrl(manualFlow?.publicUrl);
     const previewHtml = hasResult
-      ? secureManualHtml(job.resultHtml)
-      : "<!doctype html><html><head><style>body{margin:0;min-height:100vh;display:grid;place-items:center;font:16px system-ui;color:#24365d;background:#fffefa}</style></head><body>Loading the HTML returned by your Agent…</body></html>";
+      ? secureManualHtml(manualFlow.resultHtml)
+      : "<!doctype html><html><head><style>body{margin:0;min-height:100vh;display:grid;place-items:center;font:16px system-ui;color:#24365d;background:#fffefa}</style></head><body>Loading your published Personal Manual…</body></html>";
     return `
-      <div class="agent-product-proof agent-manual-embed agent-generated-proof" aria-label="Generated Personal Manual HTML result">
+      <div class="agent-product-proof agent-manual-embed agent-generated-proof" aria-label="Published Personal Manual result">
         <div class="agent-backplane agent-backplane--lime" aria-hidden="true"><span>YOUR MANUAL</span><b>HTML</b></div>
         <div class="agent-backplane agent-backplane--blue" aria-hidden="true"><span>AGENT RETURN</span><b>LIVE</b></div>
 
@@ -435,25 +583,27 @@
           <header class="agent-manual-browser__bar">
             <span class="agent-traffic-lights" aria-hidden="true"><i></i><i></i><i></i></span>
             <span class="agent-manual-browser__identity">
-              <strong>${claimed ? "SAVED TO MEMOVA" : "ANONYMOUS RESULT"}</strong>
-              <small>${hasResult ? "Exact HTML returned by your Agent" : "Loading returned HTML"}</small>
+              <strong>SAVED TO MEMOVA</strong>
+              <small>${hasResult ? "Live preview of your published Personal Manual" : "Loading published Manual"}</small>
             </span>
-            <button class="agent-result-download" type="button" data-download-result ${hasResult ? "" : "disabled"}><span>Download HTML</span><i aria-hidden="true">↓</i></button>
+            ${publicUrl
+              ? `<a class="agent-result-download" href="${escapeHtml(publicUrl)}" target="_blank" rel="noopener"><span>Open full Manual</span><i aria-hidden="true">↗</i></a>`
+              : `<button class="agent-result-download" type="button" disabled><span>Loading Manual</span><i aria-hidden="true">…</i></button>`}
           </header>
 
           <div class="agent-manual-browser__viewport agent-generated-browser__viewport">
             <iframe
               srcdoc="${escapeHtml(previewHtml)}"
-              title="Personal Manual HTML returned by the user's Agent"
+              title="Published Memova Personal Manual"
               loading="eager"
-              sandbox="allow-scripts allow-modals allow-downloads"
+              sandbox="allow-downloads"
               referrerpolicy="no-referrer"
             ></iframe>
           </div>
 
           <footer class="agent-manual-browser__footer agent-generated-browser__footer">
-            <span>${claimed ? "Private Note · bound to your Memova account" : `${escapeHtml(job.id)} · no website account`}</span>
-            <span class="agent-result-proof"><b>REAL AGENT HTML</b> · temporary anonymous preview</span>
+            <span>Private Note · bound to your Memova account</span>
+            <span class="agent-result-proof"><b>LIVE MEMOVA PAGE</b> · secure website preview</span>
           </footer>
         </article>
       </div>
@@ -471,20 +621,30 @@
       title: "Two prompts.<br>Made for your<br>AI client.",
       body: "Copy the two instructions in order. Memova connects inside your AI client, then uses the context available there to generate your Personal Manual."
     };
+    if (state === "auth") return {
+      bridge: "Website sign-in · Required",
+      title: "Connect the account<br>that will receive<br>your Manual.",
+      body: "Sign in first so the website can wait for the Personal Manual Note published to your own Memova workspace."
+    };
+    if (state === "prepare") return {
+      bridge: "Secure setup · Baseline",
+      title: "Record the version<br>before Codex<br>starts.",
+      body: "The website checks your current Note version once so it can recognize only the Personal Manual generated in this run."
+    };
     if (state === "progress") return {
-      bridge: "Agent callback · Step 2 of 3",
+      bridge: "Version polling · Step 2 of 3",
       title: "Watch your<br>context become<br>a Manual.",
-      body: "Memova listens for the Agent result and shows each stage as it arrives. You still have not created or signed in to a website account."
+      body: "Memova waits for the latest Note version on your signed-in account to change, then loads the owner preview securely."
+    };
+    if (state === "timeout") return {
+      bridge: "Version polling · Paused",
+      title: "Still waiting<br>for a new<br>Manual version.",
+      body: "Automatic checking pauses after 15 minutes. Your baseline is preserved, so checking again cannot mistake an older Manual for this run."
     };
     if (state === "result") return {
-      bridge: "Complete HTML · Step 3 of 3",
-      title: "Read it first.<br>Save it when<br>it feels right.",
-      body: "This is the complete HTML returned by your Agent. Open and inspect the Personal Manual before deciding what to do next."
-    };
-    if (state === "claimed") return {
-      bridge: "Saved to Memova",
-      title: "Your Manual<br>now continues<br>with you.",
-      body: "The anonymous result is now bound to your account and stored as a private Note, ready to continue in the Memova app."
+      bridge: "Published Manual · Step 3 of 3",
+      title: "Your Manual<br>is ready to<br>read.",
+      body: "This is the Personal Manual Codex published to your Memova account. Read it here or open the stable full-page version."
     };
     return {
       bridge: "Two references before you create",
@@ -499,8 +659,14 @@
         <button class="agent-primary-action" type="button" data-create-manual>
           <span>Create my Personal Manual</span><span class="agent-action-arrow" aria-hidden="true">→</span>
         </button>
-        <div class="agent-trust-note"><span class="agent-trust-dot" aria-hidden="true"></span><span>No sign-in required to create or preview.</span></div>
+        <div class="agent-trust-note"><span class="agent-trust-dot" aria-hidden="true"></span><span>Website sign-in is required before generation.</span></div>
       `;
+    }
+    if (state === "auth") {
+      return '<div class="agent-trust-note"><span class="agent-trust-dot" aria-hidden="true"></span><span>No anonymous task will be created.</span></div>';
+    }
+    if (state === "prepare") {
+      return '<div class="agent-trust-note"><span class="agent-trust-dot" aria-hidden="true"></span><span>Reading only the current Note and version identifiers.</span></div>';
     }
     if (state === "audience") {
       return `
@@ -510,35 +676,43 @@
     }
     if (state === "handoff") {
       return `
-        <div class="agent-job-ticket"><small>TEMPORARY TASK</small><strong data-job-id></strong><span>Waiting for your Agent</span></div>
+        <div class="agent-job-ticket"><small>VERSION BASELINE</small><strong>READY</strong><span>Waiting for your Agent</span></div>
         <button class="agent-text-action" type="button" data-reset-manual>← Return to Neil's sample</button>
       `;
     }
-    if (state === "progress") {
+    if (["progress", "timeout"].includes(state)) {
       return `
-        <div class="agent-job-ticket is-live"><small>LIVE TASK</small><strong data-job-id></strong><span>Website session remains anonymous</span></div>
+        <div class="agent-job-ticket is-live"><small>ACCOUNT POLLING</small><strong>${state === "timeout" ? "PAUSED" : "LIVE"}</strong><span>Authenticated website session</span></div>
         <div class="agent-soft-handoff" role="note" aria-label="Continue while your Personal Manual is generated">
           <strong>Keep this page open.</strong>
-          <span>It checks the temporary task automatically and will show the returned HTML as soon as it arrives.</span>
+          <span>It checks for a new Personal Manual Note version and will show the authenticated owner preview as soon as it is ready.</span>
         </div>
       `;
     }
     if (state === "result") {
       return `
-        <button class="agent-primary-action" type="button" data-download-result><span>Download returned HTML</span><span class="agent-action-arrow" aria-hidden="true">↓</span></button>
-        <div class="agent-trust-note"><span class="agent-trust-dot" aria-hidden="true"></span><span>Still anonymous. This preview expires with the temporary task.</span></div>
+        <button class="agent-primary-action" type="button" data-download-result><span>Download Personal Manual HTML</span><span class="agent-action-arrow" aria-hidden="true">↓</span></button>
+        <div class="agent-trust-note agent-trust-note--saved"><span class="agent-trust-dot" aria-hidden="true"></span><span>Saved to the Memova account used in Codex.</span></div>
       `;
     }
     return `
-      <button class="agent-primary-action" type="button" data-download-result><span>Download returned HTML</span><span class="agent-action-arrow" aria-hidden="true">↓</span></button>
+      <button class="agent-primary-action" type="button" data-download-result><span>Download Personal Manual HTML</span><span class="agent-action-arrow" aria-hidden="true">↓</span></button>
       <div class="agent-trust-note agent-trust-note--saved"><span class="agent-trust-dot" aria-hidden="true"></span><span>Your returned HTML is ready.</span></div>
     `;
   }
 
+  function stopProgress() {
+    if (progressTimer) window.clearTimeout(progressTimer);
+    progressTimer = null;
+    progressAbortController?.abort();
+    progressAbortController = null;
+    if (progressVisibilityHandler) document.removeEventListener("visibilitychange", progressVisibilityHandler);
+    progressVisibilityHandler = null;
+  }
+
   function renderCapture(section, state = getViewState()) {
     const copy = copyForState(state.state);
-    progressTimers.forEach(window.clearTimeout);
-    progressTimers = [];
+    stopProgress();
 
     section.dataset.agentManualIntegrated = "true";
     section.dataset.manualState = state.state;
@@ -556,24 +730,29 @@
       </div>
 
       ${state.state === "sample" ? renderNeilSample() : ""}
-      ${state.state === "audience" ? renderClientChoice(state.job, state.activeClient) : ""}
-      ${state.state === "handoff" ? renderAgentHandoff(state.job) : ""}
-      ${state.state === "progress" ? renderProgress(state.job) : ""}
-      ${state.state === "result" ? renderGeneratedResult(state.job, false) : ""}
-      ${state.state === "claimed" ? renderGeneratedResult(state.job, true) : ""}
+      ${state.state === "auth" ? renderAuthRequired(state.flow) : ""}
+      ${state.state === "prepare" ? renderPrepare(state.error) : ""}
+      ${state.state === "audience" ? renderClientChoice(state.flow, state.activeClient) : ""}
+      ${state.state === "handoff" ? renderAgentHandoff(state.flow) : ""}
+      ${state.state === "progress" ? renderProgress(state.flow, false) : ""}
+      ${state.state === "timeout" ? renderProgress(state.flow, true) : ""}
+      ${state.state === "result" ? renderGeneratedResult(state.flow) : ""}
     `;
 
-    const jobId = section.querySelector("[data-job-id]");
-    if (jobId && state.job) jobId.textContent = state.job.id;
     wireCapture(section, state);
-    if (state.state === "progress") startProgress(section, state.job);
-    if (["result", "claimed"].includes(state.state) && !state.job?.resultHtml) loadResult(section, state.job);
+    if (state.state === "prepare" && !state.error) initializeBaseline(section, state.session);
+    if (state.state === "progress") startProgress(section, state.flow, state.session);
+    if (state.state === "result" && !state.flow?.resultHtml) loadResult(section, state.flow, state.session);
   }
 
   async function copyText(value) {
     if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(value);
-      return;
+      try {
+        await navigator.clipboard.writeText(value);
+        return;
+      } catch (_error) {
+        // Continue with the selection fallback when clipboard permissions are unavailable.
+      }
     }
     const field = document.createElement("textarea");
     field.value = value;
@@ -609,6 +788,29 @@
     });
   }
 
+  async function initializeBaseline(section, session = readAuthSession()) {
+    if (!session) {
+      renderCapture(section, { state: "auth", flow: null, session: null });
+      return;
+    }
+    const controller = new AbortController();
+    progressAbortController = controller;
+    try {
+      const manual = await fetchCurrentPersonalManual(session.access_token, controller.signal);
+      if (controller.signal.aborted) return;
+      const flow = createFlow(session, manual);
+      renderCapture(section, { state: "audience", flow, session });
+    } catch (error) {
+      if (error.name === "AbortError") return;
+      if (error.message === "AUTH_REQUIRED") {
+        invalidateAuthSession();
+        renderCapture(section, { state: "auth", flow: null, session: null });
+        return;
+      }
+      renderCapture(section, { state: "prepare", flow: null, session, error: error.message || "BASELINE_UNAVAILABLE" });
+    }
+  }
+
   function wireCapture(section, state) {
     section.querySelectorAll("[data-learning-target]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -619,8 +821,18 @@
     if (state.state === "sample") setLearningView(section, "neil");
 
     section.querySelector("[data-create-manual]")?.addEventListener("click", () => {
-      renderCapture(section, { state: "audience", job: null });
+      const session = readAuthSession();
+      renderCapture(section, session
+        ? { state: "prepare", flow: null, session }
+        : { state: "auth", flow: null, session: null });
       section.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    section.querySelector("[data-retry-baseline]")?.addEventListener("click", () => {
+      const session = readAuthSession();
+      renderCapture(section, session
+        ? { state: "prepare", flow: null, session }
+        : { state: "auth", flow: null, session: null });
     });
 
     section.querySelectorAll("[data-client-type]").forEach((button) => {
@@ -636,19 +848,18 @@
           card.querySelector("[data-client-card-back]")?.setAttribute("aria-hidden", String(!active));
         });
         button.disabled = true;
-        try {
-          const job = await createRemoteJob(clientType);
+        const manualFlow = readFlow() || state.flow;
+        if (!manualFlow) {
           await flipComplete;
-          renderCapture(section, { state: "audience", job, activeClient: clientType });
-        } catch (_error) {
-          await flipComplete;
-          const loading = section.querySelector(`[data-client-card="${clientType}"] [data-job-loading]`);
-          if (loading) {
-            loading.querySelector("strong").textContent = "Could not create the return link";
-            loading.querySelector("span").textContent = "Flip back and try again.";
-          }
-          button.disabled = false;
+          renderCapture(section, { state: "prepare", flow: null, session: readAuthSession() });
+          return;
         }
+        manualFlow.clientType = clientType;
+        manualFlow.copied = [];
+        manualFlow.state = "audience";
+        writeFlow(manualFlow);
+        await flipComplete;
+        renderCapture(section, { state: "audience", flow: manualFlow, session: readAuthSession(), activeClient: clientType });
       });
     });
 
@@ -666,8 +877,9 @@
 
     section.querySelectorAll("[data-reset-manual]").forEach((button) => {
       button.addEventListener("click", () => {
-        window.sessionStorage.removeItem(STORAGE_KEY);
-        renderCapture(section, { state: "sample", job: null });
+        const session = readAuthSession();
+        clearFlow(session);
+        renderCapture(section, { state: "sample", flow: null, session });
       });
     });
 
@@ -675,38 +887,53 @@
       button.addEventListener("click", async () => {
         const number = Number(button.dataset.copyInstruction);
         const clientType = button.dataset.clientCopy === "mcp" ? "mcp" : button.dataset.clientCopy === "codex" ? "codex" : null;
-        const job = readJob() || state.job;
-        if (!job || (clientType && job.clientType !== clientType)) return;
-        await copyText(jobPrompt(clientType || job.clientType, number));
-        job.copied = Array.from(new Set([...(job.copied || []), number]));
-        writeJob(job);
+        const manualFlow = readFlow() || state.flow;
+        if (!manualFlow || (clientType && manualFlow.clientType !== clientType)) return;
+        await copyText(jobPrompt(clientType || manualFlow.clientType, number));
+        manualFlow.copied = Array.from(new Set([...(manualFlow.copied || []), number]));
+        writeFlow(manualFlow);
         button.textContent = "Copied";
         button.closest(".agent-instruction-card, .agent-compact-instruction")?.classList.add("is-copied");
         const card = button.closest("[data-client-card]");
         const start = card?.querySelector("[data-agent-ran]") || section.querySelector("[data-agent-ran]");
-        if (start && job.copied.includes(1) && job.copied.includes(2)) start.disabled = false;
+        if (start && manualFlow.copied.includes(1) && manualFlow.copied.includes(2)) start.disabled = false;
       });
     });
 
     section.querySelectorAll("[data-agent-ran]").forEach((button) => {
       button.addEventListener("click", () => {
         const clientType = button.dataset.clientStart === "mcp" ? "mcp" : button.dataset.clientStart === "codex" ? "codex" : null;
-        const job = readJob() || state.job;
-        if (!job || (clientType && job.clientType !== clientType)) return;
-        job.state = "progress";
-        writeJob(job);
-        renderCapture(section, { state: "progress", job });
+        const manualFlow = readFlow() || state.flow;
+        const session = readAuthSession();
+        if (!session || !manualFlow || (clientType && manualFlow.clientType !== clientType)) return;
+        manualFlow.state = "progress";
+        manualFlow.pollStartedAt = Date.now();
+        writeFlow(manualFlow);
+        renderCapture(section, { state: "progress", flow: manualFlow, session });
       });
+    });
+
+    section.querySelector("[data-recheck-manual]")?.addEventListener("click", () => {
+      const session = readAuthSession();
+      const manualFlow = readFlow(session) || state.flow;
+      if (!session || !manualFlow) {
+        renderCapture(section, { state: "auth", flow: manualFlow || null, session: null });
+        return;
+      }
+      manualFlow.state = "progress";
+      manualFlow.pollStartedAt = Date.now();
+      writeFlow(manualFlow);
+      renderCapture(section, { state: "progress", flow: manualFlow, session });
     });
 
     section.querySelectorAll("[data-download-result]").forEach((button) => {
       button.addEventListener("click", () => {
-        const job = readJob() || state.job;
-        if (!job?.resultHtml) return;
-        const blobUrl = URL.createObjectURL(new Blob([job.resultHtml], { type: "text/html;charset=utf-8" }));
+        const manualFlow = state.flow;
+        if (!manualFlow?.resultHtml) return;
+        const blobUrl = URL.createObjectURL(new Blob([manualFlow.resultHtml], { type: "text/html;charset=utf-8" }));
         const link = document.createElement("a");
         link.href = blobUrl;
-        link.download = `memova-personal-manual-${job.id}.html`;
+        link.download = `memova-personal-manual-${manualFlow.versionId || "latest"}.html`;
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -715,55 +942,139 @@
     });
   }
 
-  function startProgress(section, job) {
-    if (!job) return;
+  function startProgress(section, manualFlow, session = readAuthSession()) {
+    if (!manualFlow || !session || manualFlow.userId !== session.user.id) {
+      renderCapture(section, { state: "auth", flow: manualFlow || null, session: null });
+      return;
+    }
+    const startedAt = Number(manualFlow.pollStartedAt) || Date.now();
+    manualFlow.pollStartedAt = startedAt;
+    writeFlow(manualFlow);
+    let requestInFlight = false;
+    let transientFailures = 0;
+
+    const updateStatus = (title, detail, footer) => {
+      const titleNode = section.querySelector("[data-progress-title]");
+      const detailNode = section.querySelector("[data-progress-detail]");
+      const footerNode = section.querySelector("[data-progress-footer]");
+      if (titleNode) titleNode.textContent = title;
+      if (detailNode) detailNode.textContent = detail;
+      if (footerNode) footerNode.textContent = footer;
+    };
+
+    const schedule = (delay) => {
+      if (document.hidden) return;
+      if (progressTimer) window.clearTimeout(progressTimer);
+      progressTimer = window.setTimeout(poll, delay);
+    };
+
     const poll = async () => {
+      if (requestInFlight || document.hidden) return;
+      if (Date.now() - startedAt >= POLL_TIMEOUT_MS) {
+        manualFlow.state = "timeout";
+        writeFlow(manualFlow);
+        renderCapture(section, { state: "timeout", flow: manualFlow, session });
+        return;
+      }
+
+      requestInFlight = true;
+      const controller = new AbortController();
+      progressAbortController = controller;
       try {
-        const remote = await fetchRemoteJob(job, false);
-        if (remote.status === "complete") {
-          const result = await fetchRemoteJob(job, true);
-          if (!result.html) throw new Error("html_missing");
-          job.state = "result";
-          job.resultHtml = result.html;
-          job.receivedAt = result.received_at;
-          writeJob(job);
-          renderCapture(section, { state: "result", job });
+        const current = await fetchCurrentPersonalManual(session.access_token, controller.signal);
+        if (isNewResult(manualFlow.baseline, current)) {
+          updateStatus(
+            "New Manual version found…",
+            "The Note version changed. Loading its authenticated owner preview now.",
+            "New version detected · preparing HTML preview"
+          );
+          const html = await fetchPersonalManualHtml(current.note_id, session.access_token, controller.signal);
+          if (controller.signal.aborted) return;
+          manualFlow.state = "result";
+          manualFlow.resultHtml = html;
+          manualFlow.noteId = current.note_id;
+          manualFlow.versionId = current.latest_note_version_id;
+          manualFlow.latestVersionNumber = current.latest_version_number;
+          manualFlow.publicUrl = current.public_url || "";
+          manualFlow.receivedAt = new Date().toISOString();
+          writeFlow(manualFlow);
+          renderCapture(section, { state: "result", flow: manualFlow, session });
           return;
         }
-        section.querySelector("[data-progress-title]").textContent = "Waiting for your Agent’s HTML…";
-        section.querySelector("[data-progress-detail]").textContent = "The return channel is active. The result will appear only after your Agent posts the complete HTML.";
-        section.querySelector("[data-progress-footer]").textContent = "No HTML received yet · checking again";
+        transientFailures = 0;
+        updateStatus(
+          "Waiting for your published Manual…",
+          "No new Note version yet. You can keep working in Codex while this page checks your signed-in account.",
+          "No new version yet · checking again"
+        );
+        const elapsed = Date.now() - startedAt;
+        schedule(elapsed < POLL_FAST_WINDOW_MS ? POLL_FAST_INTERVAL_MS : POLL_SLOW_INTERVAL_MS);
       } catch (error) {
-        const expired = error.message === "job_expired";
-        section.querySelector("[data-progress-title]").textContent = expired ? "This temporary task expired" : "Return channel temporarily unavailable";
-        section.querySelector("[data-progress-detail]").textContent = expired
-          ? "Start again to create a new anonymous return link."
-          : "We could not check the task just now. This page will retry automatically.";
-        section.querySelector("[data-progress-footer]").textContent = expired ? "Temporary task closed" : "Connection retry pending";
-        if (expired) return;
+        if (error.name === "AbortError") {
+          if (!document.hidden) schedule(0);
+          return;
+        }
+        if (error.message === "AUTH_REQUIRED") {
+          invalidateAuthSession();
+          renderCapture(section, { state: "auth", flow: manualFlow, session: null });
+          return;
+        }
+        transientFailures += 1;
+        const exponentialDelay = Math.min(POLL_SLOW_INTERVAL_MS * (2 ** Math.min(transientFailures - 1, 3)), MAX_RETRY_DELAY_MS);
+        const retryDelay = error.message === "RATE_LIMITED" && error.retryAfterMs
+          ? Math.min(error.retryAfterMs, POLL_TIMEOUT_MS)
+          : exponentialDelay;
+        updateStatus(
+          error.message.startsWith("MANUAL_PREVIEW_") ? "New version found; preview is preparing…" : "Connection temporarily unavailable",
+          error.message.startsWith("MANUAL_PREVIEW_")
+            ? "Memova has the new version, but its HTML preview is not ready yet. This page will retry without showing the old version."
+            : "Your baseline is safe. This page will retry automatically and will not report Codex as failed.",
+          `Retrying in ${Math.max(1, Math.ceil(retryDelay / 1000))} seconds`
+        );
+        schedule(retryDelay);
+      } finally {
+        requestInFlight = false;
+        if (progressAbortController === controller) progressAbortController = null;
       }
-      progressTimers.push(window.setTimeout(poll, 2500));
     };
+
+    progressVisibilityHandler = () => {
+      if (document.hidden) {
+        if (progressTimer) window.clearTimeout(progressTimer);
+        progressTimer = null;
+        progressAbortController?.abort();
+        return;
+      }
+      poll();
+    };
+    document.addEventListener("visibilitychange", progressVisibilityHandler);
     poll();
   }
 
-  async function loadResult(section, job) {
-    if (!job) return;
+  async function loadResult(section, manualFlow, session = readAuthSession()) {
+    if (!manualFlow || !session || manualFlow.userId !== session.user.id || !manualFlow.noteId) {
+      renderCapture(section, session
+        ? { state: "prepare", flow: null, session }
+        : { state: "auth", flow: manualFlow || null, session: null });
+      return;
+    }
+    const controller = new AbortController();
+    progressAbortController = controller;
     try {
-      const result = await fetchRemoteJob(job, true);
-      if (result.status !== "complete" || !result.html) {
-        job.state = "progress";
-        writeJob(job);
-        renderCapture(section, { state: "progress", job });
+      manualFlow.resultHtml = await fetchPersonalManualHtml(manualFlow.noteId, session.access_token, controller.signal);
+      if (controller.signal.aborted) return;
+      renderCapture(section, { state: "result", flow: manualFlow, session });
+    } catch (error) {
+      if (error.name === "AbortError") return;
+      if (error.message === "AUTH_REQUIRED") {
+        invalidateAuthSession();
+        renderCapture(section, { state: "auth", flow: manualFlow, session: null });
         return;
       }
-      job.resultHtml = result.html;
-      job.receivedAt = result.received_at;
-      renderCapture(section, { state: job.claimed ? "claimed" : "result", job });
-    } catch (_error) {
-      job.state = "progress";
-      writeJob(job);
-      renderCapture(section, { state: "progress", job });
+      manualFlow.state = "progress";
+      manualFlow.pollStartedAt = Date.now();
+      writeFlow(manualFlow);
+      renderCapture(section, { state: "progress", flow: manualFlow, session });
     }
   }
 
@@ -773,6 +1084,8 @@
     if (section.dataset.agentManualIntegrated !== "true") renderCapture(section);
     return true;
   }
+
+  window.addEventListener("pagehide", stopProgress);
 
   if (!mount()) {
     const observer = new MutationObserver(() => {

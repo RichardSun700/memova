@@ -117,7 +117,7 @@ describe("production homepage", () => {
     expect(captureScript).not.toContain("neil-v7-score-2");
     expect(scatterScript).not.toContain("neil-v7-score-2");
     expect(homepage).toContain(
-      "capture-personal-manual-integration.js?v=20260828-chapter2-tab-highlight1"
+      "capture-personal-manual-integration.js?v=20260831-personal-manual-polling1"
     );
     expect(homepage).toContain(
       "capture-personal-manual-integration.css?v=20260828-client-cards-flip2"
@@ -194,6 +194,8 @@ describe("production homepage", () => {
       "Please install or update Memova from gxyfred/memova-codex-plugin to the latest version and complete sign-in. When finished, remind me to restart Codex."
     );
     expect(captureScript).toContain("@memova Personal Manual");
+    expect(captureScript).not.toContain("one-time website handoff");
+    expect(captureScript).not.toContain("submitUrl");
     expect(captureScript).toContain(
       "Please connect to the Memova MCP: https://api.memova.ai/mcp and complete sign-in. If the client needs to be reloaded, remind me."
     );
@@ -227,9 +229,7 @@ describe("production homepage", () => {
     expect(captureScript).toMatch(
       /if \(state === "sample"\)[\s\S]*?data-create-manual/
     );
-    expect(captureScript).toContain(
-      'renderCapture(section, { state: "audience", job: null })'
-    );
+    expect(captureScript).toContain('state: "prepare", flow: null, session');
     expect(captureScript).toContain(
       'section.querySelectorAll("[data-reset-manual]").forEach'
     );
@@ -238,15 +238,32 @@ describe("production homepage", () => {
       captureScript.indexOf('section.querySelectorAll("[data-flip-back]")')
     );
     expect(clientChoiceHandler).toContain('card.classList.toggle("is-flipped", active)');
-    expect(clientChoiceHandler).toContain("createRemoteJob(clientType)");
+    expect(clientChoiceHandler).toContain("manualFlow.clientType = clientType");
+    expect(clientChoiceHandler).not.toContain("createRemoteJob");
     expect(clientChoiceHandler).not.toContain('state: "handoff"');
-    expect(captureScript).toContain('const JOB_API = "/api/personal-manual/jobs"');
+    expect(captureScript).toContain('const AUTH_STORAGE_KEY = "memova.auth.v1"');
+    expect(captureScript).toContain("/v1/personal-manual/current");
+    expect(captureScript).toContain("/overview/preview");
+    expect(captureScript).toContain("function snapshot(manual)");
+    expect(captureScript).toContain("function isNewResult(baseline, current)");
+    expect(captureScript).toContain("current.latest_note_version_id !== baseline.versionId");
+    expect(captureScript).toContain('cache: "no-store"');
+    expect(captureScript).toContain('document.addEventListener("visibilitychange"');
+    expect(captureScript).toContain("const POLL_TIMEOUT_MS = 15 * 60_000");
+    expect(captureScript).toContain('error.message === "RATE_LIMITED"');
+    expect(captureScript).toContain('error.message === "AUTH_REQUIRED"');
+    expect(captureScript).toContain("window.localStorage.removeItem(AUTH_STORAGE_KEY)");
+    expect(captureScript).toContain('window.addEventListener("pagehide", stopProgress)');
+    expect(captureScript).not.toContain('/api/personal-manual/jobs');
+    expect(captureScript).not.toContain("createRemoteJob");
+    expect(captureScript).not.toContain("fetchRemoteJob");
     expect(captureScript).not.toContain("When the complete HTML is ready");
     expect(captureScript).not.toContain("POST only that HTML");
     expect(captureScript).not.toContain("complete self-contained HTML file");
-    expect(captureScript).toContain("fetchRemoteJob(job, true)");
     expect(captureScript).toContain('srcdoc="${escapeHtml(previewHtml)}"');
-    expect(captureScript).toContain("secureManualHtml(job.resultHtml)");
+    expect(captureScript).toContain("secureManualHtml(manualFlow.resultHtml)");
+    expect(captureScript).toContain("script-src 'none'");
+    expect(captureScript).toContain('sandbox="allow-downloads"');
     expect(captureScript).not.toContain("RESULT_URL");
     expect(captureScript).not.toContain("generated-conductor");
     expect(captureScript).not.toContain("5 Codex conversations found");
