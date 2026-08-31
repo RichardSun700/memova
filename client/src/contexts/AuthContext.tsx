@@ -2,7 +2,9 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -12,6 +14,7 @@ import {
   type AuthTokenResponse,
   type AuthUser,
   type AuthWorkspace,
+  type CurrentUserResponse,
 } from "@/lib/api";
 
 const STORAGE_KEY = "memova.auth.v1";
@@ -30,6 +33,7 @@ type AuthContextValue = {
   workspace: AuthWorkspace | null;
   isAuthenticated: boolean;
   setSessionFromTokenResponse: (response: AuthTokenResponse) => void;
+  setSessionFromCurrentUserResponse: (response: CurrentUserResponse) => void;
   refreshUser: () => Promise<void>;
   clearSession: () => void;
   logout: () => Promise<void>;
@@ -41,11 +45,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSessionState] = useState<AuthSession | null>(() =>
     readStoredSession()
   );
+  const hydratedTokenRef = useRef<string | null>(null);
 
   const persistSession = useCallback((nextSession: AuthSession | null) => {
     setSessionState(nextSession);
     if (nextSession) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSession));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(sessionWithoutTemporaryAvatarUrl(nextSession))
+      );
     } else {
       localStorage.removeItem(STORAGE_KEY);
     }
@@ -67,6 +75,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     persistSession(null);
   }, [persistSession]);
 
+  const setSessionFromCurrentUserResponse = useCallback(
+    (response: CurrentUserResponse) => {
+      if (!session) return;
+      persistSession({
+        ...session,
+        user: response.user,
+        default_workspace: response.default_workspace,
+      });
+    },
+    [persistSession, session]
+  );
+
   const refreshUser = useCallback(async () => {
     if (!session?.access_token) return;
     const current = await getCurrentUser(session.access_token);
@@ -76,6 +96,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       default_workspace: current.default_workspace,
     });
   }, [persistSession, session]);
+
+  useEffect(() => {
+    const token = session?.access_token;
+    if (!token || hydratedTokenRef.current === token) return;
+    hydratedTokenRef.current = token;
+    void refreshUser().catch(() => {
+      // Keep the stored session usable when profile hydration is unavailable.
+    });
+  }, [refreshUser, session?.access_token]);
+
+  useEffect(() => {
+    const expiresMs = Date.parse(session?.user.avatar_url_expires_at || "");
+    if (!Number.isFinite(expiresMs)) return;
+    const refreshDelay = Math.max(
+      60_000,
+      expiresMs - Date.now() - 60_000
+    );
+    const timer = window.setTimeout(() => {
+      void refreshUser().catch(() => {
+        // Image error handling can retry if the scheduled refresh fails.
+      });
+    }, refreshDelay);
+    return () => window.clearTimeout(timer);
+  }, [refreshUser, session?.user.avatar_url_expires_at]);
 
   const logout = useCallback(async () => {
     const token = session?.access_token;
@@ -101,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       workspace: isAuthenticated ? session?.default_workspace || null : null,
       isAuthenticated,
       setSessionFromTokenResponse,
+      setSessionFromCurrentUserResponse,
       refreshUser,
       clearSession,
       logout,
@@ -111,6 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       refreshUser,
       session,
+      setSessionFromCurrentUserResponse,
       setSessionFromTokenResponse,
     ]
   );
@@ -124,6 +170,17 @@ export function useAuth() {
     throw new Error("useAuth must be used inside AuthProvider");
   }
   return context;
+}
+
+function sessionWithoutTemporaryAvatarUrl(session: AuthSession): AuthSession {
+  return {
+    ...session,
+    user: {
+      ...session.user,
+      avatar_url: null,
+      avatar_url_expires_at: null,
+    },
+  };
 }
 
 function readStoredSession(): AuthSession | null {

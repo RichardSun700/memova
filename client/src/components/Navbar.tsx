@@ -16,6 +16,8 @@ const navLinks: Array<{ label: string; href: string; section?: string }> = [
 
 export default function Navbar() {
   const auth = useAuth();
+  const accountName = auth.user?.display_name?.trim() || "Memova account";
+  const accountInitial = accountName.charAt(0).toUpperCase() || "M";
   const skipInitialMotion = shouldSkipInitialMarketingMotion();
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
@@ -94,14 +96,36 @@ export default function Navbar() {
         {/* Right side: CTA + mobile menu */}
         <div className="flex items-center gap-3">
           {auth.isAuthenticated ? (
-            <button
-              type="button"
-              onClick={() => void auth.logout()}
-              className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold text-[#637083] transition-all hover:bg-[#F6F9FF] hover:text-[var(--memova-navy)] md:inline-flex"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Log out
-            </button>
+            <div className="hidden items-center gap-1.5 md:flex">
+              <a
+                href="/profile"
+                aria-label={`Open ${accountName}'s Memova profile`}
+                className="inline-flex min-w-0 items-center gap-2 rounded-full border border-[#DCE6F4] bg-white/75 py-1.5 pl-1.5 pr-3 text-[13px] font-semibold text-[var(--memova-navy)] shadow-sm transition-all hover:bg-white"
+              >
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--memova-navy)] text-[10px] font-bold text-white">
+                  {auth.user?.avatar_url ? (
+                    <img
+                      key={auth.user.avatar_version || auth.user.avatar_url}
+                      src={auth.user.avatar_url}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      onError={() => void auth.refreshUser().catch(() => {})}
+                    />
+                  ) : (
+                    accountInitial
+                  )}
+                </span>
+                <span className="max-w-28 truncate">{accountName}</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => void auth.logout()}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold text-[#637083] transition-all hover:bg-[#F6F9FF] hover:text-[var(--memova-navy)]"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Log out
+              </button>
+            </div>
           ) : (
             <a
               href="/login"
@@ -202,17 +226,39 @@ export default function Navbar() {
               Join Community
             </button>
             {auth.isAuthenticated ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileOpen(false);
-                  void auth.logout();
-                }}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-[14px] font-medium text-[#637083] transition-all hover:bg-[#F6F9FF] hover:text-[var(--memova-navy)]"
-              >
-                <LogOut className="h-4 w-4" />
-                Log out
-              </button>
+              <div className="mt-1 grid gap-1 border-t border-[#E8EEF7] pt-3">
+                <a
+                  href="/profile"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex min-w-0 items-center gap-2 rounded-lg px-3 py-2 text-[14px] font-semibold text-[var(--memova-navy)] transition-all hover:bg-[#F6F9FF]"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--memova-navy)] text-[11px] font-bold text-white">
+                    {auth.user?.avatar_url ? (
+                      <img
+                        key={auth.user.avatar_version || auth.user.avatar_url}
+                        src={auth.user.avatar_url}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        onError={() => void auth.refreshUser().catch(() => {})}
+                      />
+                    ) : (
+                      accountInitial
+                    )}
+                  </span>
+                  <span className="truncate">{accountName}</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    void auth.logout();
+                  }}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-[14px] font-medium text-[#637083] transition-all hover:bg-[#F6F9FF] hover:text-[var(--memova-navy)]"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Log out
+                </button>
+              </div>
             ) : (
               <a
                 href="/login"

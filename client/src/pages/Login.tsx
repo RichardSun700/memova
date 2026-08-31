@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, CheckCircle2, Loader2, Mail } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Loader2,
+  Mail,
+  UserRound,
+} from "lucide-react";
 import { useLocation } from "wouter";
 import SiteFooter from "@/components/SiteFooter";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -16,7 +22,9 @@ import {
   ApiError,
   loginWithReviewCredentials,
   startEmailLogin,
+  updateCurrentUserProfile,
   verifyEmailLogin,
+  type AuthTokenResponse,
   type EmailLoginStartResponse,
 } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,6 +48,9 @@ export default function Login() {
   const [challenge, setChallenge] = useState<EmailLoginStartResponse | null>(
     null
   );
+  const [pendingSession, setPendingSession] =
+    useState<AuthTokenResponse | null>(null);
+  const [nickname, setNickname] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -74,8 +85,7 @@ export default function Login() {
         challenge.challenge_id,
         code.trim()
       );
-      auth.setSessionFromTokenResponse(response);
-      setLocation(next);
+      continueAfterVerification(response);
     } catch (err) {
       setError(errorMessage(err, "That code did not work."));
     } finally {
@@ -92,10 +102,54 @@ export default function Login() {
         reviewEmail.trim(),
         reviewPassword
       );
-      auth.setSessionFromTokenResponse(response);
-      setLocation(next);
+      continueAfterVerification(response);
     } catch (err) {
       setError(reviewLoginErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const continueAfterVerification = (response: AuthTokenResponse) => {
+    if (!response.user.display_name?.trim()) {
+      setPendingSession(response);
+      setNickname("");
+      return;
+    }
+    auth.setSessionFromTokenResponse(response);
+    setLocation(next);
+  };
+
+  const handleNickname = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!pendingSession) return;
+    const normalizedNickname = nickname.trim();
+    if (!normalizedNickname) {
+      setError("Add the name you'd like Memova to use.");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+    try {
+      const current = await updateCurrentUserProfile(
+        pendingSession.access_token,
+        normalizedNickname
+      );
+      auth.setSessionFromTokenResponse({
+        ...pendingSession,
+        user: current.user,
+        default_workspace: current.default_workspace,
+      });
+      setPendingSession(null);
+      setLocation(next);
+    } catch (err) {
+      setError(
+        errorMessage(
+          err,
+          "We couldn't save your nickname just yet. Please try again."
+        )
+      );
     } finally {
       setLoading(false);
     }
@@ -129,19 +183,64 @@ export default function Login() {
           <Card className="rounded-xl border-[#DCEBF6] bg-white shadow-xl shadow-[#2E5B82]/[0.05]">
             <CardHeader>
               <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-lg bg-[#EDF5FC] text-[#2E5B82]">
-                <Mail className="h-5 w-5" />
+                {pendingSession ? (
+                  <UserRound className="h-5 w-5" />
+                ) : (
+                  <Mail className="h-5 w-5" />
+                )}
               </div>
               <CardTitle className="font-serif text-[2rem] font-normal text-[#0F2B3C]">
-                Sign in to Memova
+                {pendingSession
+                  ? "What should Memova call you?"
+                  : "Sign in to Memova"}
               </CardTitle>
               <CardDescription className="text-[#2E5B82]/55">
-                Use your email to access profile settings and MCP client
-                authorization.
+                {pendingSession
+                  ? "Pick any name you like. We’ll use it to personalize your Memova experience and your Personal Manual."
+                  : "Use your email to access profile settings and MCP client authorization."}
               </CardDescription>
             </CardHeader>
 
             <CardContent>
-              {mode === "review" ? (
+              {pendingSession ? (
+                <form onSubmit={handleNickname} className="space-y-4">
+                  <Alert className="border-[#D4E9F7] bg-[#F8FBFE]">
+                    <CheckCircle2 className="h-4 w-4 text-[#2E5B82]" />
+                    <AlertTitle>You’re signed in</AlertTitle>
+                    <AlertDescription>
+                      Email verified for {pendingSession.user.email}.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div>
+                    <label className="mb-2 block text-[12px] font-bold uppercase tracking-[0.12em] text-[#2E5B82]/55">
+                      Nickname
+                    </label>
+                    <Input
+                      required
+                      autoFocus
+                      autoComplete="nickname"
+                      maxLength={255}
+                      value={nickname}
+                      onChange={event => setNickname(event.target.value)}
+                      placeholder="Your nickname"
+                      className="h-11 rounded-lg border-[#D4E9F7] bg-[#FAFCFF]"
+                    />
+                    <p className="mt-2 text-[12px] leading-5 text-[#2E5B82]/55">
+                      You can change this anytime and add a profile photo later.
+                    </p>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={loading || !nickname.trim()}
+                    className="h-11 w-full rounded-lg bg-[#0F2B3C] text-white hover:bg-[#1A3A5C]"
+                  >
+                    {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Continue to Memova
+                  </Button>
+                </form>
+              ) : mode === "review" ? (
                 <form onSubmit={handleReviewLogin} className="space-y-4">
                   <div>
                     <label className="mb-2 block text-[12px] font-bold uppercase tracking-[0.12em] text-[#2E5B82]/55">
@@ -167,9 +266,7 @@ export default function Login() {
                       required
                       autoComplete="current-password"
                       value={reviewPassword}
-                      onChange={event =>
-                        setReviewPassword(event.target.value)
-                      }
+                      onChange={event => setReviewPassword(event.target.value)}
                       placeholder="Password"
                       className="h-11 rounded-lg border-[#D4E9F7] bg-[#FAFCFF]"
                     />

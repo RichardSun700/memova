@@ -22,14 +22,24 @@ describe("production homepage", () => {
     expect(homepage).toContain(
       '<link rel="icon" type="image/svg+xml" href="/brand/memova-app-icon-liquid-blue.svg">'
     );
-    expect(homepage).toContain('<link rel="manifest" href="/site.webmanifest">');
-    expect(homepage).toContain('"logo":{"@type":"ImageObject","url":"https://memova.ai/favicon.png"');
+    expect(homepage).toContain(
+      '<link rel="manifest" href="/site.webmanifest">'
+    );
+    expect(homepage).toContain(
+      '"logo":{"@type":"ImageObject","url":"https://memova.ai/favicon.png"'
+    );
     expect(homepage).not.toContain("favicon.ico?v=");
 
     expect(readPngSize("favicon-96x96.png")).toEqual({ width: 96, height: 96 });
-    expect(readPngSize("favicon-192x192.png")).toEqual({ width: 192, height: 192 });
+    expect(readPngSize("favicon-192x192.png")).toEqual({
+      width: 192,
+      height: 192,
+    });
     expect(readPngSize("favicon.png")).toEqual({ width: 512, height: 512 });
-    expect(readPngSize("apple-touch-icon.png")).toEqual({ width: 180, height: 180 });
+    expect(readPngSize("apple-touch-icon.png")).toEqual({
+      width: 180,
+      height: 180,
+    });
 
     const ico = fs.readFileSync(path.join(publicDir, "favicon.ico"));
     expect(ico.readUInt16LE(2)).toBe(1);
@@ -41,7 +51,10 @@ describe("production homepage", () => {
     expect(manifest.name).toBe("Memova");
     expect(manifest.icons).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ src: "/favicon-192x192.png", sizes: "192x192" }),
+        expect.objectContaining({
+          src: "/favicon-192x192.png",
+          sizes: "192x192",
+        }),
         expect.objectContaining({ src: "/favicon.png", sizes: "512x512" }),
       ])
     );
@@ -58,13 +71,34 @@ describe("production homepage", () => {
 
   it("shows the community invitation immediately before early access", () => {
     const communityButton = homepage.indexOf('"Join Community"');
-    const earlyAccessButton = homepage.indexOf('"Join early access"', communityButton);
+    const earlyAccessButton = homepage.indexOf(
+      '"Join early access"',
+      communityButton
+    );
 
     expect(communityButton).toBeGreaterThan(-1);
     expect(earlyAccessButton).toBeGreaterThan(communityButton);
     expect(homepage).toContain("/community/discord-community-qr.png");
     expect(homepage).toContain("https://discord.gg/wAeCmpy86");
     expect(homepage).toContain('role: "dialog"');
+  });
+
+  it("shows the signed-in Memova account in the standalone homepage header", () => {
+    expect(homepage).toContain(
+      'const HOMEPAGE_AUTH_STORAGE_KEY = "memova.auth.v1";'
+    );
+    expect(homepage).toContain("function readHomepageAuthUser()");
+    expect(homepage).toContain("async function fetchHomepageAuthUser()");
+    expect(homepage).toContain("authUser?.avatar_url_expires_at");
+    expect(homepage).toContain('className: "five-account-link"');
+    expect(homepage).toContain('className: "five-account-logout"');
+    expect(homepage).toContain('"Log out"');
+    expect(homepage).toContain(
+      'return user?.display_name?.trim() || "Memova account";'
+    );
+    expect(homepage).not.toContain('h("small", null, authUser.email)');
+    expect(homepage).not.toContain("authUser.email || homepageAccountLabel");
+    expect(homepage).not.toContain('user?.email?.split("@")[0]');
   });
 
   it("pairs Neil's sample with the Work Types guide before creation", () => {
@@ -90,7 +124,7 @@ describe("production homepage", () => {
     );
     expect(captureScript).toContain("Neil’s Personal Manual");
     expect(captureScript).toContain("Understand Your Work Type");
-    expect(captureScript).toContain("data-learning-target=\"types\"");
+    expect(captureScript).toContain('data-learning-target="types"');
     expect(captureScript).not.toContain('class="agent-learning-switcher"');
     expect(captureScript).toContain("CLICK TO VIEW ↗");
     const discoveryStyles = fs.readFileSync(
@@ -98,8 +132,12 @@ describe("production homepage", () => {
       "utf8"
     );
     expect(discoveryStyles).not.toContain(".agent-learning-switcher");
-    expect(discoveryStyles).toContain("linear-gradient(135deg, #3d568f 0%, #5570ac 100%)");
-    expect(discoveryStyles).toContain("linear-gradient(135deg, #f7c94f 0%, #edab32 100%)");
+    expect(discoveryStyles).toContain(
+      "linear-gradient(135deg, #3d568f 0%, #5570ac 100%)"
+    );
+    expect(discoveryStyles).toContain(
+      "linear-gradient(135deg, #f7c94f 0%, #edab32 100%)"
+    );
     expect(discoveryStyles).toContain("transition-duration: 380ms !important;");
     expect(captureScript).toContain(
       'src="./personal-manual/work-types/index.html?embed=1"'
@@ -117,15 +155,17 @@ describe("production homepage", () => {
     expect(captureScript).not.toContain("neil-v7-score-2");
     expect(scatterScript).not.toContain("neil-v7-score-2");
     expect(homepage).toContain(
-      "capture-personal-manual-integration.js?v=20260831-personal-manual-polling1"
+      "capture-personal-manual-integration.js?v=20260831-account-nickname2"
     );
     expect(homepage).toContain(
-      "capture-personal-manual-integration.css?v=20260828-client-cards-flip2"
+      "capture-personal-manual-integration.css?v=20260831-account-nickname2"
     );
     expect(homepage).toContain(
       "scatter-relations.js?v=20260828-observer-root1"
     );
-    expect(scatterScript).toContain("const observationRoot = document.body || document.documentElement;");
+    expect(scatterScript).toContain(
+      "const observationRoot = document.body || document.documentElement;"
+    );
     expect(fs.existsSync(workTypesPage)).toBe(true);
     expect(fs.readFileSync(workTypesPage, "utf8")).toContain(
       "MEMOVA Work Types · Understand Your Personal Manual"
@@ -146,12 +186,19 @@ describe("production homepage", () => {
     ]);
     for (const [axis, label] of selectedPoles) {
       const block = neilManual.match(
-        new RegExp(`<article class="axis-card"><h3>${axis}</h3>[\\s\\S]*?</article>`)
+        new RegExp(
+          `<article class="axis-card"><h3>${axis}</h3>[\\s\\S]*?</article>`
+        )
       )?.[0];
       expect(block, `${axis} axis`).toBeTruthy();
-      expect(block?.match(/class="user-pole"/g), `${axis} selected pole`).toHaveLength(1);
+      expect(
+        block?.match(/class="user-pole"/g),
+        `${axis} selected pole`
+      ).toHaveLength(1);
       expect(block, `${axis} selected label`).toMatch(
-        new RegExp(`class="user-pole"[\\s\\S]*?class="axis-subtitle">${label}</span>`)
+        new RegExp(
+          `class="user-pole"[\\s\\S]*?class="axis-subtitle">${label}</span>`
+        )
       );
     }
 
@@ -169,7 +216,9 @@ describe("production homepage", () => {
     expect(neilManual).toContain(
       'html:not([data-memova-app-ready="true"]) body[data-memova-embed="app"]'
     );
-    expect(neilManual).not.toContain('name="robots" content="noindex,nofollow"');
+    expect(neilManual).not.toContain(
+      'name="robots" content="noindex,nofollow"'
+    );
     expect(neilManual).not.toContain("V7 REMAKE PREVIEW");
   });
 
@@ -202,15 +251,29 @@ describe("production homepage", () => {
     expect(captureScript).toContain(
       "Use Memova to generate my Personal Manual."
     );
-    expect(captureScript).toContain("After Prompt 01, restart Codex. Then run Prompt 02.");
+    expect(captureScript).toContain(
+      "After Prompt 01, restart Codex. Then run Prompt 02."
+    );
     expect(captureScript).toContain("CHATGPT · CLAUDE · CURSOR · ANY AGENT");
     expect(captureScript).toContain("ChatGPT works here too.");
-    expect(captureStyles).toContain('grid-template-areas:\n    "eyebrow eyebrow"\n    "title description"');
+    expect(captureStyles).toContain(
+      'grid-template-areas:\n    "eyebrow eyebrow"\n    "title description"'
+    );
     expect(captureStyles).toContain("min-height: 315px;");
     expect(captureStyles).toContain("font-size: 8.8px;");
-    expect(captureStyles).toContain("transition: transform 620ms cubic-bezier(.16, 1, .3, 1);");
+    expect(captureStyles).toContain(
+      "transition: transform 620ms cubic-bezier(.16, 1, .3, 1);"
+    );
     expect(captureStyles).toContain("@keyframes agent-client-back-content-in");
     expect(captureStyles).toContain("transition-duration: 460ms !important;");
+    expect(captureStyles).toContain(
+      ".agent-generated-browser__viewport iframe {\n  width: 100%;\n  height: 100%;\n  transform: none;"
+    );
+    expect(captureScript).toContain(
+      "userNickname: session.user.display_name?.trim()"
+    );
+    expect(captureScript).toContain("function flowAccountLabel(flow)");
+    expect(captureScript).not.toContain("manualFlow.userEmail");
     expect(captureScript).toContain("const CLIENT_CARD_FLIP_SETTLE_MS = 660;");
     expect(captureScript).toContain("await flipComplete;");
     const compactInstruction = captureScript.slice(
@@ -237,24 +300,36 @@ describe("production homepage", () => {
       captureScript.indexOf('section.querySelectorAll("[data-client-type]")'),
       captureScript.indexOf('section.querySelectorAll("[data-flip-back]")')
     );
-    expect(clientChoiceHandler).toContain('card.classList.toggle("is-flipped", active)');
+    expect(clientChoiceHandler).toContain(
+      'card.classList.toggle("is-flipped", active)'
+    );
     expect(clientChoiceHandler).toContain("manualFlow.clientType = clientType");
     expect(clientChoiceHandler).not.toContain("createRemoteJob");
     expect(clientChoiceHandler).not.toContain('state: "handoff"');
-    expect(captureScript).toContain('const AUTH_STORAGE_KEY = "memova.auth.v1"');
+    expect(captureScript).toContain(
+      'const AUTH_STORAGE_KEY = "memova.auth.v1"'
+    );
     expect(captureScript).toContain("/v1/personal-manual/current");
     expect(captureScript).toContain("/overview/preview");
     expect(captureScript).toContain("function snapshot(manual)");
     expect(captureScript).toContain("function isNewResult(baseline, current)");
-    expect(captureScript).toContain("current.latest_note_version_id !== baseline.versionId");
+    expect(captureScript).toContain(
+      "current.latest_note_version_id !== baseline.versionId"
+    );
     expect(captureScript).toContain('cache: "no-store"');
-    expect(captureScript).toContain('document.addEventListener("visibilitychange"');
+    expect(captureScript).toContain(
+      'document.addEventListener("visibilitychange"'
+    );
     expect(captureScript).toContain("const POLL_TIMEOUT_MS = 15 * 60_000");
     expect(captureScript).toContain('error.message === "RATE_LIMITED"');
     expect(captureScript).toContain('error.message === "AUTH_REQUIRED"');
-    expect(captureScript).toContain("window.localStorage.removeItem(AUTH_STORAGE_KEY)");
-    expect(captureScript).toContain('window.addEventListener("pagehide", stopProgress)');
-    expect(captureScript).not.toContain('/api/personal-manual/jobs');
+    expect(captureScript).toContain(
+      "window.localStorage.removeItem(AUTH_STORAGE_KEY)"
+    );
+    expect(captureScript).toContain(
+      'window.addEventListener("pagehide", stopProgress)'
+    );
+    expect(captureScript).not.toContain("/api/personal-manual/jobs");
     expect(captureScript).not.toContain("createRemoteJob");
     expect(captureScript).not.toContain("fetchRemoteJob");
     expect(captureScript).not.toContain("When the complete HTML is ready");

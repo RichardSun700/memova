@@ -27,6 +27,8 @@ export default function AccountShell({
 }: AccountShellProps) {
   const [location, setLocation] = useLocation();
   const auth = useAuth();
+  const accountName = auth.user?.display_name?.trim() || "Memova account";
+  const accountInitial = accountName.charAt(0).toUpperCase() || "M";
 
   const handleLogout = async () => {
     await auth.logout();
@@ -70,14 +72,36 @@ export default function AccountShell({
               );
             })}
             {auth.isAuthenticated ? (
-              <button
-                type="button"
-                onClick={() => void handleLogout()}
-                className="inline-flex h-9 items-center gap-2 rounded-md border border-transparent px-3 text-[13px] font-semibold text-[#2E5B82]/70 hover:bg-[#EDF5FC]"
-              >
-                <LogOut className="h-4 w-4" />
-                Log out
-              </button>
+              <>
+                <a
+                  href="/profile"
+                  aria-label={`Open ${accountName}'s profile`}
+                  className="inline-flex h-9 min-w-0 items-center gap-2 rounded-full border border-[#D4E9F7] bg-white py-1 pl-1 pr-3 text-[13px] font-semibold text-[#0F2B3C] shadow-sm hover:bg-[#F7FAFD]"
+                >
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#0F2B3C] text-[10px] font-bold text-white">
+                    {auth.user?.avatar_url ? (
+                      <img
+                        key={auth.user.avatar_version || auth.user.avatar_url}
+                        src={auth.user.avatar_url}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        onError={() => void auth.refreshUser().catch(() => {})}
+                      />
+                    ) : (
+                      accountInitial
+                    )}
+                  </span>
+                  <span className="max-w-32 truncate">{accountName}</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => void handleLogout()}
+                  className="inline-flex h-9 items-center gap-2 rounded-md border border-transparent px-3 text-[13px] font-semibold text-[#2E5B82]/70 hover:bg-[#EDF5FC]"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Log out
+                </button>
+              </>
             ) : (
               <a
                 href="/login"

@@ -6,6 +6,7 @@ import {
   FileText,
   Link2,
   LockKeyhole,
+  LogOut,
   Menu,
   MessageSquareText,
   Mic2,
@@ -35,6 +36,7 @@ import LivingBookContextStory from "@/components/home/LivingBookContextStory";
 import PublishPhoneFan from "@/components/home/PublishPhoneFan";
 import { latestJournalEntry } from "@/content/journalEntries";
 import { productJournalEntryState } from "@/navigation/productJournalNavigation";
+import { useAuth } from "@/contexts/AuthContext";
 import "@/styles/home-framework-preview.css";
 
 type WorkflowStageId = "capture" | "book" | "review";
@@ -558,7 +560,10 @@ const heroSources: HeroSource[] = [
 ];
 
 function HomeV2Header() {
+  const auth = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const accountName = auth.user?.display_name?.trim() || "Memova account";
+  const accountInitial = accountName.charAt(0).toUpperCase() || "M";
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -586,9 +591,41 @@ function HomeV2Header() {
         </nav>
 
         <div className="home-v2-header-actions">
-          <a className="home-v2-sign-in" href="/login">
-            Sign in
-          </a>
+          {auth.isAuthenticated ? (
+            <div className="home-v2-account-controls">
+              <a
+                className="home-v2-account"
+                href="/profile"
+                aria-label={`Open ${accountName}'s Memova profile`}
+              >
+                <span className="home-v2-account-avatar" aria-hidden="true">
+                  {auth.user?.avatar_url ? (
+                    <img
+                      key={auth.user.avatar_version || auth.user.avatar_url}
+                      src={auth.user.avatar_url}
+                      alt=""
+                      onError={() => void auth.refreshUser().catch(() => {})}
+                    />
+                  ) : (
+                    accountInitial
+                  )}
+                </span>
+                <span>{accountName}</span>
+              </a>
+              <button
+                className="home-v2-log-out"
+                type="button"
+                onClick={() => void auth.logout()}
+              >
+                <LogOut aria-hidden="true" />
+                Log out
+              </button>
+            </div>
+          ) : (
+            <a className="home-v2-sign-in" href="/login">
+              Sign in
+            </a>
+          )}
           <a className="home-v2-button home-v2-header-cta" href="#waitlist">
             <span className="home-v2-header-cta-long">Join Early Access</span>
             <span className="home-v2-header-cta-short">Join</span>
@@ -629,9 +666,39 @@ function HomeV2Header() {
             <a href="#trust" onClick={closeMobileMenu}>
               Trust <ChevronRight aria-hidden="true" />
             </a>
-            <a href="/login" onClick={closeMobileMenu}>
-              Sign in <ChevronRight aria-hidden="true" />
-            </a>
+            {auth.isAuthenticated ? (
+              <div className="home-v2-mobile-account">
+                <a href="/profile" onClick={closeMobileMenu}>
+                  <span className="home-v2-account-avatar" aria-hidden="true">
+                    {auth.user?.avatar_url ? (
+                      <img
+                        key={auth.user.avatar_version || auth.user.avatar_url}
+                        src={auth.user.avatar_url}
+                        alt=""
+                        onError={() => void auth.refreshUser().catch(() => {})}
+                      />
+                    ) : (
+                      accountInitial
+                    )}
+                  </span>
+                  <span>{accountName}</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMobileMenu();
+                    void auth.logout();
+                  }}
+                >
+                  <LogOut aria-hidden="true" />
+                  Log out
+                </button>
+              </div>
+            ) : (
+              <a href="/login" onClick={closeMobileMenu}>
+                Sign in <ChevronRight aria-hidden="true" />
+              </a>
+            )}
           </div>
         </nav>
       ) : null}

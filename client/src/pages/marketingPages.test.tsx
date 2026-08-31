@@ -101,7 +101,11 @@ describe("US iOS acquisition pages", () => {
   });
 
   it("keeps the homepage framework universal while proving the workflow with Apollo", () => {
-    const html = render(<HomeFrameworkPreview />);
+    const html = render(
+      <AuthProvider>
+        <HomeFrameworkPreview />
+      </AuthProvider>
+    );
 
     expect(html).toContain('data-scroll-hero="true"');
     expect(html).toContain("YOUR CONTEXT,");

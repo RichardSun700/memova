@@ -7,6 +7,9 @@ export type AuthUser = {
   id: string;
   email: string;
   display_name: string | null;
+  avatar_url?: string | null;
+  avatar_url_expires_at?: string | null;
+  avatar_version?: string | null;
   auth_provider: string | null;
 };
 
@@ -30,11 +33,34 @@ export type AuthTokenResponse = {
   expires_at: string;
   user: AuthUser;
   default_workspace: AuthWorkspace;
+  login_context?: {
+    is_new_user: boolean;
+    is_first_login_for_surface: boolean;
+    surface: string;
+    platform: string;
+  };
 };
 
 export type CurrentUserResponse = {
   user: AuthUser;
   default_workspace: AuthWorkspace;
+};
+
+export type AvatarUploadReservation = {
+  avatar_upload: {
+    id: string;
+    status: string;
+    content_type: string;
+    byte_size: number;
+    checksum_sha256: string;
+    expires_at: string;
+  };
+  upload: {
+    method: "PUT";
+    url: string;
+    expires_at: string;
+    headers: Record<string, string>;
+  };
 };
 
 export type McpAuthorizationRequest = {
@@ -76,7 +102,7 @@ export type McpConnectionListResponse = {
 };
 
 type RequestOptions = {
-  method?: "GET" | "POST" | "DELETE";
+  method?: "GET" | "POST" | "PATCH" | "DELETE";
   token?: string | null;
   body?: unknown;
 };
@@ -138,6 +164,83 @@ export async function getCurrentUser(
   token: string
 ): Promise<CurrentUserResponse> {
   return apiRequest<CurrentUserResponse>("/v1/auth/me", { token });
+}
+
+export async function updateCurrentUserProfile(
+  token: string,
+  displayName: string
+): Promise<CurrentUserResponse> {
+  return apiRequest<CurrentUserResponse>("/v1/auth/me", {
+    method: "PATCH",
+    token,
+    body: { display_name: displayName },
+  });
+}
+
+export async function reserveCurrentUserAvatarUpload(
+  token: string,
+  file: Blob,
+  checksumSha256: string
+): Promise<AvatarUploadReservation> {
+  return apiRequest<AvatarUploadReservation>(
+    "/v1/auth/me/avatar-upload",
+    {
+      method: "POST",
+      token,
+      body: {
+        content_type: file.type,
+        byte_size: file.size,
+        checksum_sha256: checksumSha256,
+      },
+    }
+  );
+}
+
+export async function uploadCurrentUserAvatarBlob(
+  upload: AvatarUploadReservation["upload"],
+  file: Blob
+): Promise<void> {
+  const response = await fetch(upload.url, {
+    method: upload.method,
+    headers: upload.headers,
+    body: file,
+  });
+  if (!response.ok) {
+    const error = new Error(`Avatar Blob upload failed: ${response.status}`);
+    error.name =
+      response.status === 403
+        ? "AvatarUploadExpiredError"
+        : "AvatarUploadError";
+    throw error;
+  }
+}
+
+export async function completeCurrentUserAvatarUpload(
+  token: string,
+  uploadId: string,
+  file: Blob,
+  checksumSha256: string
+): Promise<CurrentUserResponse> {
+  return apiRequest<CurrentUserResponse>(
+    `/v1/auth/me/avatar-upload/${encodeURIComponent(uploadId)}/complete`,
+    {
+      method: "POST",
+      token,
+      body: {
+        byte_size: file.size,
+        checksum_sha256: checksumSha256,
+      },
+    }
+  );
+}
+
+export async function deleteCurrentUserAvatar(
+  token: string
+): Promise<CurrentUserResponse> {
+  return apiRequest<CurrentUserResponse>("/v1/auth/me/avatar", {
+    method: "DELETE",
+    token,
+  });
 }
 
 export async function logoutSession(token: string): Promise<void> {
@@ -241,6 +344,13 @@ async function apiRequest<T>(
     throw toApiError(response.status, data);
   }
   return data as T;
+}
+
+export async function calculateBlobSha256(blob: Blob): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", await blob.arrayBuffer());
+  return Array.from(new Uint8Array(digest), byte =>
+    byte.toString(16).padStart(2, "0")
+  ).join("");
 }
 
 function resolveApiBaseUrl(): string {

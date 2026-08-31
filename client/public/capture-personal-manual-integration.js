@@ -153,13 +153,19 @@
   function createFlow(session, manual) {
     return writeFlow({
       userId: session.user.id,
-      userEmail: session.user.email || "",
+      userNickname: session.user.display_name?.trim() || "Memova account",
       state: "audience",
       baseline: snapshot(manual),
       clientType: null,
       copied: [],
       createdAt: Date.now()
     });
+  }
+
+  function flowAccountLabel(flow) {
+    return flow?.userNickname?.trim()
+      || readAuthSession()?.user?.display_name?.trim()
+      || "Memova account";
   }
 
   function getViewState() {
@@ -417,7 +423,7 @@
         <article class="agent-flow-window" id="agent-workspace">
           <header class="agent-flow-window__bar">
             <span class="agent-traffic-lights" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span><strong>MEMOVA</strong><small>${escapeHtml(manualFlow.userEmail)} · Website session active</small></span>
+            <span><strong>MEMOVA</strong><small>${escapeHtml(flowAccountLabel(manualFlow))} · Website session active</small></span>
             <span class="agent-anonymous-badge">${flow.badge}</span>
           </header>
 
@@ -514,7 +520,7 @@
         <article class="agent-flow-window" id="agent-workspace">
           <header class="agent-flow-window__bar">
             <span class="agent-traffic-lights" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span><strong>MEMOVA</strong><small>${escapeHtml(manualFlow.userEmail)} · Waiting for a new Note version</small></span>
+            <span><strong>MEMOVA</strong><small>${escapeHtml(flowAccountLabel(manualFlow))} · Waiting for a new Note version</small></span>
             <span class="agent-live-badge"><i></i> ${timedOut ? "PAUSED" : "LIVE"}</span>
           </header>
 
@@ -584,7 +590,9 @@
             <span class="agent-traffic-lights" aria-hidden="true"><i></i><i></i><i></i></span>
             <span class="agent-manual-browser__identity">
               <strong>SAVED TO MEMOVA</strong>
-              <small>${hasResult ? "Live preview of your published Personal Manual" : "Loading published Manual"}</small>
+              <small>${hasResult
+                ? `${escapeHtml(flowAccountLabel(manualFlow))} · Live preview of your published Personal Manual`
+                : "Loading published Manual"}</small>
             </span>
             ${publicUrl
               ? `<a class="agent-result-download" href="${escapeHtml(publicUrl)}" target="_blank" rel="noopener"><span>Open full Manual</span><i aria-hidden="true">↗</i></a>`
@@ -602,7 +610,7 @@
           </div>
 
           <footer class="agent-manual-browser__footer agent-generated-browser__footer">
-            <span>Private Note · bound to your Memova account</span>
+            <span>Private Note · ${escapeHtml(flowAccountLabel(manualFlow))}</span>
             <span class="agent-result-proof"><b>LIVE MEMOVA PAGE</b> · secure website preview</span>
           </footer>
         </article>

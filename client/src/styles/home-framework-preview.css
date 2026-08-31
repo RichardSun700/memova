@@ -95,6 +95,7 @@
 
 .home-v2-desktop-nav,
 .home-v2-sign-in,
+.home-v2-account-controls,
 .home-v2-header-cta-long {
   display: none;
 }
@@ -103,6 +104,72 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.home-v2-account-controls {
+  align-items: center;
+  gap: 6px;
+}
+
+.home-v2-account {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--v2-border-strong);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 4px 10px 4px 4px;
+  color: var(--v2-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.home-v2-account > span:last-child {
+  max-width: 112px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-v2-account-avatar {
+  display: inline-flex;
+  width: 29px;
+  height: 29px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--v2-ink);
+  color: #ffffff;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.home-v2-account-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-v2-log-out,
+.home-v2-mobile-account button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: #40516c;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.home-v2-log-out svg {
+  width: 15px;
+  height: 15px;
 }
 
 .home-v2-button {
@@ -192,6 +259,26 @@
   width: 17px;
   height: 17px;
   color: var(--v2-blue);
+}
+
+.home-v2-mobile-account {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid var(--v2-border);
+  padding-top: 8px;
+}
+
+.home-v2-mobile-account a,
+.home-v2-mobile-account button {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  border-bottom: 1px solid var(--v2-border);
+  color: var(--v2-ink);
+  font-size: 0.95rem;
+  font-weight: 650;
 }
 
 .home-v2-hero {
@@ -2205,7 +2292,8 @@ a.home-v2-journal-row:hover {
   }
 
   .home-v2-desktop-nav,
-  .home-v2-sign-in {
+  .home-v2-sign-in,
+  .home-v2-account-controls {
     display: flex;
   }
 
