@@ -27,7 +27,7 @@
   top: 0;
   left: 0;
   width: 92%;
-  height: 89%;
+  height: 80%;
   transform: rotate(-.25deg);
 }
 
@@ -182,6 +182,18 @@
   box-shadow: none;
 }
 
+/*
+ * Keep the embedded sample on a real desktop canvas while it is displayed
+ * inside the narrower chapter-two preview column. At 160% the iframe became
+ * 849px wide in a 1120px desktop window, crossing Neil's 850px mobile
+ * breakpoint by a single pixel.
+ */
+#capture.integrated-agent-manual .agent-learning-browser__viewport--neil iframe {
+  width: 200%;
+  height: 200%;
+  transform: scale(.5);
+}
+
 #capture.integrated-agent-manual .agent-learning-browser__viewport--types {
   background: #fff;
 }
@@ -287,6 +299,12 @@
     width: 200%;
     height: 200%;
     transform: scale(.5);
+  }
+
+  #capture.integrated-agent-manual .agent-learning-browser__viewport--neil iframe {
+    width: 145%;
+    height: 145%;
+    transform: scale(.69);
   }
 }
 

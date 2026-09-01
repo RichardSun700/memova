@@ -116,6 +116,13 @@
     window.sessionStorage.removeItem(SETUP_STORAGE_KEY);
   }
 
+  function clearManualStateFromUrl() {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("manual")) return;
+    url.searchParams.delete("manual");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }
+
   function invalidateAuthSession() {
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
   }
@@ -302,7 +309,7 @@
                 <a href="./personal-manual/neil-armstrong/" target="_blank" rel="noopener"><span>Open full manual</span><i aria-hidden="true">↗</i></a>
               </header>
 
-              <div class="agent-manual-browser__viewport">
+              <div class="agent-manual-browser__viewport agent-learning-browser__viewport--neil">
                 <iframe
                   src="./personal-manual/neil-armstrong/index.html?embed=1&v=neil-v7-modified-flat1"
                   title="Neil Armstrong historical Personal Work Manual"
@@ -511,6 +518,7 @@
   }
 
   function renderProgress(manualFlow, timedOut = false) {
+    const pausedByChoice = timedOut && ["user", "page-exit"].includes(manualFlow?.pauseReason);
     return `
       <div class="agent-product-proof agent-progress-proof" aria-label="Live Personal Manual generation progress">
         <div class="agent-backplane agent-backplane--lime" aria-hidden="true"><span>APPROVED CONTEXT</span><b>02</b></div>
@@ -527,8 +535,8 @@
             <div class="agent-progress-orbit" aria-hidden="true"><i></i><i></i><i></i><img src="./brand/memova-app-icon-liquid-blue.svg" alt=""></div>
             <div class="agent-progress-copy">
               <span>AUTHENTICATED VERSION CHECK</span>
-              <h3 data-progress-title>${timedOut ? "Still waiting for a new version" : "Waiting for your published Manual…"}</h3>
-              <p data-progress-detail>${timedOut ? "The 15-minute automatic check has paused. You can safely check again without creating another task." : "When Codex publishes a new Note version, this page will securely load its HTML from Memova."}</p>
+              <h3 data-progress-title>${timedOut ? (pausedByChoice ? "Checking is paused" : "Still waiting for a new version") : "Waiting for your published Manual…"}</h3>
+              <p data-progress-detail>${timedOut ? "Website checking is paused, but your Agent can keep generating. When it finishes, your Personal Manual will appear in Notes in the Memova app." : "You do not need to wait on this website. When your Agent finishes, the Personal Manual is saved to Memova and appears automatically in your Notes list."}</p>
             </div>
             <ol class="agent-live-steps">
               <li class="is-complete" data-live-step="1"><span>01</span><div><strong>Baseline saved</strong><small>Current Note version recorded</small></div><b>DONE</b></li>
@@ -539,8 +547,13 @@
           </div>
 
           <footer class="agent-flow-window__footer agent-flow-window__footer--progress">
-            <span>The website and Codex must use the same Memova account</span>
-            ${timedOut ? '<button type="button" data-recheck-manual>Check again <i aria-hidden="true">→</i></button>' : '<strong data-progress-footer>Waiting for a new Note version…</strong>'}
+            <span ${timedOut ? "" : "data-progress-footer"}>${timedOut ? "Your version baseline is saved" : "Waiting for a new Note version…"}</span>
+            <div class="agent-progress-controls">
+              ${timedOut
+                ? '<button type="button" data-recheck-manual>Continue checking <i aria-hidden="true">→</i></button>'
+                : '<button class="agent-progress-pause" type="button" data-pause-manual>Pause checking</button>'}
+              <button class="agent-progress-exit" type="button" data-reset-manual>Exit setup</button>
+            </div>
           </footer>
         </article>
       </div>
@@ -558,31 +571,15 @@
     return `<!doctype html><html><head>${csp}</head><body>${html}</body></html>`;
   }
 
-  function manualPublicUrl(value) {
-    try {
-      const url = new URL(value);
-      if (
-        !["https://api.memova.ai", "https://apps.memova.ai"].includes(url.origin) ||
-        url.search ||
-        url.hash ||
-        !/^\/n\/[A-Za-z0-9_-]{8,128}$/.test(url.pathname)
-      ) return "";
-      return url.toString();
-    } catch (_error) {
-      return "";
-    }
-  }
-
   function renderGeneratedResult(manualFlow) {
     const hasResult = typeof manualFlow?.resultHtml === "string" && manualFlow.resultHtml.length > 0;
-    const publicUrl = manualPublicUrl(manualFlow?.publicUrl);
     const previewHtml = hasResult
       ? secureManualHtml(manualFlow.resultHtml)
       : "<!doctype html><html><head><style>body{margin:0;min-height:100vh;display:grid;place-items:center;font:16px system-ui;color:#24365d;background:#fffefa}</style></head><body>Loading your published Personal Manual…</body></html>";
     return `
       <div class="agent-product-proof agent-manual-embed agent-generated-proof" aria-label="Published Personal Manual result">
         <div class="agent-backplane agent-backplane--lime" aria-hidden="true"><span>YOUR MANUAL</span><b>HTML</b></div>
-        <div class="agent-backplane agent-backplane--blue" aria-hidden="true"><span>AGENT RETURN</span><b>LIVE</b></div>
+        <div class="agent-backplane agent-backplane--blue" aria-hidden="true"><span>SAVED NOTE</span><b>READY</b></div>
 
         <article class="agent-manual-browser agent-generated-browser" id="agent-workspace">
           <header class="agent-manual-browser__bar">
@@ -590,12 +587,10 @@
             <span class="agent-manual-browser__identity">
               <strong>SAVED TO MEMOVA</strong>
               <small>${hasResult
-                ? `${escapeHtml(flowAccountLabel(manualFlow))} · Live preview of your published Personal Manual`
+                ? `${escapeHtml(flowAccountLabel(manualFlow))} · Personal Manual saved in Notes`
                 : "Loading published Manual"}</small>
             </span>
-            ${publicUrl
-              ? `<a class="agent-result-download" href="${escapeHtml(publicUrl)}" target="_blank" rel="noopener"><span>Open full Manual</span><i aria-hidden="true">↗</i></a>`
-              : `<button class="agent-result-download" type="button" disabled><span>Loading Manual</span><i aria-hidden="true">…</i></button>`}
+            <span class="agent-result-app-location" role="status"><b>NOTES</b><i aria-hidden="true">READY</i></span>
           </header>
 
           <div class="agent-manual-browser__viewport agent-generated-browser__viewport">
@@ -603,14 +598,14 @@
               srcdoc="${escapeHtml(previewHtml)}"
               title="Published Memova Personal Manual"
               loading="eager"
-              sandbox="allow-downloads"
+              sandbox=""
               referrerpolicy="no-referrer"
             ></iframe>
           </div>
 
           <footer class="agent-manual-browser__footer agent-generated-browser__footer">
             <span>Private Note · ${escapeHtml(flowAccountLabel(manualFlow))}</span>
-            <span class="agent-result-proof"><b>LIVE MEMOVA PAGE</b> · secure website preview</span>
+            <span class="agent-result-proof"><b>SAVED IN NOTES</b> · open in the Memova app</span>
           </footer>
         </article>
       </div>
@@ -636,17 +631,17 @@
     if (state === "progress") return {
       bridge: "Version polling · Step 2 of 3",
       title: "Watch your<br>context become<br>a Manual.",
-      body: "Memova waits for the latest Note version on your signed-in account to change, then loads the owner preview securely."
+      body: "Your Agent can finish in the background. Leave this page whenever you like—your Personal Manual will appear automatically in Notes in the Memova app."
     };
     if (state === "timeout") return {
       bridge: "Version polling · Paused",
-      title: "Still waiting<br>for a new<br>Manual version.",
-      body: "Automatic checking pauses after 15 minutes. Your baseline is preserved, so checking again cannot mistake an older Manual for this run."
+      title: "Your check<br>is safely<br>paused.",
+      body: "Website checking is paused, but your Agent can keep generating. Your finished Personal Manual will appear in Notes in the Memova app."
     };
     if (state === "result") return {
-      bridge: "Published Manual · Step 3 of 3",
-      title: "Your Manual<br>is ready to<br>read.",
-      body: "This is the Personal Manual Codex published to your Memova account. Read it here or open the stable full-page version."
+      bridge: "Saved to Notes · Step 3 of 3",
+      title: "Open the app.<br>Find it in<br>Notes.",
+      body: "Your Personal Manual is saved to your Memova account. Download the app, then open Notes to read it whenever you are ready."
     };
     return {
       bridge: "Two references before you create",
@@ -682,21 +677,28 @@
     if (["progress", "timeout"].includes(state)) {
       return `
         <div class="agent-job-ticket is-live"><small>ACCOUNT POLLING</small><strong>${state === "timeout" ? "PAUSED" : "LIVE"}</strong><span>Authenticated website session</span></div>
-        <div class="agent-soft-handoff" role="note" aria-label="Continue while your Personal Manual is generated">
-          <strong>Keep this page open.</strong>
-          <span>It checks for a new Personal Manual Note version and will show the authenticated owner preview as soon as it is ready.</span>
+        <div class="agent-wait-app-card" role="note" aria-disabled="true" data-app-download-placeholder="true" aria-label="Download the Memova app to find your Personal Manual in Notes when generation finishes">
+          <small>CONTINUE IN MEMOVA</small>
+          <strong>Download the app <i aria-hidden="true">→</i></strong>
+          <span>No need to wait here. When generation finishes, your Personal Manual will appear automatically in Notes.</span>
         </div>
       `;
     }
     if (state === "result") {
       return `
-        <button class="agent-primary-action" type="button" data-download-result><span>Download Personal Manual HTML</span><span class="agent-action-arrow" aria-hidden="true">↓</span></button>
-        <div class="agent-trust-note agent-trust-note--saved"><span class="agent-trust-dot" aria-hidden="true"></span><span>Saved to the Memova account used in Codex.</span></div>
+        <div class="agent-wait-app-card agent-result-app-card" role="note" aria-disabled="true" data-app-download-placeholder="true" aria-label="Download the Memova app and find your Personal Manual in Notes">
+          <small>OPEN IN MEMOVA</small>
+          <strong>Download the app <i aria-hidden="true">→</i></strong>
+          <span>Your Personal Manual is ready in Notes.</span>
+        </div>
       `;
     }
     return `
-      <button class="agent-primary-action" type="button" data-download-result><span>Download Personal Manual HTML</span><span class="agent-action-arrow" aria-hidden="true">↓</span></button>
-      <div class="agent-trust-note agent-trust-note--saved"><span class="agent-trust-dot" aria-hidden="true"></span><span>Your returned HTML is ready.</span></div>
+      <div class="agent-wait-app-card agent-result-app-card" role="note" aria-disabled="true" data-app-download-placeholder="true" aria-label="Download the Memova app and find your Personal Manual in Notes">
+        <small>OPEN IN MEMOVA</small>
+        <strong>Download the app <i aria-hidden="true">→</i></strong>
+        <span>Your Personal Manual is ready in Notes.</span>
+      </div>
     `;
   }
 
@@ -707,6 +709,18 @@
     progressAbortController = null;
     if (progressVisibilityHandler) document.removeEventListener("visibilitychange", progressVisibilityHandler);
     progressVisibilityHandler = null;
+  }
+
+  function pauseProgressOnPageExit() {
+    const session = readAuthSession();
+    const manualFlow = readFlow(session);
+    if (manualFlow?.state === "progress") {
+      manualFlow.state = "timeout";
+      manualFlow.pauseReason = "page-exit";
+      manualFlow.pausedAt = new Date().toISOString();
+      writeFlow(manualFlow);
+    }
+    stopProgress();
   }
 
   function renderCapture(section, state = getViewState()) {
@@ -859,6 +873,7 @@
       button.addEventListener("click", () => {
         const session = readAuthSession();
         clearFlow(session);
+        clearManualStateFromUrl();
         renderCapture(section, { state: "sample", flow: null, session });
       });
     });
@@ -915,6 +930,8 @@
         }
         manualFlow.state = "progress";
         manualFlow.pollStartedAt = Date.now();
+        delete manualFlow.pauseReason;
+        delete manualFlow.pausedAt;
         writeFlow(manualFlow);
         renderCapture(section, { state: "progress", flow: manualFlow, session });
       });
@@ -930,24 +947,23 @@
       }
       manualFlow.state = "progress";
       manualFlow.pollStartedAt = Date.now();
+      delete manualFlow.pauseReason;
+      delete manualFlow.pausedAt;
       writeFlow(manualFlow);
       renderCapture(section, { state: "progress", flow: manualFlow, session });
     });
 
-    section.querySelectorAll("[data-download-result]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const manualFlow = state.flow;
-        if (!manualFlow?.resultHtml) return;
-        const blobUrl = URL.createObjectURL(new Blob([manualFlow.resultHtml], { type: "text/html;charset=utf-8" }));
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = `memova-personal-manual-${manualFlow.versionId || "latest"}.html`;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-      });
+    section.querySelector("[data-pause-manual]")?.addEventListener("click", () => {
+      const session = readAuthSession();
+      const manualFlow = readFlow(session) || state.flow;
+      if (!session || !manualFlow || manualFlow.userId !== session.user.id) return;
+      manualFlow.state = "timeout";
+      manualFlow.pauseReason = "user";
+      manualFlow.pausedAt = new Date().toISOString();
+      writeFlow(manualFlow);
+      renderCapture(section, { state: "timeout", flow: manualFlow, session });
     });
+
   }
 
   function startProgress(section, manualFlow, session = readAuthSession()) {
@@ -958,6 +974,8 @@
     }
     const startedAt = Number(manualFlow.pollStartedAt) || Date.now();
     manualFlow.pollStartedAt = startedAt;
+    delete manualFlow.pauseReason;
+    delete manualFlow.pausedAt;
     writeFlow(manualFlow);
     let requestInFlight = false;
     let transientFailures = 0;
@@ -981,6 +999,8 @@
       if (requestInFlight || document.hidden) return;
       if (Date.now() - startedAt >= POLL_TIMEOUT_MS) {
         manualFlow.state = "timeout";
+        manualFlow.pauseReason = "timeout";
+        manualFlow.pausedAt = new Date().toISOString();
         writeFlow(manualFlow);
         renderCapture(section, { state: "timeout", flow: manualFlow, session });
         return;
@@ -1004,7 +1024,6 @@
           manualFlow.noteId = current.note_id;
           manualFlow.versionId = current.latest_note_version_id;
           manualFlow.latestVersionNumber = current.latest_version_number;
-          manualFlow.publicUrl = current.public_url || "";
           manualFlow.receivedAt = new Date().toISOString();
           writeFlow(manualFlow);
           renderCapture(section, { state: "result", flow: manualFlow, session });
@@ -1083,6 +1102,8 @@
       }
       manualFlow.state = "progress";
       manualFlow.pollStartedAt = Date.now();
+      delete manualFlow.pauseReason;
+      delete manualFlow.pausedAt;
       writeFlow(manualFlow);
       renderCapture(section, { state: "progress", flow: manualFlow, session });
     }
@@ -1095,7 +1116,7 @@
     return true;
   }
 
-  window.addEventListener("pagehide", stopProgress);
+  window.addEventListener("pagehide", pauseProgressOnPageExit);
 
   if (!mount()) {
     const observer = new MutationObserver(() => {

@@ -114,6 +114,8 @@ describe("US iOS acquisition pages", () => {
     expect(html).toContain("A Living Book keeps the sources");
     expect(html).toContain("every new Page can build on the context");
     expect(html).toContain("Personal superalignment starts with Memova.");
+    expect(html).toContain("Download the app");
+    expect(html).toContain('data-app-download-placeholder="true"');
     expect(html).not.toContain("Scroll to see your Book take shape");
     expect(html).toContain("Customer interview");
     expect(html).toContain("Founder voice note");

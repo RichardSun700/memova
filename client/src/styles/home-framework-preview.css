@@ -271,6 +271,24 @@
   padding-inline: 17px;
 }
 
+.home-v2-app-download-placeholder {
+  border-color: #24365d;
+  border-radius: 999px;
+  background: #24365d;
+  color: #fcfcf8;
+  box-shadow: none;
+  cursor: default;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.home-v2-app-download-placeholder:hover {
+  background: #24365d;
+  box-shadow: none;
+  transform: none;
+}
+
 .home-v2-header-cta-short {
   display: inline;
 }

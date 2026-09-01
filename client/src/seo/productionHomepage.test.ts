@@ -69,23 +69,29 @@ describe("production homepage", () => {
     expect(homepage).not.toContain("setSubmitted(true)");
   });
 
-  it("shows the community invitation immediately before early access", () => {
+  it("shows the community invitation immediately before the inert app download placeholder", () => {
     const communityButton = homepage.indexOf('"Join Community"');
-    const earlyAccessButton = homepage.indexOf(
-      '"Join early access"',
+    const appDownloadPlaceholder = homepage.indexOf(
+      '"Download the app"',
       communityButton
     );
 
     expect(communityButton).toBeGreaterThan(-1);
-    expect(earlyAccessButton).toBeGreaterThan(communityButton);
+    expect(appDownloadPlaceholder).toBeGreaterThan(communityButton);
+    expect(homepage).toContain(
+      'h("span", { className: "five-button five-button-small five-app-download-placeholder", "aria-disabled": "true", "data-app-download-placeholder": "true" }, "Download the app")'
+    );
+    expect(homepage).not.toContain(
+      'href: "#waitlist", onClick: () => setOpen(false) }, "Download the app"'
+    );
     expect(homepage).toContain("/community/discord-community-qr.png");
     expect(homepage).toContain("https://discord.gg/wAeCmpy86");
     expect(homepage).toContain('role: "dialog"');
   });
 
   it("shows the signed-in Memova account in the standalone homepage header", () => {
-    const earlyAccessControl = homepage.indexOf(
-      'h("a", { className: "five-button five-button-small"'
+    const appDownloadControl = homepage.indexOf(
+      'h("span", { className: "five-button five-button-small five-app-download-placeholder"'
     );
     const accountControl = homepage.indexOf(
       'authUser\n                    ? h("div", { className: "five-account-menu"'
@@ -112,8 +118,8 @@ describe("production homepage", () => {
     expect(homepage).not.toContain('h("small", null, authUser.email)');
     expect(homepage).not.toContain("authUser.email || homepageAccountLabel");
     expect(homepage).not.toContain('user?.email?.split("@")[0]');
-    expect(earlyAccessControl).toBeGreaterThan(-1);
-    expect(accountControl).toBeGreaterThan(earlyAccessControl);
+    expect(appDownloadControl).toBeGreaterThan(-1);
+    expect(accountControl).toBeGreaterThan(appDownloadControl);
   });
 
   it("pairs Neil's sample with the Work Types guide before creation", () => {
@@ -135,7 +141,7 @@ describe("production homepage", () => {
     );
 
     expect(homepage).toContain(
-      "personal-manual-discovery-stack.css?v=20260828-chapter2-tab-highlight1"
+      "personal-manual-discovery-stack.css?v=20260901-chapter2-preview-ratio1"
     );
     expect(captureScript).toContain("Neil’s Personal Manual");
     expect(captureScript).toContain("Understand Your Work Type");
@@ -155,6 +161,16 @@ describe("production homepage", () => {
     );
     expect(discoveryStyles).toContain("transition-duration: 380ms !important;");
     expect(captureScript).toContain(
+      'class="agent-manual-browser__viewport agent-learning-browser__viewport--neil"'
+    );
+    expect(discoveryStyles).toContain(
+      ".agent-learning-browser__viewport--neil iframe"
+    );
+    expect(discoveryStyles).toContain("width: 200%;");
+    expect(discoveryStyles).toContain("transform: scale(.5);");
+    expect(discoveryStyles).toContain("width: 145%;");
+    expect(discoveryStyles).toContain("transform: scale(.69);");
+    expect(captureScript).toContain(
       'src="./personal-manual/work-types/index.html?embed=1"'
     );
     expect(captureScript).toContain(
@@ -170,10 +186,10 @@ describe("production homepage", () => {
     expect(captureScript).not.toContain("neil-v7-score-2");
     expect(scatterScript).not.toContain("neil-v7-score-2");
     expect(homepage).toContain(
-      "capture-personal-manual-integration.js?v=20260831-manual-instruction-signin1"
+      "capture-personal-manual-integration.js?v=20260901-result-app-notes1"
     );
     expect(homepage).toContain(
-      "capture-personal-manual-integration.css?v=20260831-account-nickname2"
+      "capture-personal-manual-integration.css?v=20260901-result-app-notes1"
     );
     expect(homepage).toContain(
       "scatter-relations.js?v=20260828-observer-root1"
@@ -282,7 +298,13 @@ describe("production homepage", () => {
     expect(captureStyles).toContain("@keyframes agent-client-back-content-in");
     expect(captureStyles).toContain("transition-duration: 460ms !important;");
     expect(captureStyles).toContain(
-      ".agent-generated-browser__viewport iframe {\n  width: 100%;\n  height: 100%;\n  transform: none;"
+      ".agent-generated-browser__viewport iframe {\n  width: 200%;\n  height: 200%;\n  transform: scale(.5);"
+    );
+    expect(captureStyles).toContain(
+      ".agent-generated-browser {\n  top: 1.5%;\n  right: 1%;\n  width: 96%;\n  height: 80%;"
+    );
+    expect(captureStyles).toContain(
+      ".agent-generated-browser__viewport iframe { width: 100%; height: 100%; transform: none; }"
     );
     expect(captureScript).toContain(
       "userNickname: session.user.display_name?.trim()"
@@ -351,9 +373,42 @@ describe("production homepage", () => {
     expect(captureScript).toContain(
       "window.localStorage.removeItem(AUTH_STORAGE_KEY)"
     );
-    expect(captureScript).toContain(
-      'window.addEventListener("pagehide", stopProgress)'
+    expect(captureScript).toContain('data-pause-manual>Pause checking');
+    expect(captureScript).toContain('data-reset-manual>Exit setup');
+    expect(captureScript).toContain("You do not need to wait on this website.");
+    expect(captureScript).toContain("No need to wait here.");
+    expect(captureScript).toContain("Download the app");
+    expect(captureScript).toContain("appear automatically in Notes");
+    expect(captureScript).toContain('data-app-download-placeholder="true"');
+    expect(captureScript).not.toContain("Keep this page open.");
+    expect(captureStyles).toContain(".agent-wait-app-card");
+    expect(captureStyles).toContain("pointer-events: none;");
+    const progressActionsStart = captureScript.indexOf(
+      'if (["progress", "timeout"].includes(state))'
     );
+    const progressActions = captureScript.slice(
+      progressActionsStart,
+      captureScript.indexOf('if (state === "result")', progressActionsStart)
+    );
+    expect(progressActions).toContain('class="agent-wait-app-card"');
+    expect(progressActions).not.toContain("href=");
+    expect(progressActions).not.toContain("<button");
+    expect(captureScript).toContain("Open the app.<br>Find it in<br>Notes.");
+    expect(captureScript).toContain("Your Personal Manual is ready in Notes.");
+    expect(captureScript).toContain('class="agent-result-app-location"');
+    expect(captureScript).toContain("SAVED IN NOTES");
+    expect(captureScript).not.toContain("Open full Manual");
+    expect(captureScript).not.toContain("Download Personal Manual HTML");
+    expect(captureScript).not.toContain("data-download-result");
+    expect(captureScript).not.toContain("manualPublicUrl");
+    expect(captureScript).not.toContain("manualFlow.publicUrl");
+    expect(captureScript).toContain("function clearManualStateFromUrl()");
+    expect(captureScript).toContain("function pauseProgressOnPageExit()");
+    expect(captureScript).toContain('manualFlow.pauseReason = "page-exit"');
+    expect(captureScript).toContain(
+      'window.addEventListener("pagehide", pauseProgressOnPageExit)'
+    );
+    expect(captureStyles).toContain(".agent-progress-controls");
     expect(captureScript).not.toContain("/api/personal-manual/jobs");
     expect(captureScript).not.toContain("createRemoteJob");
     expect(captureScript).not.toContain("fetchRemoteJob");
@@ -363,7 +418,12 @@ describe("production homepage", () => {
     expect(captureScript).toContain('srcdoc="${escapeHtml(previewHtml)}"');
     expect(captureScript).toContain("secureManualHtml(manualFlow.resultHtml)");
     expect(captureScript).toContain("script-src 'none'");
-    expect(captureScript).toContain('sandbox="allow-downloads"');
+    const generatedResult = captureScript.slice(
+      captureScript.indexOf("function renderGeneratedResult("),
+      captureScript.indexOf("function copyForState(")
+    );
+    expect(generatedResult).toContain('sandbox=""');
+    expect(generatedResult).not.toContain("allow-downloads");
     expect(captureScript).not.toContain("RESULT_URL");
     expect(captureScript).not.toContain("generated-conductor");
     expect(captureScript).not.toContain("5 Codex conversations found");

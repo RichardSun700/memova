@@ -611,10 +611,14 @@ function HomeV2Header() {
         </nav>
 
         <div className="home-v2-header-actions">
-          <a className="home-v2-button home-v2-header-cta" href="#waitlist">
-            <span className="home-v2-header-cta-long">Join Early Access</span>
-            <span className="home-v2-header-cta-short">Join</span>
-          </a>
+          <span
+            className="home-v2-button home-v2-header-cta home-v2-app-download-placeholder"
+            aria-disabled="true"
+            data-app-download-placeholder="true"
+          >
+            <span className="home-v2-header-cta-long">Download the app</span>
+            <span className="home-v2-header-cta-short">Download</span>
+          </span>
           {auth.isAuthenticated ? (
             <div className="home-v2-account-menu" ref={accountMenuRef}>
               <button

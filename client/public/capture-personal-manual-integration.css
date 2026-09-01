@@ -181,7 +181,6 @@
 }
 
 #capture.integrated-agent-manual .agent-manual-browser__bar > a,
-#capture.integrated-agent-manual .agent-result-download,
 #capture.integrated-agent-manual .agent-manual-browser__footer > a {
   color: var(--agent-deep);
   font-size: 10px;
@@ -190,8 +189,7 @@
   white-space: nowrap;
 }
 
-#capture.integrated-agent-manual .agent-manual-browser__bar > a,
-#capture.integrated-agent-manual .agent-result-download {
+#capture.integrated-agent-manual .agent-manual-browser__bar > a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -204,18 +202,31 @@
 }
 
 #capture.integrated-agent-manual .agent-manual-browser__bar > a:hover,
-#capture.integrated-agent-manual .agent-manual-browser__bar > a:focus-visible,
-#capture.integrated-agent-manual .agent-result-download:hover,
-#capture.integrated-agent-manual .agent-result-download:focus-visible {
+#capture.integrated-agent-manual .agent-manual-browser__bar > a:focus-visible {
   color: #24365d;
   border-color: rgba(36, 54, 93, .54);
   transform: translateY(-1px);
 }
 
-#capture.integrated-agent-manual .agent-result-download:disabled {
-  cursor: wait;
-  opacity: .5;
-  transform: none;
+#capture.integrated-agent-manual .agent-result-app-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid rgba(69, 94, 147, .2);
+  border-radius: 999px;
+  color: var(--agent-deep);
+  background: #eef2fa;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+#capture.integrated-agent-manual .agent-result-app-location i {
+  color: #65a98c;
+  font-size: 6px;
 }
 
 #capture.integrated-agent-manual .agent-manual-browser__bar i {
@@ -1495,26 +1506,81 @@
   box-shadow: 0 0 0 4px rgba(101, 169, 140, .07);
 }
 
-#capture.integrated-agent-manual .agent-soft-handoff {
+#capture.integrated-agent-manual .agent-wait-app-card {
   width: min(100%, 350px);
   display: grid;
-  gap: 5px;
+  gap: 4px;
   margin-top: 12px;
-  padding: 13px 16px;
-  border-left: 2px solid rgba(107, 134, 232, .72);
-  color: #6d778b;
-  background: linear-gradient(90deg, rgba(214, 224, 240, .42), rgba(238, 242, 250, .08));
+  padding: 15px 17px 16px;
+  border: 1px solid #24365d;
+  border-radius: 16px;
+  color: rgba(255, 255, 255, .76);
+  background: #24365d;
+  box-shadow: 0 15px 32px rgba(36, 54, 93, .18);
+  cursor: default;
+  pointer-events: none;
+  user-select: none;
 }
 
-#capture.integrated-agent-manual .agent-soft-handoff strong {
-  color: var(--agent-deep);
-  font-size: 12px;
+#capture.integrated-agent-manual .agent-wait-app-card small {
+  color: rgba(255, 255, 255, .58);
+  font-size: 7px;
+  font-weight: 820;
+  letter-spacing: .13em;
+}
+
+#capture.integrated-agent-manual .agent-wait-app-card strong {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #fff;
+  font-size: 15px;
   font-weight: 760;
 }
 
-#capture.integrated-agent-manual .agent-soft-handoff span {
-  font-size: 11px;
+#capture.integrated-agent-manual .agent-wait-app-card strong i {
+  font-style: normal;
+}
+
+#capture.integrated-agent-manual .agent-wait-app-card span {
+  max-width: 31ch;
+  margin-top: 3px;
+  font-size: 10px;
   line-height: 1.45;
+}
+
+@media (min-width: 821px) {
+  #capture.integrated-agent-manual[data-manual-state="progress"] .agent-section-index,
+  #capture.integrated-agent-manual[data-manual-state="timeout"] .agent-section-index,
+  #capture.integrated-agent-manual[data-manual-state="result"] .agent-section-index {
+    margin-bottom: 22px;
+  }
+
+  #capture.integrated-agent-manual[data-manual-state="progress"] .agent-manual-copy h2,
+  #capture.integrated-agent-manual[data-manual-state="timeout"] .agent-manual-copy h2,
+  #capture.integrated-agent-manual[data-manual-state="result"] .agent-manual-copy h2 {
+    font-size: clamp(48px, 4vw, 62px);
+  }
+
+  #capture.integrated-agent-manual[data-manual-state="progress"] .agent-manual-copy > p,
+  #capture.integrated-agent-manual[data-manual-state="timeout"] .agent-manual-copy > p,
+  #capture.integrated-agent-manual[data-manual-state="result"] .agent-manual-copy > p {
+    margin: 20px 0 18px;
+    font-size: 15px;
+  }
+
+  #capture.integrated-agent-manual[data-manual-state="progress"] .agent-job-ticket,
+  #capture.integrated-agent-manual[data-manual-state="timeout"] .agent-job-ticket {
+    padding: 11px 14px;
+  }
+
+  #capture.integrated-agent-manual[data-manual-state="progress"] .agent-wait-app-card,
+  #capture.integrated-agent-manual[data-manual-state="timeout"] .agent-wait-app-card,
+  #capture.integrated-agent-manual[data-manual-state="result"] .agent-wait-app-card {
+    margin-top: 9px;
+    padding: 12px 14px 13px;
+  }
 }
 
 #capture.integrated-agent-manual .agent-text-action {
@@ -1660,6 +1726,34 @@
   font-size: 9px;
 }
 
+#capture.integrated-agent-manual .agent-progress-controls {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+
+#capture.integrated-agent-manual .agent-flow-window__footer button.agent-progress-pause {
+  color: var(--agent-deep);
+  border-color: rgba(69, 94, 147, .38);
+  background: #fff;
+}
+
+#capture.integrated-agent-manual .agent-flow-window__footer button.agent-progress-exit {
+  color: #a64f43;
+  border-color: rgba(166, 79, 67, .42);
+  background: #fff8f5;
+}
+
+#capture.integrated-agent-manual .agent-flow-window__footer button.agent-progress-pause:hover,
+#capture.integrated-agent-manual .agent-flow-window__footer button.agent-progress-pause:focus-visible,
+#capture.integrated-agent-manual .agent-flow-window__footer button.agent-progress-exit:hover,
+#capture.integrated-agent-manual .agent-flow-window__footer button.agent-progress-exit:focus-visible {
+  filter: brightness(.97);
+}
+
 #capture.integrated-agent-manual .agent-result-actions {
   display: flex;
   align-items: center;
@@ -1705,13 +1799,15 @@
   top: 1.5%;
   right: 1%;
   width: 96%;
-  height: 95%;
+  height: 80%;
 }
 
+/* Render returned Manuals on a landscape desktop canvas inside the narrow
+ * chapter-two column. The phone breakpoint below restores the native canvas. */
 #capture.integrated-agent-manual .agent-generated-browser__viewport iframe {
-  width: 100%;
-  height: 100%;
-  transform: none;
+  width: 200%;
+  height: 200%;
+  transform: scale(.5);
 }
 
 #capture.integrated-agent-manual .agent-generated-browser__footer {
@@ -1845,6 +1941,9 @@
   #capture.integrated-agent-manual .agent-instruction-card pre { padding: 9px 10px; font-size: 6.3px; line-height: 1.42; }
   #capture.integrated-agent-manual .agent-flow-window__footer { padding: 0 10px; font-size: 7px; }
   #capture.integrated-agent-manual .agent-flow-window__footer button { min-height: 33px; padding-inline: 11px; font-size: 7px; }
+  #capture.integrated-agent-manual .agent-flow-window__footer--progress > span { display: none; }
+  #capture.integrated-agent-manual .agent-progress-controls { width: 100%; gap: 7px; }
+  #capture.integrated-agent-manual .agent-progress-controls button { flex: 1 1 0; }
 
   #capture.integrated-agent-manual .agent-flow-window__body--progress {
     grid-template-columns: 1fr;

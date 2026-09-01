@@ -81,6 +81,30 @@
     inset 0 1px rgba(255, 255, 255, .34);
 }
 
+/* App Store destination placeholder. Keep this visually download-ready but
+ * deliberately inert until the native app listing exists. */
+.five-header .five-app-download-placeholder {
+  min-height: 42px;
+  padding: 0 20px;
+  border: 1px solid var(--premium-ink);
+  border-radius: 999px;
+  color: #fcfcf8 !important;
+  background: var(--premium-ink);
+  box-shadow: none;
+  cursor: default;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.five-header .five-app-download-placeholder:hover {
+  color: #fcfcf8 !important;
+  border-color: var(--premium-ink);
+  background: var(--premium-ink);
+  box-shadow: none;
+  transform: none;
+}
+
 .five-page-rail {
   border: 1px solid rgba(255, 255, 255, .84);
   background:
