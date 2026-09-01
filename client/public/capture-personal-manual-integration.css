@@ -881,6 +881,9 @@
   gap: 8px;
   align-items: stretch;
   padding: 10px 18px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 
 #capture.integrated-agent-manual[data-manual-state="audience"] .agent-flow-window {
@@ -1045,13 +1048,13 @@
 #capture.integrated-agent-manual .agent-client-flip__prompts {
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(0, 1.25fr) minmax(0, .75fr);
+  grid-template-rows: minmax(min-content, 1.25fr) minmax(min-content, .75fr);
   gap: 7px;
   animation: agent-client-back-content-in 240ms 40ms both ease-out;
 }
 
 #capture.integrated-agent-manual .agent-client-flip__prompts--codex {
-  grid-template-rows: minmax(0, 1.55fr) auto minmax(0, .65fr);
+  grid-template-rows: minmax(min-content, 1.55fr) auto minmax(min-content, .65fr);
   gap: 5px;
 }
 
@@ -1822,6 +1825,12 @@
 
 #capture.integrated-agent-manual .agent-result-proof b {
   color: var(--agent-deep);
+}
+
+@media (min-width: 561px) {
+  #capture.integrated-agent-manual[data-manual-state="audience"] .agent-product-proof {
+    max-height: max(560px, 76vh);
+  }
 }
 
 @media (max-width: 1120px) {

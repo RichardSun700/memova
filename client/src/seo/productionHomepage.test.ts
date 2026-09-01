@@ -189,7 +189,7 @@ describe("production homepage", () => {
       "capture-personal-manual-integration.js?v=20260901-result-app-notes1"
     );
     expect(homepage).toContain(
-      "capture-personal-manual-integration.css?v=20260901-result-app-notes1"
+      "capture-personal-manual-integration.css?v=20260901-windows-overflow1"
     );
     expect(homepage).toContain(
       "scatter-relations.js?v=20260828-observer-root1"
@@ -295,6 +295,14 @@ describe("production homepage", () => {
     expect(captureStyles).toContain(
       "transition: transform 620ms cubic-bezier(.16, 1, .3, 1);"
     );
+    expect(captureStyles).toContain("overflow-y: auto;");
+    expect(captureStyles).toContain(
+      "grid-template-rows: minmax(min-content, 1.25fr) minmax(min-content, .75fr);"
+    );
+    expect(captureStyles).toContain(
+      "grid-template-rows: minmax(min-content, 1.55fr) auto minmax(min-content, .65fr);"
+    );
+    expect(captureStyles).toContain("max-height: max(560px, 76vh);");
     expect(captureStyles).toContain("@keyframes agent-client-back-content-in");
     expect(captureStyles).toContain("transition-duration: 460ms !important;");
     expect(captureStyles).toContain(
