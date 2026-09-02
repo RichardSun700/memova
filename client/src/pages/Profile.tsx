@@ -214,11 +214,11 @@ export default function Profile() {
         <LoadingPanel label="Refreshing profile" />
       ) : (
         <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
-          <Card className="rounded-xl border-[#DCEBF6] bg-white shadow-lg shadow-[#2E5B82]/[0.04]">
+          <Card className="rounded-xl border-[#D7DEEB] bg-[#FFFEFA] shadow-lg shadow-[#455E93]/[0.04]">
             <CardHeader>
               <div className="mb-1 flex items-center gap-4">
                 <div className="relative shrink-0">
-                  <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#DCEAF7] text-2xl font-bold text-[#2E5B82] shadow-[0_8px_24px_rgba(46,91,130,0.16)]">
+                  <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#E1E7F3] text-2xl font-bold text-[#455E93] shadow-[0_8px_24px_rgba(69,94,147,0.16)]">
                     {avatarSource ? (
                       <img
                         key={auth.user?.avatar_version || avatarSource}
@@ -241,7 +241,7 @@ export default function Profile() {
                     htmlFor="profile-avatar-upload"
                     title="Edit profile photo"
                     aria-disabled={avatarBusy}
-                    className={`absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-[3px] border-white bg-[#0F2B3C] text-white shadow-md transition-transform focus-within:ring-2 focus-within:ring-[#6FA8D9] focus-within:ring-offset-2 ${avatarBusy ? "cursor-wait opacity-80" : "cursor-pointer hover:scale-105 hover:bg-[#1A3A5C]"}`}
+                    className={`absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-[3px] border-white bg-[#111A30] text-white shadow-md transition-transform focus-within:ring-2 focus-within:ring-[#6B86E8] focus-within:ring-offset-2 ${avatarBusy ? "cursor-wait opacity-80" : "cursor-pointer hover:scale-105 hover:bg-[#455E93]"}`}
                   >
                     {avatarBusy ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -260,10 +260,10 @@ export default function Profile() {
                   </label>
                 </div>
                 <div>
-                  <div className="text-[13px] font-bold text-[#0F2B3C]">
+                  <div className="text-[13px] font-bold text-[#111A30]">
                     Profile photo
                   </div>
-                  <div className="mt-1 max-w-[18rem] text-[12px] leading-5 text-[#2E5B82]/55">
+                  <div className="mt-1 max-w-[18rem] text-[12px] leading-5 text-[#455E93]/55">
                     Optional. Use the pencil button to choose or replace your
                     photo.
                   </div>
@@ -272,7 +272,7 @@ export default function Profile() {
                       type="button"
                       disabled={avatarBusy}
                       onClick={() => void handleDeleteAvatar()}
-                      className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#2E5B82]/65 transition-colors hover:text-[#B45353] disabled:cursor-wait disabled:opacity-50"
+                      className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#455E93]/65 transition-colors hover:text-[#B45353] disabled:cursor-wait disabled:opacity-50"
                     >
                       {deletingAvatar ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -284,8 +284,8 @@ export default function Profile() {
                   )}
                 </div>
               </div>
-              <CardTitle className="text-xl text-[#0F2B3C]">Account</CardTitle>
-              <CardDescription className="text-[#2E5B82]/55">
+              <CardTitle className="text-xl text-[#111A30]">Account</CardTitle>
+              <CardDescription className="text-[#455E93]/55">
                 Your nickname is shown across Memova. A profile photo is
                 optional.
               </CardDescription>
@@ -294,14 +294,14 @@ export default function Profile() {
               {(avatarProgressLabel || avatarMessage) && (
                 <p
                   role="status"
-                  className="rounded-lg border border-[#D4E9F7] bg-[#F3F8FD] px-3 py-2 text-[12px] font-semibold leading-5 text-[#2E5B82]/70"
+                  className="rounded-lg border border-[#D7DEEB] bg-[#EEF1FB] px-3 py-2 text-[12px] font-semibold leading-5 text-[#455E93]/70"
                 >
                   {avatarProgressLabel || avatarMessage}
                 </p>
               )}
               <form onSubmit={handleSaveNickname} className="space-y-3">
                 <div>
-                  <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.12em] text-[#2E5B82]/45">
+                  <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.12em] text-[#455E93]/45">
                     Nickname
                   </label>
                   <Input
@@ -314,7 +314,7 @@ export default function Profile() {
                       setSaved(false);
                     }}
                     placeholder="What should Memova call you?"
-                    className="h-11 rounded-lg border-[#D4E9F7] bg-[#FAFCFF]"
+                    className="h-11 rounded-lg border-[#D7DEEB] bg-[#FAF8F3]"
                   />
                 </div>
                 <div className="flex items-center gap-3">
@@ -325,13 +325,13 @@ export default function Profile() {
                       !nickname.trim() ||
                       nickname.trim() === (auth.user?.display_name || "")
                     }
-                    className="h-10 rounded-lg bg-[#0F2B3C] text-white hover:bg-[#1A3A5C]"
+                    className="h-10 rounded-lg bg-[#111A30] text-white hover:bg-[#455E93]"
                   >
                     {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                     Save nickname
                   </Button>
                   {saved && (
-                    <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#278565]">
+                    <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#397D5C]">
                       <CheckCircle2 className="h-4 w-4" />
                       Saved
                     </span>
@@ -343,15 +343,15 @@ export default function Profile() {
           </Card>
 
           <div className="space-y-5">
-            <Card className="rounded-xl border-[#DCEBF6] bg-white shadow-lg shadow-[#2E5B82]/[0.04]">
+            <Card className="rounded-xl border-[#D7DEEB] bg-[#FFFEFA] shadow-lg shadow-[#455E93]/[0.04]">
               <CardHeader>
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#EDF5FC] text-[#2E5B82]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#EEF1FB] text-[#455E93]">
                   <CalendarDays className="h-6 w-6" />
                 </div>
-                <CardTitle className="text-xl text-[#0F2B3C]">
+                <CardTitle className="text-xl text-[#111A30]">
                   Workspace
                 </CardTitle>
-                <CardDescription className="text-[#2E5B82]/55">
+                <CardDescription className="text-[#455E93]/55">
                   MCP clients connect to this Memova workspace after you approve
                   access.
                 </CardDescription>
@@ -366,7 +366,7 @@ export default function Profile() {
 
             <a
               href="/connected-clients"
-              className="flex items-center justify-between rounded-xl border border-[#DCEBF6] bg-[#0F2B3C] px-5 py-4 text-white shadow-lg shadow-[#2E5B82]/[0.08] transition-colors hover:bg-[#1A3A5C]"
+              className="flex items-center justify-between rounded-xl border border-[#D7DEEB] bg-[#111A30] px-5 py-4 text-white shadow-lg shadow-[#455E93]/[0.08] transition-colors hover:bg-[#455E93]"
             >
               <span>
                 <span className="block text-[13px] font-bold">
@@ -393,11 +393,11 @@ export default function Profile() {
 
 function ProfileField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-[#EDF3FA] bg-[#FAFCFF] px-4 py-3">
-      <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#2E5B82]/45">
+    <div className="rounded-lg border border-[#E5E8F0] bg-[#FAF8F3] px-4 py-3">
+      <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#455E93]/45">
         {label}
       </div>
-      <div className="mt-1 break-words text-[14px] font-semibold text-[#0F2B3C]">
+      <div className="mt-1 break-words text-[14px] font-semibold text-[#111A30]">
         {value}
       </div>
     </div>
@@ -441,8 +441,8 @@ function profilePhotoUnavailableMessage(): string {
 
 function LoadingPanel({ label }: { label: string }) {
   return (
-    <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-[#DCEBF6] bg-white">
-      <div className="flex items-center gap-3 text-[13px] font-semibold text-[#2E5B82]/65">
+    <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-[#D7DEEB] bg-[#FFFEFA]">
+      <div className="flex items-center gap-3 text-[13px] font-semibold text-[#455E93]/65">
         <Loader2 className="h-4 w-4 animate-spin" />
         {label}
       </div>

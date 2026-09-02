@@ -1,45 +1,40 @@
+import MemovaBrand from "@/components/MemovaBrand";
+
 export default function SiteFooter() {
   return (
-    <footer className="memova-site-footer border-t border-[#DDE6FF] bg-[#F6F9FF]/90 py-8 backdrop-blur-xl">
+    <footer className="memova-site-footer border-t border-[rgba(36,54,93,0.14)] bg-[#FFFEFA]/75 py-7 backdrop-blur-xl">
       <div className="container">
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-          <div className="flex items-center gap-2.5">
-            <img
-              alt="MEMOVA"
-              className="h-9 w-auto max-w-[112px] shrink-0 object-contain opacity-80"
-              src="/memova-logo-transparent.png"
-            />
-            <span className="text-[12px] font-bold tracking-[0.15em] text-[var(--memova-navy)]/60">
-              MEMOVA
-            </span>
-          </div>
+          <a href="/" aria-label="Memova home" className="flex items-center">
+            <MemovaBrand compact />
+          </a>
           <div className="flex items-center gap-6">
             <a
               href="/support"
-              className="text-[11px] font-medium text-[#2E5B82]/40 transition-colors hover:text-[#2E5B82]"
+              className="text-[11px] font-semibold text-[#626A79] transition-colors hover:text-[#566CE5]"
             >
               Support
             </a>
             <a
               href="mailto:hello@memova.ai"
-              className="text-[11px] font-medium text-[var(--memova-muted)] transition-colors hover:text-[var(--memova-electric)]"
+              className="text-[11px] font-semibold text-[#626A79] transition-colors hover:text-[#566CE5]"
             >
               hello@memova.ai
             </a>
             <a
               href="/privacy"
-              className="text-[11px] font-medium text-[var(--memova-muted)] transition-colors hover:text-[var(--memova-electric)]"
+              className="text-[11px] font-semibold text-[#626A79] transition-colors hover:text-[#566CE5]"
             >
               Privacy
             </a>
             <a
               href="/terms"
-              className="text-[11px] font-medium text-[var(--memova-muted)] transition-colors hover:text-[var(--memova-electric)]"
+              className="text-[11px] font-semibold text-[#626A79] transition-colors hover:text-[#566CE5]"
             >
               Terms
             </a>
           </div>
-          <p className="text-[10px] font-medium text-[var(--memova-blue)]">
+          <p className="text-[10px] font-semibold text-[#6B86E8]">
             © 2026 Memova
           </p>
         </div>

@@ -17,7 +17,7 @@
     codex: {
       label: "Codex",
       badge: "CODEX USER",
-      description: "Install the Memova plugin, sign in, restart once, then run the Personal Manual workflow.",
+      description: "In the Codex desktop app, install the Memova plugin, sign in, restart once, then run the Personal Manual workflow.",
       stepOneTitle: "Install or update Memova",
       stepOnePrompt: "Please install or update Memova from gxyfred/memova-codex-plugin to the latest version and complete sign-in. When finished, remind me to restart Codex.",
       stepTwoTitle: "Generate my Personal Manual",
@@ -26,7 +26,7 @@
     mcp: {
       label: "Another AI client",
       badge: "MCP USER",
-      description: "Connect Memova through MCP, sign in, reload only if your client needs it, then generate your Manual.",
+      description: "In your AI client’s desktop app, connect Memova through MCP, sign in, reload only if needed, then generate your Manual.",
       stepOneTitle: "Connect Memova MCP",
       stepOnePrompt: "Please connect to the Memova MCP: https://api.memova.ai/mcp and complete sign-in. If the client needs to be reloaded, remind me.",
       stepTwoTitle: "Generate my Personal Manual",
@@ -403,11 +403,11 @@
         <div class="agent-client-flip__inner">
           <button class="agent-client-option agent-client-option--${clientType} agent-client-flip__face agent-client-flip__front" type="button" data-client-type="${clientType}" aria-expanded="${active}" aria-controls="agent-client-prompts-${clientType}">
             <span class="agent-client-option__index">0${index}</span>
-            <small>${isMcp ? "CHATGPT · CLAUDE · CURSOR · ANY AGENT" : "OPENAI · CODEX"}</small>
+            <small>${isMcp ? "CHATGPT · CLAUDE · CURSOR · DESKTOP" : "CODEX DESKTOP APP"}</small>
             <strong>${isMcp ? "I use another AI client" : "I use Codex"}</strong>
             <p>${flow.description}</p>
             ${isMcp ? `<span class="agent-client-option__compatibility"><b>ANY AGENT</b><span>ChatGPT works here too.</span></span>` : ""}
-            <span class="agent-client-option__path">${isMcp ? "MCP → sign in → reload if needed → generate" : "Plugin → sign in → restart → @memova"}</span>
+            <span class="agent-client-option__path">${isMcp ? "Desktop app → MCP → sign in → generate" : "Desktop app → plugin → sign in → restart → @memova"}</span>
             <i aria-hidden="true">Flip for prompts ↻</i>
           </button>
           ${renderClientBack(clientType, manualFlow?.clientType === clientType ? manualFlow : null, active)}
@@ -435,6 +435,15 @@
               <h3>Where will you run Memova?</h3>
               <p>We’ll give you the two instructions that match the AI client you already use.</p>
             </div>
+
+            <aside class="agent-desktop-app-notice" role="note" aria-label="Desktop app required">
+              <span class="agent-desktop-app-notice__dog" aria-hidden="true">
+                <img src="/personal-manual/work-types/assets/dogs/12_引导者_The_Guide.png" alt="">
+              </span>
+              <span class="agent-desktop-app-notice__copy">
+                <strong>Start in your AI client’s desktop app.</strong>
+              </span>
+            </aside>
 
             <div class="agent-client-options">
               ${renderClientCard("codex", 1, manualFlow, activeClient)}

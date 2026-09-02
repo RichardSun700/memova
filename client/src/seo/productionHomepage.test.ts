@@ -186,10 +186,10 @@ describe("production homepage", () => {
     expect(captureScript).not.toContain("neil-v7-score-2");
     expect(scatterScript).not.toContain("neil-v7-score-2");
     expect(homepage).toContain(
-      "capture-personal-manual-integration.js?v=20260901-result-app-notes1"
+      "capture-personal-manual-integration.js?v=20260902-desktop-guide2"
     );
     expect(homepage).toContain(
-      "capture-personal-manual-integration.css?v=20260901-windows-overflow1"
+      "capture-personal-manual-integration.css?v=20260902-desktop-guide2"
     );
     expect(homepage).toContain(
       "scatter-relations.js?v=20260828-observer-root1"
@@ -285,8 +285,16 @@ describe("production homepage", () => {
     expect(captureScript).toContain(
       "After Prompt 01, restart Codex. Then run Prompt 02."
     );
-    expect(captureScript).toContain("CHATGPT · CLAUDE · CURSOR · ANY AGENT");
+    expect(captureScript).toContain("CHATGPT · CLAUDE · CURSOR · DESKTOP");
     expect(captureScript).toContain("ChatGPT works here too.");
+    expect(captureScript).toContain("Start in your AI client’s desktop app.");
+    expect(captureScript).not.toContain("THE GUIDE · DESKTOP APP REQUIRED");
+    expect(captureScript).not.toContain("A friendly heads-up:");
+    expect(captureScript).not.toContain("other agents</span>");
+    expect(captureScript).toContain(
+      "/personal-manual/work-types/assets/dogs/12_引导者_The_Guide.png"
+    );
+    expect(captureStyles).toContain(".agent-desktop-app-notice");
     expect(captureStyles).toContain(
       'grid-template-areas:\n    "eyebrow eyebrow"\n    "title description"'
     );

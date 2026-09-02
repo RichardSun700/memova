@@ -89,12 +89,16 @@
   --memova-canvas: #fafcff;
   --memova-surface: #ffffff;
   --memova-soft: #f6f9ff;
+  --memova-ink: #14284b;
   --memova-body: #475569;
-  --memova-muted: #637083;
+  --memova-muted: #68778f;
   --memova-electric: #2864f5;
+  --memova-electric-deep: #1548c9;
   --memova-violet: #b329f3;
   --memova-warm: #d3a14b;
-  --memova-border: #dde6ff;
+  --memova-success: #397d5c;
+  --memova-border: #dfe7f5;
+  --memova-border-strong: #cdd8ec;
   --memova-border-soft: #e8eef7;
   --memova-brand-gradient: linear-gradient(
     135deg,
@@ -249,6 +253,41 @@
   }
 }
 
+@keyframes oauth-approve-pulse {
+  0%,
+  100% {
+    box-shadow: 0 12px 30px rgba(57, 125, 92, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 14px 34px rgba(57, 125, 92, 0.3),
+      0 0 0 5px rgba(57, 125, 92, 0.08);
+  }
+}
+
+@keyframes oauth-success-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  70% {
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes oauth-success-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
@@ -267,6 +306,87 @@
 
 .animate-fade-in {
   animation: fade-in 0.35s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.oauth-approve-button:not(:disabled) {
+  animation: oauth-approve-pulse 2.2s ease-in-out infinite;
+}
+
+.oauth-success-mark {
+  animation: oauth-success-pop 0.5s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.oauth-success-progress {
+  animation: oauth-success-progress 1.4s linear both;
+  transform-origin: left center;
+}
+
+.memova-account-shell {
+  --memova-account-canvas: #f7f4ee;
+  --memova-account-paper: #fffefa;
+  --memova-account-ink: #111a30;
+  --memova-account-deep: #455e93;
+  --memova-account-primary: #566ce5;
+  --memova-account-periwinkle: #6b86e8;
+  --memova-account-muted: #626a79;
+  --memova-account-line: rgba(36, 54, 93, 0.14);
+  --memova-brand-gradient: linear-gradient(
+    90deg,
+    #455e93 0%,
+    #566ce5 54%,
+    #6b86e8 100%
+  );
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+.memova-account-heading {
+  font-family: "DM Serif Display", Georgia, serif;
+}
+
+.memova-brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--memova-account-ink, #111a30);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1;
+}
+
+.memova-brand-lockup > img {
+  width: 34px;
+  height: 34px;
+  display: block;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  box-shadow:
+    0 8px 20px rgba(69, 94, 147, 0.2),
+    inset 0 1px rgba(255, 255, 255, 0.7);
+  transition: transform 180ms ease;
+}
+
+a:hover .memova-brand-lockup > img {
+  transform: translateY(-1px);
+}
+
+.memova-brand-lockup--compact {
+  gap: 10px;
+  font-size: 12px;
+}
+
+.memova-brand-lockup--compact > img {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oauth-approve-button:not(:disabled),
+  .oauth-success-mark,
+  .oauth-success-progress {
+    animation: none;
+  }
 }
 
 .font-display {

@@ -10,17 +10,25 @@ describe("account profile completion", () => {
     const login = source("pages/Login.tsx");
 
     expect(login).toContain("!response.user.display_name?.trim()");
-    expect(login.match(/continueAfterVerification\(response\)/g)).toHaveLength(2);
+    expect(login.match(/continueAfterVerification\(response\)/g)).toHaveLength(
+      2
+    );
     expect(login).toContain("What should Memova call you?");
     expect(login).toContain("Continue to Memova");
     expect(login).toContain("disabled={loading || !nickname.trim()}");
-    expect(login).toContain("personalize your Memova experience and your Personal Manual");
+    expect(login).toContain(
+      "personalize your Memova experience and your Personal Manual"
+    );
     expect(login).toContain('placeholder="Your nickname"');
     expect(login).toContain(
       "You can change this anytime and add a profile photo later."
     );
     expect(login).toContain("!auth.user?.display_name?.trim()");
     expect(login).toContain('token_type: "bearer"');
+    expect(login).toContain('previewState === "code"');
+    expect(login).toContain('previewState === "nickname"');
+    expect(login).toContain('previewState === "review"');
+    expect(login).toContain('previewState === "error"');
   });
 
   it("persists the nickname and lets the user edit it later", () => {
@@ -32,7 +40,9 @@ describe("account profile completion", () => {
     expect(profile).toContain("Save nickname");
     expect(profile).toContain("updateCurrentUserProfile(");
     expect(profile).toContain("auth.token,");
-    expect(profile).toContain("auth.setSessionFromCurrentUserResponse(current)");
+    expect(profile).toContain(
+      "auth.setSessionFromCurrentUserResponse(current)"
+    );
   });
 
   it("uploads and completes an optional avatar using the backend handoff contract", () => {
@@ -62,7 +72,7 @@ describe("account profile completion", () => {
     expect(profile).toContain("deleteCurrentUserAvatar");
     expect(profile).toContain("Profile photo saved.");
     expect(profile).toContain("Profile photo editing is not available yet.");
-    expect(profile).toContain("auth.workspace?.type === \"personal\"");
+    expect(profile).toContain('auth.workspace?.type === "personal"');
     expect(profile).toContain("`${auth.user.display_name.trim()}'s Workspace`");
     expect(authContext).toContain("sessionWithoutTemporaryAvatarUrl");
     expect(authContext).toContain("avatar_url: null");
@@ -87,5 +97,62 @@ describe("account profile completion", () => {
 
     expect(accountShell).toContain('window.location.assign("/")');
     expect(accountShell).not.toContain('setLocation("/")');
+  });
+
+  it("makes MCP approval the clear primary action and returns automatically after success", () => {
+    const consent = source("pages/McpConsent.tsx");
+    const accountShell = source("components/account/AccountShell.tsx");
+    const login = source("pages/Login.tsx");
+    const footer = source("components/SiteFooter.tsx");
+    const brand = source("components/MemovaBrand.tsx");
+    const styles = source("index.css");
+
+    expect(consent).toContain("oauth-approve-button");
+    expect(consent).toContain("bg-[#397D5C]");
+    expect(consent).toContain("Approving access…");
+    expect(consent).toContain("Cancel this connection");
+    expect(consent).not.toContain("\n                  Deny\n");
+    expect(consent).toContain("Access approved");
+    expect(consent).toContain("Return to Codex now");
+    expect(consent).toContain("AUTO_REDIRECT_DELAY_MS");
+    expect(consent).toContain("window.location.assign(approvalRedirectUri)");
+    expect(styles).toContain("@keyframes oauth-approve-pulse");
+    expect(styles).toContain("@keyframes oauth-success-pop");
+    expect(styles).toContain("prefers-reduced-motion: reduce");
+    expect(accountShell).toContain("<MemovaBrand />");
+    expect(login).toContain("<MemovaBrand />");
+    expect(footer).toContain("<MemovaBrand compact />");
+    expect(brand).toContain(
+      'src="/brand/memova-app-icon-liquid-blue.svg"'
+    );
+    expect(accountShell).not.toContain("memova_logo_0eb30acc.png");
+    expect(consent).toContain('src="/brand/memova-app-icon-liquid-blue.svg"');
+    expect(styles).toContain("--memova-ink: #14284b");
+    expect(styles).toContain("--memova-electric: #2864f5");
+    expect(styles).toContain("--memova-success: #397d5c");
+    expect(styles).toContain("--memova-account-primary: #566ce5");
+    expect(styles).toContain("--memova-account-deep: #455e93");
+    expect(styles).toContain("--memova-account-ink: #111a30");
+  });
+
+  it("uses the current homepage palette throughout the complete account flow", () => {
+    const accountSources = [
+      source("pages/Login.tsx"),
+      source("pages/McpConsent.tsx"),
+      source("pages/Profile.tsx"),
+      source("pages/ConnectedClients.tsx"),
+      source("components/account/AccountShell.tsx"),
+      source("components/SiteFooter.tsx"),
+    ].join("\n");
+
+    expect(accountSources).toContain("#111A30");
+    expect(accountSources).toContain("#455E93");
+    expect(accountSources).toContain("#566CE5");
+    expect(accountSources).toContain("#6B86E8");
+    expect(accountSources).toContain("#F7F4EE");
+    expect(accountSources).toContain("#FFFEFA");
+    expect(accountSources).not.toMatch(
+      /#(?:0F2B3C|1A3A5C|2E5B82|2864F5|8E9CC7|FBFCFF)/
+    );
   });
 });

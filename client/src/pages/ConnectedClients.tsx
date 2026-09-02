@@ -98,7 +98,7 @@ export default function ConnectedClients() {
           variant="outline"
           onClick={() => void loadConnections("refresh")}
           disabled={refreshing || loading}
-          className="h-10 rounded-lg border-[#D4E9F7] text-[#2E5B82]"
+          className="h-10 rounded-lg border-[#D7DEEB] text-[#455E93]"
         >
           {refreshing ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -110,8 +110,8 @@ export default function ConnectedClients() {
       }
     >
       {loading ? (
-        <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-[#DCEBF6] bg-white">
-          <div className="flex items-center gap-3 text-[13px] font-semibold text-[#2E5B82]/65">
+        <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-[#D7DEEB] bg-[#FFFEFA]">
+          <div className="flex items-center gap-3 text-[13px] font-semibold text-[#455E93]/65">
             <Loader2 className="h-4 w-4 animate-spin" />
             Loading connected clients
           </div>
@@ -150,18 +150,18 @@ function ConnectionCard({
   onRevoke: () => void;
 }) {
   return (
-    <Card className="rounded-xl border-[#DCEBF6] bg-white shadow-lg shadow-[#2E5B82]/[0.04]">
+    <Card className="rounded-xl border-[#D7DEEB] bg-[#FFFEFA] shadow-lg shadow-[#455E93]/[0.04]">
       <CardHeader className="gap-4 md:grid-cols-[1fr_auto]">
         <div className="flex min-w-0 items-start gap-4">
           <ClientMark connection={connection} />
           <div className="min-w-0">
             <div className="mb-2 flex flex-wrap items-center gap-2">
-              <CardTitle className="break-words text-xl text-[#0F2B3C]">
+              <CardTitle className="break-words text-xl text-[#111A30]">
                 {formatClientName(connection)}
               </CardTitle>
               <StatusBadge status={connection.status} />
             </div>
-            <CardDescription className="break-words text-[#2E5B82]/55">
+            <CardDescription className="break-words text-[#455E93]/55">
               {formatClientSubtitle(connection)}
             </CardDescription>
           </div>
@@ -197,21 +197,21 @@ function ConnectionCard({
             <Badge
               key={scope}
               variant="outline"
-              className="border-[#D4E9F7] bg-[#F8FBFE] px-2.5 py-1 text-[#2E5B82]"
+              className="border-[#D7DEEB] bg-[#FAF8F3] px-2.5 py-1 text-[#455E93]"
             >
               {scope}
             </Badge>
           ))}
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-4 text-[12px] font-semibold text-[#2E5B82]/55">
+        <div className="mt-4 flex flex-wrap items-center gap-4 text-[12px] font-semibold text-[#455E93]/55">
           <span className="break-all">Resource: {connection.resource}</span>
           {connection.client_uri && (
             <a
               href={connection.client_uri}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-[#2E5B82] hover:text-[#0F2B3C]"
+              className="inline-flex items-center gap-1 text-[#455E93] hover:text-[#111A30]"
             >
               Client site
               <ExternalLink className="h-3.5 w-3.5" />
@@ -251,7 +251,7 @@ function ClientMark({ connection }: { connection: McpConnection }) {
       <img
         alt=""
         src={connection.logo_uri}
-        className="h-14 w-14 rounded-xl border border-[#DCEBF6] object-cover"
+        className="h-14 w-14 rounded-xl border border-[#D7DEEB] object-cover"
       />
     );
   }
@@ -259,7 +259,7 @@ function ClientMark({ connection }: { connection: McpConnection }) {
     .slice(0, 1)
     .toUpperCase();
   return (
-    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#0F2B3C] text-lg font-bold text-white">
+    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#111A30] text-lg font-bold text-white">
       {initial}
     </div>
   );
@@ -267,11 +267,11 @@ function ClientMark({ connection }: { connection: McpConnection }) {
 
 function InfoBlock({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-[#EDF3FA] bg-[#FAFCFF] px-4 py-3">
-      <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#2E5B82]/45">
+    <div className="rounded-lg border border-[#E5E8F0] bg-[#FAF8F3] px-4 py-3">
+      <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#455E93]/45">
         {label}
       </div>
-      <div className="mt-1 break-words text-[13px] font-semibold text-[#0F2B3C]">
+      <div className="mt-1 break-words text-[13px] font-semibold text-[#111A30]">
         {value}
       </div>
     </div>
@@ -280,12 +280,12 @@ function InfoBlock({ label, value }: { label: string; value: string }) {
 
 function EmptyConnections() {
   return (
-    <div className="rounded-xl border border-[#DCEBF6] bg-white px-6 py-12 text-center shadow-lg shadow-[#2E5B82]/[0.04]">
-      <ShieldCheck className="mx-auto h-10 w-10 text-[#2E5B82]" />
-      <h2 className="mt-4 text-lg font-bold text-[#0F2B3C]">
+    <div className="rounded-xl border border-[#D7DEEB] bg-[#FFFEFA] px-6 py-12 text-center shadow-lg shadow-[#455E93]/[0.04]">
+      <ShieldCheck className="mx-auto h-10 w-10 text-[#455E93]" />
+      <h2 className="mt-4 text-lg font-bold text-[#111A30]">
         No connected clients
       </h2>
-      <p className="mx-auto mt-2 max-w-md text-[13px] leading-6 text-[#2E5B82]/60">
+      <p className="mx-auto mt-2 max-w-md text-[13px] leading-6 text-[#455E93]/60">
         MCP clients will appear here after you approve an authorization request.
       </p>
     </div>

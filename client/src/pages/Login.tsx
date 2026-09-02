@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import SiteFooter from "@/components/SiteFooter";
+import MemovaBrand from "@/components/MemovaBrand";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,25 +35,67 @@ type LoginMode = "email-code" | "review";
 export default function Login() {
   const [, setLocation] = useLocation();
   const auth = useAuth();
+  const previewState = useMemo(
+    () =>
+      import.meta.env.DEV
+        ? new URLSearchParams(window.location.search).get("preview_state") || ""
+        : "",
+    []
+  );
   const next = useMemo(
     () =>
       normalizeNext(new URLSearchParams(window.location.search).get("next")),
     []
   );
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(
+    previewState === "code" ? "alex@example.com" : ""
+  );
   const [code, setCode] = useState("");
-  const [mode, setMode] = useState<LoginMode>("email-code");
+  const [mode, setMode] = useState<LoginMode>(
+    previewState === "review" ? "review" : "email-code"
+  );
   const [reviewEmail, setReviewEmail] = useState("");
   const [reviewPassword, setReviewPassword] = useState("");
   const [challenge, setChallenge] = useState<EmailLoginStartResponse | null>(
-    null
+    previewState === "code"
+      ? {
+          challenge_id: "design-preview",
+          expires_at: "2099-01-01T00:00:00.000Z",
+          delivery_channel: "email",
+          dev_code: null,
+        }
+      : null
   );
   const [pendingSession, setPendingSession] =
-    useState<AuthTokenResponse | null>(null);
+    useState<AuthTokenResponse | null>(
+      previewState === "nickname"
+        ? {
+            access_token: "design-preview",
+            token_type: "bearer",
+            expires_at: "2099-01-01T00:00:00.000Z",
+            user: {
+              id: "design-preview",
+              email: "alex@example.com",
+              display_name: null,
+              auth_provider: "email",
+            },
+            default_workspace: {
+              id: "design-preview",
+              name: "Personal workspace",
+              slug: "design-preview",
+              type: "personal",
+            },
+          }
+        : null
+    );
   const [nickname, setNickname] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(
+    previewState === "error"
+      ? "That code has expired. Request a new one and try again."
+      : ""
+  );
 
   useEffect(() => {
     if (!auth.isAuthenticated || !auth.session) return;
@@ -183,43 +226,52 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F7FAFD] text-[#0F2B3C]">
-      <main className="mx-auto flex w-full max-w-6xl flex-1 items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+    <div className="memova-account-shell flex min-h-screen flex-col bg-[#F7F4EE] text-[#111A30]">
+      <main className="mx-auto flex w-full max-w-[1240px] flex-1 items-center justify-center px-5 py-10 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
-          <a
-            href="/"
-            className="mb-5 inline-flex items-center gap-2 text-[13px] font-semibold text-[#2E5B82]/65 hover:text-[#0F2B3C]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to MEMOVA
-          </a>
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <a href="/" aria-label="Memova home" className="group inline-flex">
+              <MemovaBrand />
+            </a>
+            <a
+              href="/"
+              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#626A79] transition-colors hover:text-[#566CE5]"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back to Memova
+            </a>
+          </div>
 
-          <Card className="rounded-xl border-[#DCEBF6] bg-white shadow-xl shadow-[#2E5B82]/[0.05]">
-            <CardHeader>
-              <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-lg bg-[#EDF5FC] text-[#2E5B82]">
+          <Card className="gap-0 overflow-hidden rounded-[18px] border-[rgba(36,54,93,0.14)] bg-[#FFFEFA] py-0 shadow-[0_24px_70px_rgba(17,26,48,0.09)]">
+            <div
+              className="h-1 bg-[var(--memova-brand-gradient)]"
+              aria-hidden="true"
+            />
+            <CardHeader className="px-6 pt-6 sm:px-7 sm:pt-7">
+              <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-[11px] bg-[#EEF1FB] text-[#566CE5] ring-1 ring-[rgba(69,94,147,0.16)]">
                 {pendingSession ? (
                   <UserRound className="h-5 w-5" />
                 ) : (
                   <Mail className="h-5 w-5" />
                 )}
               </div>
-              <CardTitle className="font-serif text-[2rem] font-normal text-[#0F2B3C]">
+              <CardTitle className="memova-account-heading text-[2rem] font-normal leading-[1.08] tracking-[-0.025em] text-[#111A30]">
                 {pendingSession
                   ? "What should Memova call you?"
                   : "Sign in to Memova"}
               </CardTitle>
-              <CardDescription className="text-[#2E5B82]/55">
+              <CardDescription className="text-[13px] leading-5 text-[#626A79]">
                 {pendingSession
                   ? "Pick any name you like. We’ll use it to personalize your Memova experience and your Personal Manual."
                   : "Use your email to access profile settings and MCP client authorization."}
               </CardDescription>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="px-6 pb-7 sm:px-7">
               {pendingSession ? (
                 <form onSubmit={handleNickname} className="space-y-4">
-                  <Alert className="border-[#D4E9F7] bg-[#F8FBFE]">
-                    <CheckCircle2 className="h-4 w-4 text-[#2E5B82]" />
+                  <Alert className="border-[#D6E8DE] bg-[#F2F8F5] text-[#397D5C]">
+                    <CheckCircle2 className="h-4 w-4 text-[#397D5C]" />
                     <AlertTitle>You’re signed in</AlertTitle>
                     <AlertDescription>
                       Email verified for {pendingSession.user.email}.
@@ -227,7 +279,7 @@ export default function Login() {
                   </Alert>
 
                   <div>
-                    <label className="mb-2 block text-[12px] font-bold uppercase tracking-[0.12em] text-[#2E5B82]/55">
+                    <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#6B86E8]">
                       Nickname
                     </label>
                     <Input
@@ -238,9 +290,9 @@ export default function Login() {
                       value={nickname}
                       onChange={event => setNickname(event.target.value)}
                       placeholder="Your nickname"
-                      className="h-11 rounded-lg border-[#D4E9F7] bg-[#FAFCFF]"
+                      className="h-11 rounded-[10px] border-[#C5CEE1] bg-[#FAF8F3] text-[#111A30] focus-visible:border-[#566CE5] focus-visible:ring-[#566CE5]/15"
                     />
-                    <p className="mt-2 text-[12px] leading-5 text-[#2E5B82]/55">
+                    <p className="mt-2 text-[12px] leading-5 text-[#626A79]">
                       You can change this anytime and add a profile photo later.
                     </p>
                   </div>
@@ -248,7 +300,7 @@ export default function Login() {
                   <Button
                     type="submit"
                     disabled={loading || !nickname.trim()}
-                    className="h-11 w-full rounded-lg bg-[#0F2B3C] text-white hover:bg-[#1A3A5C]"
+                    className="h-11 w-full rounded-[10px] bg-[#566CE5] text-[13px] font-extrabold text-white shadow-[0_10px_24px_rgba(86,108,229,0.22)] hover:bg-[#455E93]"
                   >
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                     Continue to Memova
@@ -257,7 +309,7 @@ export default function Login() {
               ) : mode === "review" ? (
                 <form onSubmit={handleReviewLogin} className="space-y-4">
                   <div>
-                    <label className="mb-2 block text-[12px] font-bold uppercase tracking-[0.12em] text-[#2E5B82]/55">
+                    <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#6B86E8]">
                       Review email
                     </label>
                     <Input
@@ -267,12 +319,12 @@ export default function Login() {
                       value={reviewEmail}
                       onChange={event => setReviewEmail(event.target.value)}
                       placeholder="reviewer@example.com"
-                      className="h-11 rounded-lg border-[#D4E9F7] bg-[#FAFCFF]"
+                      className="h-11 rounded-[10px] border-[#C5CEE1] bg-[#FAF8F3] text-[#111A30] focus-visible:border-[#566CE5] focus-visible:ring-[#566CE5]/15"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-[12px] font-bold uppercase tracking-[0.12em] text-[#2E5B82]/55">
+                    <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#6B86E8]">
                       Review password
                     </label>
                     <Input
@@ -282,14 +334,14 @@ export default function Login() {
                       value={reviewPassword}
                       onChange={event => setReviewPassword(event.target.value)}
                       placeholder="Password"
-                      className="h-11 rounded-lg border-[#D4E9F7] bg-[#FAFCFF]"
+                      className="h-11 rounded-[10px] border-[#C5CEE1] bg-[#FAF8F3] text-[#111A30] focus-visible:border-[#566CE5] focus-visible:ring-[#566CE5]/15"
                     />
                   </div>
 
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="h-11 w-full rounded-lg bg-[#0F2B3C] text-white hover:bg-[#1A3A5C]"
+                    className="h-11 w-full rounded-[10px] bg-[#566CE5] text-[13px] font-extrabold text-white shadow-[0_10px_24px_rgba(86,108,229,0.22)] hover:bg-[#455E93]"
                   >
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                     Continue
@@ -300,7 +352,7 @@ export default function Login() {
                       type="button"
                       disabled={loading}
                       onClick={switchToEmailCode}
-                      className="text-[12px] font-semibold text-[#2E5B82]/55 transition-colors hover:text-[#0F2B3C]"
+                      className="text-[12px] font-bold text-[#6B86E8] transition-colors hover:text-[#566CE5]"
                     >
                       Use email code instead
                     </button>
@@ -309,7 +361,7 @@ export default function Login() {
               ) : !challenge ? (
                 <form onSubmit={handleStart} className="space-y-4">
                   <div>
-                    <label className="mb-2 block text-[12px] font-bold uppercase tracking-[0.12em] text-[#2E5B82]/55">
+                    <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#6B86E8]">
                       Email
                     </label>
                     <Input
@@ -319,13 +371,13 @@ export default function Login() {
                       value={email}
                       onChange={event => setEmail(event.target.value)}
                       placeholder="you@example.com"
-                      className="h-11 rounded-lg border-[#D4E9F7] bg-[#FAFCFF]"
+                      className="h-11 rounded-[10px] border-[#C5CEE1] bg-[#FAF8F3] text-[#111A30] focus-visible:border-[#566CE5] focus-visible:ring-[#566CE5]/15"
                     />
                   </div>
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="h-11 w-full rounded-lg bg-[#0F2B3C] text-white hover:bg-[#1A3A5C]"
+                    className="h-11 w-full rounded-[10px] bg-[#566CE5] text-[13px] font-extrabold text-white shadow-[0_10px_24px_rgba(86,108,229,0.22)] hover:bg-[#455E93]"
                   >
                     {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -340,7 +392,7 @@ export default function Login() {
                       type="button"
                       disabled={loading}
                       onClick={switchToReview}
-                      className="text-[12px] font-semibold text-[#2E5B82]/45 transition-colors hover:text-[#0F2B3C]"
+                      className="text-[12px] font-bold text-[#6B86E8] transition-colors hover:text-[#566CE5]"
                     >
                       Use review credentials
                     </button>
@@ -348,8 +400,8 @@ export default function Login() {
                 </form>
               ) : (
                 <form onSubmit={handleVerify} className="space-y-4">
-                  <Alert className="border-[#D4E9F7] bg-[#F8FBFE]">
-                    <CheckCircle2 className="h-4 w-4 text-[#2E5B82]" />
+                  <Alert className="border-[#D6E8DE] bg-[#F2F8F5] text-[#397D5C]">
+                    <CheckCircle2 className="h-4 w-4 text-[#397D5C]" />
                     <AlertTitle>Code sent</AlertTitle>
                     <AlertDescription>
                       Check {email.trim().toLowerCase()} for your Memova sign-in
@@ -358,13 +410,13 @@ export default function Login() {
                   </Alert>
 
                   {challenge.dev_code && (
-                    <p className="rounded-lg border border-[#FDE68A] bg-[#FEF3C7]/60 px-3 py-2 text-[12px] font-semibold text-[#B45309]">
+                    <p className="rounded-[10px] border border-[#E9D8B5] bg-[#FFF9EC] px-3 py-2 text-[12px] font-bold text-[#7A5622]">
                       Dev code: {challenge.dev_code}
                     </p>
                   )}
 
                   <div>
-                    <label className="mb-2 block text-[12px] font-bold uppercase tracking-[0.12em] text-[#2E5B82]/55">
+                    <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#6B86E8]">
                       Sign-in code
                     </label>
                     <Input
@@ -374,7 +426,7 @@ export default function Login() {
                       value={code}
                       onChange={event => setCode(event.target.value)}
                       placeholder="123456"
-                      className="h-11 rounded-lg border-[#D4E9F7] bg-[#FAFCFF] tracking-[0.18em]"
+                      className="h-11 rounded-[10px] border-[#C5CEE1] bg-[#FAF8F3] tracking-[0.18em] text-[#111A30] focus-visible:border-[#566CE5] focus-visible:ring-[#566CE5]/15"
                     />
                   </div>
 
@@ -382,7 +434,7 @@ export default function Login() {
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="h-11 flex-1 rounded-lg bg-[#0F2B3C] text-white hover:bg-[#1A3A5C]"
+                      className="h-11 flex-1 rounded-[10px] bg-[#566CE5] text-[13px] font-extrabold text-white shadow-[0_10px_24px_rgba(86,108,229,0.22)] hover:bg-[#455E93]"
                     >
                       {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                       Verify
@@ -396,7 +448,7 @@ export default function Login() {
                         setCode("");
                         setError("");
                       }}
-                      className="h-11 rounded-lg border-[#D4E9F7] text-[#2E5B82]"
+                      className="h-11 rounded-[10px] border-[#C5CEE1] text-[#455E93] hover:bg-[#EEF1FB] hover:text-[#111A30]"
                     >
                       Use another email
                     </Button>
@@ -405,7 +457,7 @@ export default function Login() {
               )}
 
               {error && (
-                <p className="mt-4 rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-[12px] font-semibold text-[#B91C1C]">
+                <p className="mt-4 rounded-[10px] border border-[#F1C9C9] bg-[#FFF5F5] px-3 py-2 text-[12px] font-bold text-[#A63B3B]">
                   {error}
                 </p>
               )}
