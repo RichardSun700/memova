@@ -19,7 +19,7 @@ describe("Memova Journal", () => {
     expect(html).toContain("Silva · Product");
     expect(dreamEntry).toBeDefined();
     expect(html).toContain("The Architecture of Sleep.");
-    expect(html).toContain("xushan · Operations");
+    expect(html).toContain("Ada · Operations");
     expect(html).toContain(
       "/demo/The_Architecture_of_Sleep/index.html?returnTo=%2Fjournal"
     );

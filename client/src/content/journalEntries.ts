@@ -103,7 +103,7 @@ export const journalEntries: readonly JournalEntry[] = [
     week: "Case Study",
     date: "August 6, 2026",
     isoDate: "2026-08-06",
-    author: "xushan · Operations",
+    author: "Ada · Operations",
     authorAvatarPosition: "right",
     category: "Case Studies",
     readingTime: "Interactive case",
